@@ -1,9 +1,277 @@
 <?php
     Yii::app()->clientScript->registerScriptFile("//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js", CClientScript::POS_END);
+    Yii::app()->clientScript->registerScriptFile("//maps.google.com/maps/api/js?v=3.2&sensor=false", CClientScript::POS_END);
     Yii::app()->clientScript->registerScriptFile("/js/xmlToJSON.js", CClientScript::POS_END);
     Yii::app()->clientScript->registerScriptFile("/js/demo.js", CClientScript::POS_END);
+    Yii::app()->clientScript->registerScriptFile("/js/inrix.3.0.js", CClientScript::POS_END);
+    Yii::app()->clientScript->registerScriptFile("/js/inrix.layer.js", CClientScript::POS_END);   
+    Yii::app()->clientScript->registerScriptFile("/js/MarkerWithLabel.js", CClientScript::POS_END);
+    Yii::app()->clientScript->registerScriptFile("/js/jquery.pubsub.js", CClientScript::POS_END);
+    Yii::app()->clientScript->registerScriptFile("/js/script-main.js", CClientScript::POS_END);
+    Yii::app()->clientScript->registerScriptFile("/js/asset.js", CClientScript::POS_END);
+    Yii::app()->clientScript->registerScriptFile("/js/trigger.js", CClientScript::POS_END);
 ?>
 
+<div class="left_panel">
+    <div class="title">Assets</div>
+    <div class="assets_list">
+        <img src="img/monitor.gif" width="18" height="18" class="item" id="asset-1" data-type="screen" draggable="true"/>Screen
+    </div>
+    <div class="title">Triggers</div>
+    <div class="triggers_list">
+        <div class="list_item">
+            <img src="img/incident@2x.png" width="18" height="18" class="item" id="trigger-1" data-type="traffic_accident" draggable="true"/>Accident
+        </div>
+        <div class="list_item">
+            <img src="img/congestion@2x.png" width="18" height="18" class="item" id="trigger-1" data-type="traffic_flow" draggable="true"/>Flow
+        </div>
+        <div class="list_item">
+            <img src="img/temp@2x.png" width="18" height="18" class="item" id="trigger-1" data-type="weather_temperature" draggable="true"/>Temperature
+        </div>
+    </div>
+    <div class="title">Map info</div>
+    <div>
+        <div class="list_item">
+            <input class="item_checkbox" type="checkbox" id="traffic" checked>Traffic
+        </div>
+        <div class="list_item">
+            <input class="item_checkbox" type="checkbox" id="accidents" checked>Accidents
+        </div>
+        <div class="list_item">
+            <input class="item_checkbox" type="checkbox" id="temperature" checked>Temperature
+        </div>
+    </div>
+</div>
+<div id="map_canvas"></div>
+<div class="popup_bg"></div>
+<div id="asset_popup" class="popup">
+    <div class="popup_title">Asset properties</div>
+    <form>
+        <div class="popup-field">
+            <span class="popup-label">Asset Name</span>
+            <input data-property="name" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Description</span>
+            <input data-property="description" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Cap Period</span>
+            <input data-property="capPeriod" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Cap Unit</span>
+            <select data-property="capUnit" class="drop-down prop">
+                <option value="weeks">Weeks</option>
+                <option value="days">Days</option>
+                <option value="hours">Hours</option>
+            </select>
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Sign ID</span>
+            <input data-property="sid" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Lattitude</span>
+            <input data-property="lat" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Longitude</span>
+            <input data-property="lng" class="textinput prop" type="text">
+        </div>
+        <div class="buttons-block">
+            <input class="button button_action" type="button" data-popup="#asset_popup" value="Submit" onclick="updateAsset()">
+            <input class="button" type="button" value="Cancel" onclick="onCancel()">
+        </div>
+    </form>
+</div>
+<div id="trigger_accident_popup" class="popup trigger_popup">
+    <div class="popup_title">Trigger properties</div>
+    <form>
+        <div class="popup-field">
+            <span class="popup-label">Campain ID</span>
+            <input data-property="cid" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Retrigger Wait Period</span>
+            <input data-property="rwp" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Radius</span>
+            <input data-property="radius" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Severity</span>
+            <select data-property="severity" class="drop-down prop">
+                <option value="All">All</option>
+            </select>
+        </div>
+        <div class="buttons-block">
+            <input class="button button_action" type="button" data-popup="#trigger_accident_popup" value="Submit" onclick="updateTrigger()">
+            <input class="button" type="button" value="Cancel" onclick="hidePopup()">
+        </div>
+    </form>
+</div>
+<div id="trigger_flow_popup" class="popup trigger_popup">
+    <div class="popup_title">Trigger properties</div>
+    <form>
+        <div class="popup-field">
+            <span class="popup-label">Campain ID</span>
+            <input data-property="cid" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Retrigger Wait Period</span>
+            <input data-property="rwp" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Radius</span>
+            <input data-property="radius" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Speed Under</span>
+            <input data-property="speedUnder" class="textinput prop" type="text">
+        </div>
+        <div class="buttons-block">
+            <input class="button button_action" type="button" data-popup="#trigger_flow_popup" value="Submit" onclick="updateTrigger()">
+            <input class="button" type="button" value="Cancel" onclick="hidePopup()">
+        </div>
+    </form>
+</div>
+<div id="trigger_twitter_popup" class="popup trigger_popup">
+    <div class="popup_title">Trigger properties</div>
+    <form>
+        <div class="popup-field">
+            <span class="popup-label">Campain ID</span>
+            <input data-property="cid" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Retrigger Wait Period</span>
+            <input data-property="rwp" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Hashtag</span>
+            <input data-property="hashtag" class="textinput prop" type="text">
+        </div>
+        <div class="buttons-block">
+            <input class="button button_action" type="button" data-popup="#trigger_twitter_popup" value="Submit" onclick="updateTrigger()">
+            <input class="button" type="button" value="Cancel" onclick="hidePopup()">
+        </div>
+    </form>
+</div>
+<div id="trigger_temperature_popup" class="popup trigger_popup">
+    <div class="popup_title">Trigger properties</div>
+    <form>
+        <div class="popup-field">
+            <span class="popup-label">Campain ID</span>
+            <input data-property="cid" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Retrigger Wait Period</span>
+            <input data-property="rwp" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Radius</span>
+            <input data-property="radius" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Threshold</span>
+            <select data-property="threshold" class="drop-down prop">
+                <option value="Over">Over</option>
+                <option value="Under">Under</option>
+            </select>
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Target Temp.</span>
+            <input data-property="temperature" class="textinput prop" type="text">
+        </div>
+        <div class="buttons-block">
+            <input class="button button_action" type="button" data-popup="#trigger_temperature_popup" value="Submit" onclick="updateTrigger()">
+            <input class="button" type="button" value="Cancel" onclick="hidePopup()">
+        </div>
+    </form>
+</div>
+<div id="trigger_weather_popup" class="popup trigger_popup">
+    <div class="popup_title">Trigger properties</div>
+    <form>
+        <div class="popup-field">
+            <span class="popup-label">Campain ID</span>
+            <input data-property="cid" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Retrigger Wait Period</span>
+            <input data-property="rwp" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Radius</span>
+            <input data-property="radius" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Storm (Generic)</span>
+            <input data-property="storm" type="checkbox" class="prop">
+            <div class="popup-field subitem">
+                <span class="popup-label">Severity</span>
+                <select data-property="severity" class="drop-down prop">
+                    <option value="All">All</option>
+                </select>
+            </div>
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Rain</span>
+            <input data-property="rain" type="checkbox" class="prop">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Snow</span>
+            <input data-property="snow" type="checkbox" class="prop">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Sunny</span>
+            <input data-property="sunny" type="checkbox" class="prop">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Thunder Storm</span>
+            <input data-property="thunderStorm" type="checkbox" class="prop">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Windy</span>
+            <input data-property="windy" type="checkbox" class="prop">
+            <div class="popup-field subitem">
+                <span class="popup-label">Wind Speed Over</span>
+                <input data-property="windSpeed" class="textinput prop" type="text">
+            </div>
+        </div>
+        <div class="buttons-block">
+            <input class="button button_action" type="button" data-popup="#trigger_weather_popup" value="Submit" onclick="updateTrigger()">
+            <input class="button" type="button" value="Cancel" onclick="hidePopup()">
+        </div>
+    </form>
+</div>
+<div id="context_menu">
+    <div class="menu_item triggers_menu">Triggers
+        <div class="submenu">
+            <div class="menu_item traffic_menu">Traffic
+                <div class="traffic_sub_menu">
+                    <div class="menu_item" data-popup="#trigger_accident_popup" data-type="traffic_accident" onclick="showTriggerPopup()">Incident</div>
+                    <div class="menu_item" data-popup="#trigger_flow_popup" data-type="traffic_flow" onclick="showTriggerPopup()">Flow</div>
+                </div>
+            </div>
+            <div class="menu_item weather_menu">Weather
+                <div class="weather_sub_menu">
+                    <div class="menu_item hidden" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup()">Event</div>
+                    <div class="menu_item" data-popup="#trigger_temperature_popup" data-type="weather_temperature" onclick="showTriggerPopup()">Temperature</div>
+                </div>
+            </div>
+            <div class="menu_item social_menu hidden">Social
+                <div class="social_sub_menu">
+                    <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter" onclick="showTriggerPopup()">Twitter</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="menu_item" onclick="showPropertiesPopup()">Properties</div>
+</div>
+            
+
+<div class="page-width-container">
 <h1>
     Demo page
 </h1>
@@ -49,4 +317,6 @@
         <button name="save" class="goog-buttonset-default goog-buttonset-action" disabled="">Create</button>
         <button name="cancel">Cancel</button>
     </div>
+</div>
+
 </div>

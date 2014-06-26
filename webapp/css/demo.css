@@ -9,6 +9,7 @@ html.hcfe {
     font: 400 13px/22px "Helvetica Neue","HelveticaNeue",Helvetica,sans-serif;
     margin: 0;
     padding: 0;
+    position: relative;
 }
 html {
     overflow-y: scroll;
@@ -139,6 +140,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     margin: 0 auto;
     max-width: 978px;
     padding: 20px 0 72px;
+    overflow: hidden;
 }
 
 
@@ -173,3 +175,314 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     color: #999;
     text-decoration: none;
 }
+
+#map_canvas { 
+    height: 800px;
+    width: 1280px;
+    display: inline-block;
+    margin-left: -180px;
+}
+
+.header {
+    position: absolute;
+    top: 0;
+    height: 60px;
+    width: 100%;
+	text-align: center;
+	font-size: 48px;
+}
+
+.left_panel {
+    width: 180px;
+    float: left;
+    position: relative;
+    left: -180px;
+    display: inline-block;
+}
+
+.item {
+	margin-left: 10px;
+	margin-bottom: -2px;
+	margin-right: 5px;
+	cursor: pointer;
+}
+
+.item_checkbox {
+	margin-left: 12px;
+}
+
+.list_item {
+	padding-top: 2px;
+}
+
+.popup {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	background-color: white;
+	z-index: 1000;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+	padding: 30px 42px;
+	display: none;
+}
+
+#asset_popup {
+    margin-top: -209px;	
+    margin-left: -184px;
+}
+
+#trigger_weather_popup {
+	margin-top: -260px;
+	margin-left: -214px;
+}
+
+#trigger_temperature_popup {
+	margin-top: -170px;
+	margin-left: -214px;
+}
+
+#trigger_accident_popup, #trigger_flow_popup {
+	margin-top: -150px;
+	margin-left: -214px;
+}
+
+#trigger_twitter_popup {
+	margin-top: -131px;
+	margin-left: -214px;
+}
+
+.popup-field {
+	padding: 5px 0 5px 0;
+	display: block;
+}
+
+.subitem .popup-label{
+    margin-left: 20px;	
+    margin-right: -20px;
+}
+
+.popup-label {
+	min-width: 90px;
+	display: inline-block;
+}
+
+.trigger_popup .popup-label {
+	min-width: 150px;
+}
+
+.button {
+	border: 1.1px solid transparent;
+    border-radius: 2px;
+	cursor: pointer;    
+	font-family: inherit;
+    font-size: 13px;
+    font-weight: 400;
+	line-height: 30px;    
+	margin: 0;   
+	min-width: 72px;   
+	padding: 0 10px;
+	text-align: center;    
+	text-decoration: none !important;
+    text-transform: none;  
+	vertical-align: middle;   
+	white-space: nowrap;
+	overflow: hidden;
+    text-overflow: ellipsis;
+	background-color: #fff;
+}
+
+.popup_bg {
+	display: none;
+	width: 100%;
+	height: 100%;
+	background: none repeat scroll 0 0 #fff;
+    left: 0; 
+	position: absolute;
+    top: 0;
+	opacity: 0.75;
+	z-index: 999;
+}	
+
+.button_action {
+	background-color: #4d90fe;
+    background-image: -moz-linear-gradient(center top , rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.05));
+    border-color: #0157e4;
+    color: #fff;
+}
+
+.textinput {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: #c0c0c0 #d9d9d9 #d9d9d9;
+    border-style: solid;
+    border-width: 1px;
+    font-size: 13px;
+    height: 25px;
+    padding: 1px 8px;
+}
+
+.drop-down {    
+	border-color: #c0c0c0 #d9d9d9 #d9d9d9;   
+	border-image: none;    
+	font-size: 13px;  
+	height: 29px;    
+	padding: 1px 8px;
+	border-width: 1px;
+	width: 186px;
+	margin-left: 2px;
+	background-color: white;
+}
+
+.popup_title {
+    background-color: #fff;
+    color: #000;
+    cursor: default;
+    line-height: 24px;
+    margin: 0 0 16px;
+	font-size: 110%;
+    font-weight: bold;
+    margin-bottom: 13px;
+    text-align: center;
+}
+
+.buttons-block {
+	width: 150px;
+	margin: auto;
+	padding-top: 16px;
+}
+
+.title {
+	padding: 10px 10px;
+	text-align: center;
+	font-size: 110%;
+	font-weight: bold;
+}
+
+#context_menu {
+    width: 150px;
+    background-color: #FFF;
+    visibility: hidden;
+    position: absolute;
+    line-height: 30px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.menu_item {
+    display: block;
+    padding: 5px 0px 0 5px;
+    cursor: context-menu;
+}
+
+.menu_item:hover {
+	background-color: rgb(235, 235, 235);
+}
+
+.triggers_menu:hover .submenu{
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 150px;
+}
+
+.traffic_menu:hover .traffic_sub_menu {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 150px;
+}
+
+.weather_menu:hover .weather_sub_menu {
+	display: block;
+	position: absolute;
+	top: 35px;
+	left: 150px;
+}
+
+.social_menu:hover .social_sub_menu {
+	display: block;
+	position: absolute;
+	top: 70px;
+	left: 150px;
+}
+
+.submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu {
+	display: none;
+	background-color: #FFF;
+	width: 150px;
+}
+
+.weather_station {
+	font-family: "Arial Black",Arial;
+	font-size: 12px;
+	color: black;
+	padding: 0;
+	height: 30px;
+	width: 30px;
+	line-height: 30px;
+	text-align: center;
+	border: 1px solid black;
+	border-radius: 16px;
+	opacity: 0.75;
+}
+
+.coldest {
+	color: white;
+	background-color:#03008A;	
+}
+
+.colder {
+	color: white;
+	background-color:#0100C8;	
+}
+
+.cold {
+	color: white;
+	background-color:#0000F8;	
+}
+
+.coolest {
+	color: white;
+	background-color:#006502;	
+}
+
+.cooler {
+	color: white;
+	background-color:#009800;	
+}
+
+.cool {
+	background-color:#00FE04;	
+}
+
+.warm {
+	background-color:#C9FD00;	
+}
+
+.warmer {
+	background-color:#FAFB5F;	
+}
+
+.warmest {
+	background-color:#FBCB00;	
+}
+
+.hot {
+	background-color:#F89832;	
+}
+
+.hotter {
+	color: white;
+	background-color:#F80000;	
+}
+
+.hottest {
+	color: white;
+	background-color:#C80100;	
+}
+
+.hidden {
+	display: none;
+}
+

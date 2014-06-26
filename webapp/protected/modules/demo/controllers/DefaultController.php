@@ -76,7 +76,7 @@ class DefaultController extends Controller
         $token = Yii::app()->request->getParam('token');
         $center = Yii::app()->request->getParam('center');
         $radius = Yii::app()->request->getParam('radius');
-
+        
 //        syslog(LOG_INFO, "token: " . $token);
 //        syslog(LOG_INFO, "center: " . $center);
 //        syslog(LOG_INFO, "radius: " . $radius);
@@ -95,6 +95,7 @@ class DefaultController extends Controller
 
         $response = array(
             "status" => count($resultXML->SegmentSpeedResults) > 0,
+            "refreshKey" => Yii::app()->request->getParam('refreshKey'),
             "weather" => $resultXML->asXML()
         );
 

@@ -27,10 +27,8 @@
             </div>
         </header>
 
-        <section class="primary-container">
-            <div class="page-width-container">
-                <?php echo $content; ?>
-            </div>
+        <section class="primary-container">           
+            <?php echo $content; ?>
         </section>
 
         <footer role="contentinfo" class="primary-footer nocontent">
