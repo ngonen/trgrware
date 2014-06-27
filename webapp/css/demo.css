@@ -321,6 +321,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     font-size: 13px;
     height: 25px;
     padding: 1px 8px;
+    width: 174px;
 }
 
 .drop-down {    
@@ -330,8 +331,8 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	height: 29px;    
 	padding: 1px 8px;
 	border-width: 1px;
-	width: 186px;
-	margin-left: 2px;
+	width: 191px;
+	margin-left: 1px;
 	background-color: white;
 }
 

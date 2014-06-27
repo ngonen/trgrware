@@ -42,7 +42,7 @@ var getUnigueID = (function () {
     };
 }());
 
-function showTriggerPopup() {
+function showTriggerPopup(event) {
     var data = event.target.dataset,
         trigger;
     trigger_type = data.type;
@@ -82,12 +82,13 @@ function clearPopupFields() {
     });
 }
 
-function updateAsset() {
+function updateAsset(event) {
     var marker,
-        id = active_asset? active_asset.id : props.id;
+        id = active_asset? active_asset.id : props.id,
+        type = active_asset? active_asset.type : props.type;
     var properties = getProperties(event.target.dataset.popup);
-    properties.id = props.id;
-    properties.type = props.type;
+    properties.id = id;
+    properties.type = type;
     marker = markers.filter(function(m) { return m.title === properties.id; })[0];
     marker.setPosition(new google.maps.LatLng(properties.lat, properties.lng));
     if (active_asset) {
@@ -98,7 +99,7 @@ function updateAsset() {
     hidePopup();
 }
 
-function updateTrigger() {
+function updateTrigger(event) {
     var properties = getProperties(event.target.dataset.popup),
         trigger;
     properties.type = trigger_type;
@@ -199,15 +200,15 @@ function showIncidents(incidents) {
 }
 
 function showWeather(data) {
-    weatherStations.forEach(function(marker) {
-        marker.setMap(null);
-    });
-    weatherStations = [];
     var response = JSON.parse(data),
-        stations = xmlToJSON.parseString(response.weather).Inrix[0].Weather[0].Conditions;
+        stations;
     if (response.refreshKey === refreshKey) {
-        if (stations) {
-            stations = stations[0].Station;
+        weatherStations.forEach(function(marker) {
+            marker.setMap(null);
+        });
+        weatherStations = [];
+        try {
+            stations = xmlToJSON.parseString(response.weather).Inrix[0].Weather[0].Conditions[0].Station;
             stations.forEach(function(station) {
                var temperature = station.Current[0].Temperature[0]._attr.actual._value;
                var degreeClass = getStandardDegreeName(temperature);
@@ -222,9 +223,12 @@ function showWeather(data) {
                    icon: 'img/x.gif',
                    labelContent: temperature + "\u00B0",
                    labelAnchor: new google.maps.Point(16, 19),
-                   labelClass: "weather_station " + degreeClass
+                   labelClass: "weather_station " + degreeClass,
+                   title: "weather station"
                 }));
             });
+        } catch(err) {
+            console.log("Cannot parse responce");
         }
     }
 }
@@ -282,7 +286,7 @@ function getWeather() {
         var data = {
                 center: center.lat() + "|" + center.lng(),
                 radius: width / 2,
-                token: "qAp9uMD8MTxivcjBrMUibqZwsa7ByT5OaNSlXO2orUc|",
+                token: "beZkWfPRBMLdQC4vNKv-CDIrltFdixlEHNkF*Ds5QNo|",
                 refreshKey: refreshKey
             };
         $.ajax({
@@ -422,7 +426,7 @@ $(function() {
                 asset.lng = ev.latLng.lng();
             });
         } else if (action === "trigger_event") {
-            var id = ev.srcElement.getAttribute("title"),
+            var id = ev.target.getAttribute("title"),
                 asset;
             if (id && id.indexOf("asset") !== -1) {
                 asset = assets.filter(function(a) { return a.id === id; })[0];

@@ -80,7 +80,7 @@
             <input data-property="lng" class="textinput prop" type="text">
         </div>
         <div class="buttons-block">
-            <input class="button button_action" type="button" data-popup="#asset_popup" value="Submit" onclick="updateAsset()">
+            <input class="button button_action" type="button" data-popup="#asset_popup" value="Submit" onclick="updateAsset(event)">
             <input class="button" type="button" value="Cancel" onclick="onCancel()">
         </div>
     </form>
@@ -107,7 +107,7 @@
             </select>
         </div>
         <div class="buttons-block">
-            <input class="button button_action" type="button" data-popup="#trigger_accident_popup" value="Submit" onclick="updateTrigger()">
+            <input class="button button_action" type="button" data-popup="#trigger_accident_popup" value="Submit" onclick="updateTrigger(event)">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
         </div>
     </form>
@@ -132,7 +132,7 @@
             <input data-property="speedUnder" class="textinput prop" type="text">
         </div>
         <div class="buttons-block">
-            <input class="button button_action" type="button" data-popup="#trigger_flow_popup" value="Submit" onclick="updateTrigger()">
+            <input class="button button_action" type="button" data-popup="#trigger_flow_popup" value="Submit" onclick="updateTrigger(event)">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
         </div>
     </form>
@@ -153,7 +153,7 @@
             <input data-property="hashtag" class="textinput prop" type="text">
         </div>
         <div class="buttons-block">
-            <input class="button button_action" type="button" data-popup="#trigger_twitter_popup" value="Submit" onclick="updateTrigger()">
+            <input class="button button_action" type="button" data-popup="#trigger_twitter_popup" value="Submit" onclick="updateTrigger(event)">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
         </div>
     </form>
@@ -185,7 +185,7 @@
             <input data-property="temperature" class="textinput prop" type="text">
         </div>
         <div class="buttons-block">
-            <input class="button button_action" type="button" data-popup="#trigger_temperature_popup" value="Submit" onclick="updateTrigger()">
+            <input class="button button_action" type="button" data-popup="#trigger_temperature_popup" value="Submit" onclick="updateTrigger(event)">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
         </div>
     </form>
@@ -240,7 +240,7 @@
             </div>
         </div>
         <div class="buttons-block">
-            <input class="button button_action" type="button" data-popup="#trigger_weather_popup" value="Submit" onclick="updateTrigger()">
+            <input class="button button_action" type="button" data-popup="#trigger_weather_popup" value="Submit" onclick="updateTrigger(event)">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
         </div>
     </form>
@@ -250,19 +250,19 @@
         <div class="submenu">
             <div class="menu_item traffic_menu">Traffic
                 <div class="traffic_sub_menu">
-                    <div class="menu_item" data-popup="#trigger_accident_popup" data-type="traffic_accident" onclick="showTriggerPopup()">Incident</div>
-                    <div class="menu_item" data-popup="#trigger_flow_popup" data-type="traffic_flow" onclick="showTriggerPopup()">Flow</div>
+                    <div class="menu_item" data-popup="#trigger_accident_popup" data-type="traffic_accident" onclick="showTriggerPopup(event)">Incident</div>
+                    <div class="menu_item" data-popup="#trigger_flow_popup" data-type="traffic_flow" onclick="showTriggerPopup(event)">Flow</div>
                 </div>
             </div>
             <div class="menu_item weather_menu">Weather
                 <div class="weather_sub_menu">
-                    <div class="menu_item hidden" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup()">Event</div>
-                    <div class="menu_item" data-popup="#trigger_temperature_popup" data-type="weather_temperature" onclick="showTriggerPopup()">Temperature</div>
+                    <div class="menu_item hidden" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup(event)">Event</div>
+                    <div class="menu_item" data-popup="#trigger_temperature_popup" data-type="weather_temperature" onclick="showTriggerPopup(event)">Temperature</div>
                 </div>
             </div>
             <div class="menu_item social_menu hidden">Social
                 <div class="social_sub_menu">
-                    <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter" onclick="showTriggerPopup()">Twitter</div>
+                    <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter" onclick="showTriggerPopup(event)">Twitter</div>
                 </div>
             </div>
         </div>
