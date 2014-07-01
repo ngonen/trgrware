@@ -275,11 +275,11 @@ function displayMenu(ev){
     } else {
         $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu").css("left", 150 + "px");
     }
-    /*if (ev.clientY + menu.clientHeight + 105 > innerHeight) {
+    if (ev.clientY + menu.clientHeight + 105 > innerHeight) {
         $(".submenu").css("top", -70 + "px");
     } else {
         $(".submenu").css("top", "0");
-    }*/
+    }
     menu.style.visibility = "visible";
     ev.preventDefault();
 }
@@ -536,6 +536,7 @@ $(function() {
                 position: location,
                 map: map,
                 draggable: true,
+                icon: "img/screen_pin.png",
                 title: 'asset' + getUnigueID()
             });
             props = { 
@@ -564,7 +565,7 @@ $(function() {
                 }
             });
         } else if (action === "trigger_event") {
-            var id = ev.target.getAttribute("title"),
+            var id = ev.target.parentNode.getAttribute("title"),
                 asset;
             if (id && id.indexOf("asset") !== -1) {
                 asset = assets.filter(function(a) { return a.id === id; })[0];

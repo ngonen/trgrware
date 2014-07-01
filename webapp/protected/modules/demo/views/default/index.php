@@ -15,18 +15,33 @@
 <div class="left_panel">
     <div class="title">Assets</div>
     <div class="assets_list">
-        <img src="img/monitor.gif" width="18" height="18" class="item" id="asset-1" data-type="screen" draggable="true"/>Screen
+        <img src="img/screen.png" width="18" height="18" class="item" id="asset-1" data-type="screen" draggable="true"/>Screen
     </div>
     <div class="title">Triggers</div>
     <div class="triggers_list">
         <div class="list_item">
-            <img src="img/incident@2x.png" width="18" height="18" class="item" id="trigger-1" data-type="traffic_accident" draggable="true"/>Accident
+            <img src="img/incident@2x.png" width="18" height="18" class="item" data-type="traffic_accident" draggable="true"/>Accident
         </div>
         <div class="list_item">
-            <img src="img/congestion@2x.png" width="18" height="18" class="item" id="trigger-1" data-type="traffic_flow" draggable="true"/>Flow
+            <img src="img/congestion@2x.png" width="18" height="18" class="item" data-type="traffic_flow" draggable="true"/>Flow
         </div>
         <div class="list_item">
-            <img src="img/temp@2x.png" width="18" height="18" class="item" id="trigger-1" data-type="weather_temperature" draggable="true"/>Temperature
+            <img src="img/temp@2x.png" width="18" height="18" class="item" data-type="weather_temperature" draggable="true"/>Temperature
+        </div>
+        <div class="list_item">
+            <img src="img/rain.png" width="18" height="18" class="item" data-type="weather_event" draggable="true"/>Rain
+        </div>
+        <div class="list_item">
+            <img src="img/storm.jpg" width="18" height="18" class="item" data-type="weather_event" draggable="true"/>Storm
+        </div>
+        <div class="list_item">
+            <img src="img/snowflake.jpg" width="18" height="18" class="item" data-type="weather_event" draggable="true"/>Snow
+        </div>
+        <div class="list_item">
+            <img src="img/cloud-wind.png" width="18" height="18" class="item" data-type="weather_event" draggable="true"/>Wind
+        </div>
+        <div class="list_item">
+            <img src="img/twitter.jpg" width="18" height="18" class="item" data-type="social_twitter" draggable="true"/>Twitter
         </div>
     </div>
     <div class="title">Map info</div>
@@ -170,6 +185,7 @@
             <span class="popup-label">Callback URL</span>
             <input data-property="url" data-type="url" class="textinput prop" type="url" required>
         </div>
+        <div class="popup-field error"></div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#trigger_twitter_popup" value="Submit" onclick="updateTrigger(event)">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
@@ -266,6 +282,7 @@
             <span class="popup-label">Callback URL</span>
             <input data-property="url" data-type="url" class="textinput prop" type="url" required>
         </div>
+        <div class="popup-field error"></div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#trigger_weather_popup" value="Submit" onclick="updateTrigger(event)">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
@@ -283,11 +300,11 @@
             </div>
             <div class="menu_item weather_menu">Weather
                 <div class="weather_sub_menu">
-                    <div class="menu_item hidden" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup(event)">Event</div>
+                    <div class="menu_item" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup(event)">Event</div>
                     <div class="menu_item" data-popup="#trigger_temperature_popup" data-type="weather_temperature" onclick="showTriggerPopup(event)">Temperature</div>
                 </div>
             </div>
-            <div class="menu_item social_menu hidden">Social
+            <div class="menu_item social_menu">Social
                 <div class="social_sub_menu">
                     <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter" onclick="showTriggerPopup(event)">Twitter</div>
                 </div>
@@ -344,4 +361,6 @@
         <button name="save" class="goog-buttonset-default goog-buttonset-action" disabled="">Create</button>
         <button name="cancel">Cancel</button>
     </div>
+</div>
+
 </div>
