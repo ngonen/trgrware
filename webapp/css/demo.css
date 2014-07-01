@@ -120,7 +120,7 @@ img {
     color: #fff;
 }
 .appbar-nav .crumb, .appbar-nav .crumb:visited {
-    color: #999;
+    color: #FFF;
 }
 
 .appbar-nav > ul {
@@ -141,6 +141,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     max-width: 978px;
     padding: 20px 0 72px;
     overflow: hidden;
+    display: none;
 }
 
 
@@ -176,10 +177,21 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     text-decoration: none;
 }
 
+.appbar-nav .nav-title {	
+    color: white;
+    width: 315px;
+    font-size: 39px;
+    font-weight: bold;
+    position: absolute;
+    left: 50%;
+    margin-left: -158px;
+}
+
 #map_canvas { 
     height: 800px;
     width: 1280px;
     display: inline-block;
+    margin-bottom: -7px;
     margin-left: -180px;
 }
 
@@ -322,6 +334,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     height: 25px;
     padding: 1px 8px;
     width: 174px;
+    text-overflow: ellipsis;
 }
 
 .drop-down {    
@@ -368,6 +381,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     position: absolute;
     line-height: 30px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+	border: 1px solid lightgray;
 }
 
 .menu_item {
@@ -412,6 +426,8 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	display: none;
 	background-color: #FFF;
 	width: 150px;
+	border: 1px solid lightgray;
+	margin-top: -1px;
 }
 
 .weather_station {

@@ -32,13 +32,16 @@
     <div class="title">Map info</div>
     <div>
         <div class="list_item">
-            <input class="item_checkbox" type="checkbox" id="traffic" checked>Traffic
+            <input class="item_checkbox" type="checkbox" id="traffic" checked>
+            <label for="traffic">Traffic</label>
         </div>
         <div class="list_item">
-            <input class="item_checkbox" type="checkbox" id="accidents" checked>Accidents
+            <input class="item_checkbox" type="checkbox" id="accidents" checked>
+            <label for="accidents">Accidents</label>
         </div>
         <div class="list_item">
-            <input class="item_checkbox" type="checkbox" id="temperature" checked>Temperature
+            <input class="item_checkbox" type="checkbox" id="temperature" checked>
+            <label for="temperature">Temperature</label>
         </div>
     </div>
 </div>
@@ -106,6 +109,10 @@
                 <option value="All">All</option>
             </select>
         </div>
+        <div class="popup-field">
+            <span class="popup-label">Callback URL</span>
+            <input data-property="url" class="textinput prop" type="text">
+        </div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#trigger_accident_popup" value="Submit" onclick="updateTrigger(event)">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
@@ -131,6 +138,10 @@
             <span class="popup-label">Speed Under</span>
             <input data-property="speedUnder" class="textinput prop" type="text">
         </div>
+        <div class="popup-field">
+            <span class="popup-label">Callback URL</span>
+            <input data-property="url" class="textinput prop" type="text">
+        </div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#trigger_flow_popup" value="Submit" onclick="updateTrigger(event)">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
@@ -151,6 +162,10 @@
         <div class="popup-field">
             <span class="popup-label">Hashtag</span>
             <input data-property="hashtag" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Callback URL</span>
+            <input data-property="url" class="textinput prop" type="text">
         </div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#trigger_twitter_popup" value="Submit" onclick="updateTrigger(event)">
@@ -183,6 +198,10 @@
         <div class="popup-field">
             <span class="popup-label">Target Temp.</span>
             <input data-property="temperature" class="textinput prop" type="text">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Callback URL</span>
+            <input data-property="url" class="textinput prop" type="text">
         </div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#trigger_temperature_popup" value="Submit" onclick="updateTrigger(event)">
@@ -238,6 +257,10 @@
                 <span class="popup-label">Wind Speed Over</span>
                 <input data-property="windSpeed" class="textinput prop" type="text">
             </div>
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Callback URL</span>
+            <input data-property="url" class="textinput prop" type="text">
         </div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#trigger_weather_popup" value="Submit" onclick="updateTrigger(event)">

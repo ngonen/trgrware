@@ -19,7 +19,9 @@ var traffic = new InrixTileLayer(map);
 
 // Subscribe to INRIX AuthToken readiness and fetch the Bing Maps layer
 $.subscribe('Platform.AuthTokenChanged', function() {
-    traffic.show();
+    if ($("#accidents")[0].checked) {
+        traffic.show();
+    }
 });
 
 var IncidentMgr = new Inrix.IncidentManager();
@@ -82,31 +84,69 @@ function clearPopupFields() {
     });
 }
 
+function sendAssetUpdateRequest(asset) {
+    var data = {
+        asset_id: asset.id,
+        center: asset.lat + "|" + asset.lng
+    };
+    $.ajax({
+        url: "/demo/default/UpdateAsset",
+        type: "POST",
+        data: data,
+        success: function() { console.log("Triggers updated"); },
+        error: function() { console.log("Error on asset updating"); }
+    });
+}
+
 function updateAsset(event) {
     var marker,
         id = active_asset? active_asset.id : props.id,
-        type = active_asset? active_asset.type : props.type;
-    var properties = getProperties(event.target.dataset.popup);
+        type = active_asset? active_asset.type : props.type,
+        properties = getProperties(event.target.dataset.popup),
+        lat, lng;
+        
     properties.id = id;
     properties.type = type;
     marker = markers.filter(function(m) { return m.title === properties.id; })[0];
     marker.setPosition(new google.maps.LatLng(properties.lat, properties.lng));
+    
     if (active_asset) {
+        lat = active_asset.lat;
+        lng = active_asset.lng;
+        
         active_asset.setProperties(properties);
+        
+        if ((active_asset.lat !== lat || active_asset.lng !== lng) && active_asset.triggers.length) {
+            sendAssetUpdateRequest(active_asset);
+        }
     } else {
         assets.push(new Asset(properties));
     }
+    
     hidePopup();
+}
+
+function sendTriggerUpdateRequest(trigger, isNewTrigger) {
+    var url = isNewTrigger ? "/demo/default/RegisterEvent" : "/demo/default/UpdateEvent";
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: trigger.getData(),
+        success: function() { console.log("Trigger was successfully registered.") },
+        error: function() { console.log("Trigger was not registered.") }
+    });
 }
 
 function updateTrigger(event) {
     var properties = getProperties(event.target.dataset.popup),
         trigger;
     properties.type = trigger_type;
+    properties.asset_id = active_asset.id;
     trigger = active_asset.triggers.filter(function(trigger) { return trigger.type === trigger_type; })[0];
     if (trigger) {
         //change trigger properties
         trigger.setProperties(properties);
+        sendTriggerUpdateRequest(trigger, false);
     } else {
         //create trigger
         switch (trigger_type) {
@@ -127,6 +167,7 @@ function updateTrigger(event) {
                 break;
         }
         active_asset.triggers.push(trigger);
+        sendTriggerUpdateRequest(trigger, true);
     }   
     hidePopup();
 }
@@ -184,10 +225,7 @@ function hideMenu() {
 
 function showIncidents(incidents) {
     if (map.getZoom() > 11) {
-        incidentMarkers.forEach(function(marker) {
-            marker.setMap(null);
-        });
-        incidentMarkers = [];
+        clearMap(incidentMarkers);
         incidents.forEach(function(incident) {
             incidentMarkers.push(new google.maps.Marker({
                 position: new google.maps.LatLng(incident.latitude, incident.longitude),
@@ -199,14 +237,18 @@ function showIncidents(incidents) {
     }
 }
 
+function clearMap(markersArray) {
+    markersArray.forEach(function(marker) {
+        marker.setMap(null);
+    });
+    markersArray.length = 0;
+}
+
 function showWeather(data) {
     var response = JSON.parse(data),
         stations;
     if (response.refreshKey === refreshKey) {
-        weatherStations.forEach(function(marker) {
-            marker.setMap(null);
-        });
-        weatherStations = [];
+        clearMap(weatherStations);
         try {
             stations = xmlToJSON.parseString(response.weather).Inrix[0].Weather[0].Conditions[0].Station;
             stations.forEach(function(station) {
@@ -234,28 +276,20 @@ function showWeather(data) {
 }
 
 function getIncidents() {
-    if (map.getZoom() > 11) {
-        var bounds = map.getBounds(),
-            ne = bounds.getNorthEast(),
-            sw = bounds.getSouthWest();
-        var params = {
-            outputfields: 'all',
-            corner1: ne.lat() +'|'+ ne.lng(),
-            corner2: sw.lat() +'|'+ sw.lng(),
-            incidentType: "Incidents",
-            incidentSource: "All",
-            success:function (incidents) {
-                showIncidents(incidents);
-            }
-        };
-        IncidentMgr.getIncidentsInBox(params);
-    } else {
-        incidentMarkers.forEach(function(marker) {
-            marker.setMap(null);
-        });
-        incidentMarkers = [];
-        refreshKey = null;
-    }
+    var bounds = map.getBounds(),
+        ne = bounds.getNorthEast(),
+        sw = bounds.getSouthWest();
+    var params = {
+        outputfields: 'all',
+        corner1: ne.lat() +'|'+ ne.lng(),
+        corner2: sw.lat() +'|'+ sw.lng(),
+        incidentType: "Incidents",
+        incidentSource: "All",
+        success:function (incidents) {
+            showIncidents(incidents);
+        }
+    };
+    IncidentMgr.getIncidentsInBox(params);
 }
 
 function rad(x) {
@@ -275,37 +309,56 @@ function getDistance(p1, p2) {
 }
 
 function getWeather() {
-    if (map.getZoom() > 11) {
-        var center = map.getCenter(),
-            bounds = map.getBounds(), 
-            cor1 = bounds.getNorthEast(), 
-            cor2 = bounds.getSouthWest(), 
-            cor3 = new google.maps.LatLng(cor1.lat(), cor2.lng()), 
-            width = getDistance(cor1, cor3);
-        refreshKey = getUnigueID();
-        var data = {
-                center: center.lat() + "|" + center.lng(),
-                radius: width / 2,
-                token: "beZkWfPRBMLdQC4vNKv-CDIrltFdixlEHNkF*Ds5QNo|",
-                refreshKey: refreshKey
-            };
-        $.ajax({
-            url: "/demo/default/AjaxGetWeatherInRadius",
-            type: "POST",
-            data: data,
-            success: showWeather
-        });
-    } else {
-        weatherStations.forEach(function(marker) {
-            marker.setMap(null);
-        });
-        weatherStations = [];
-    }
+    var center = map.getCenter(),
+        bounds = map.getBounds(), 
+        cor1 = bounds.getNorthEast(), 
+        cor2 = bounds.getSouthWest(), 
+        cor3 = new google.maps.LatLng(cor1.lat(), cor2.lng()),
+        multiplier = 0.621371, //to convert kilometers to miles
+        width = getDistance(cor1, cor3) * multiplier;
+    refreshKey = getUnigueID();
+    var data = {
+            center: center.lat() + "|" + center.lng(),
+            radius: width / 2,
+            token: "vHLYSm6wX-CKUT89bPCLg*fhk*asdVvRSa813n5GMhs|",
+            refreshKey: refreshKey
+        };
+    $.ajax({
+        url: "/demo/default/AjaxGetWeatherInRadius",
+        type: "POST",
+        data: data,
+        success: showWeather
+    });
 }
 
 function getMapInfo() {
-    getWeather();
-    getIncidents();
+    if (map.getZoom() > 11) {
+        if ($("#temperature")[0].checked) {
+            getWeather();
+        }
+        if ($("#accidents")[0].checked) {
+            getIncidents();
+        }
+    } else {
+        refreshKey = null;
+        clearMap(weatherStations);
+        clearMap(incidentMarkers);
+    }
+}
+
+function onZoom() {
+    var zoom = map.getZoom();
+    getMapInfo();
+    if (zoom < 6 || zoom > 16) {
+        traffic.hide();
+    } else if ($("#traffic")[0].checked) {
+        traffic.show();
+    }
+}
+
+function turnOfInfo(markersArray) {
+    clearMap(markersArray);
+    refreshKey = null;
 }
 
 function showPopup(selector, ev) {
@@ -366,8 +419,21 @@ $(function() {
         getMapInfo();
         google.maps.event.clearListeners(map, 'bounds_changed');
     });
+    $("#traffic").on("change", function(ev) {
+        ev.target.checked ? traffic.show() : traffic.hide();
+    });
+    $("#accidents").on("change", function(ev) {
+        if (map.getZoom() > 11) {
+            ev.target.checked ? getIncidents() : clearMap(incidentMarkers);
+        }
+    });
+    $("#temperature").on("change", function(ev) {
+        if (map.getZoom() > 11) {
+            ev.target.checked ? getWeather() : turnOfInfo(weatherStations);
+        }
+    });
     google.maps.event.addListener(map, "dragend", getMapInfo);
-    google.maps.event.addListener(map, "zoom_changed", getMapInfo);
+    google.maps.event.addListener(map, "zoom_changed", onZoom);
     $("body").on("click", hideMenu);
     $(".assets_list").on("dragstart", function(ev) {
         ev.originalEvent.dataTransfer.setData("action", "create_asset");
@@ -421,9 +487,16 @@ $(function() {
                displayMenu(ev.Ra)
             });
             google.maps.event.addListener(marker, "dragend", function(ev) {
-                var asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
-                asset.lat = ev.latLng.lat();
-                asset.lng = ev.latLng.lng();
+                var asset = assets.filter(function(asset) { return asset.id === marker.title; })[0],
+                    lat = ev.latLng.lat(),
+                    lng = ev.latLng.lng();
+                if (asset.lat !== lat || asset.lng !== lng) {
+                    asset.lat = ev.latLng.lat();
+                    asset.lng = ev.latLng.lng();
+                    if (asset.triggers.length) {
+                        sendAssetUpdateRequest(asset);
+                    }
+                }
             });
         } else if (action === "trigger_event") {
             var id = ev.target.getAttribute("title"),
@@ -433,12 +506,12 @@ $(function() {
                 var trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
                 if (trigger) {
                     alert("Triggering event!");
-                    var url = "domain/trigger?sid=" + asset.sid + "&cid=" + trigger.cid;
-                    /*$.ajax({
+                    var url = "//" + trigger.url + "?sid=" + asset.sid + "&cid=" + trigger.cid;
+                    $.ajax({
                         url: url,
-                        type: "GET",
-                        success: function() { alert("Succesfully triggered!"); }
-                    });*/
+                        success: function() { console.log("Successfully triggered."); },
+                        error: function() { console.log("Error on triggering event."); }
+                    });
                 } else {
                     alert("Trigger with chosen event type wasn't found!")
                 }

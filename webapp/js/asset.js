@@ -9,8 +9,8 @@ function Asset(properties) {
         this.sid = properties.sid;
         this.lat = properties.lat;
         this.lng = properties.lng;
-        this.triggers = [];
     };
     
+    this.triggers = [];
     this.setProperties(properties);
 };
