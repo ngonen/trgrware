@@ -238,9 +238,21 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	display: none;
 }
 
+.popup .error {
+	display: none;
+	color: red;
+	text-align: center;
+	width: 346px;
+	padding-top: 10px;
+}
+
 #asset_popup {
     margin-top: -209px;	
     margin-left: -184px;
+}
+
+#asset_popup .error {
+	width: 286px;
 }
 
 #trigger_weather_popup {

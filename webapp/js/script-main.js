@@ -69,10 +69,15 @@ function showPropertiesPopup() {
 }
 
 function clearPopupFields() {
+    $('.popup .error').hide();
     $('.popup .prop').toArray().forEach(function(el) {
         switch (el.type) {
             case "text":
-                el.value = "";
+                if (el.dataset.default) {
+                    el.value = el.dataset.default;
+                } else {
+                    el.value = "";
+                }
                 break;
             case "checkbox":
                 el.checked = false;
@@ -99,31 +104,32 @@ function sendAssetUpdateRequest(asset) {
 }
 
 function updateAsset(event) {
-    var marker,
-        id = active_asset? active_asset.id : props.id,
-        type = active_asset? active_asset.type : props.type,
-        properties = getProperties(event.target.dataset.popup),
-        lat, lng;
+    var validateObj = validate(event.target.dataset.popup),
+        marker, id, type, properties, lat, lng;
         
-    properties.id = id;
-    properties.type = type;
-    marker = markers.filter(function(m) { return m.title === properties.id; })[0];
-    marker.setPosition(new google.maps.LatLng(properties.lat, properties.lng));
-    
-    if (active_asset) {
-        lat = active_asset.lat;
-        lng = active_asset.lng;
-        
-        active_asset.setProperties(properties);
-        
-        if ((active_asset.lat !== lat || active_asset.lng !== lng) && active_asset.triggers.length) {
-            sendAssetUpdateRequest(active_asset);
+    if (validateObj.isValid) {
+        id = active_asset? active_asset.id : props.id;
+        type = active_asset? active_asset.type : props.type;
+        properties = getProperties(event.target.dataset.popup);
+        properties.id = id;
+        properties.type = type;
+        marker = markers.filter(function(m) { return m.title === properties.id; })[0];
+        marker.setPosition(new google.maps.LatLng(properties.lat, properties.lng));
+        if (active_asset) {
+            lat = active_asset.lat;
+            lng = active_asset.lng;
+            active_asset.setProperties(properties);
+            if ((active_asset.lat !== lat || active_asset.lng !== lng) && active_asset.triggers.length) {
+                sendAssetUpdateRequest(active_asset);
+            }
+        } else {
+            assets.push(new Asset(properties));
         }
+        hidePopup();
     } else {
-        assets.push(new Asset(properties));
+        $(event.target.dataset.popup + " .error").text(validateObj.errorMessage);
+        $(event.target.dataset.popup + " .error").show();
     }
-    
-    hidePopup();
 }
 
 function sendTriggerUpdateRequest(trigger, isNewTrigger) {
@@ -138,41 +144,100 @@ function sendTriggerUpdateRequest(trigger, isNewTrigger) {
 }
 
 function updateTrigger(event) {
-    var properties = getProperties(event.target.dataset.popup),
+    var validateObj = validate(event.target.dataset.popup),
+        properties,
         trigger;
-    properties.type = trigger_type;
-    properties.asset_id = active_asset.id;
-    trigger = active_asset.triggers.filter(function(trigger) { return trigger.type === trigger_type; })[0];
-    if (trigger) {
-        //change trigger properties
-        trigger.setProperties(properties);
-        sendTriggerUpdateRequest(trigger, false);
+    if (validateObj.isValid) {
+        properties = getProperties(event.target.dataset.popup);
+        properties.type = trigger_type;
+        properties.asset_id = active_asset.id;
+        trigger = active_asset.triggers.filter(function(trigger) { return trigger.type === trigger_type; })[0];
+        if (trigger) {
+            //change trigger properties
+            trigger.setProperties(properties);
+            sendTriggerUpdateRequest(trigger, false);
+        } else {
+            //create trigger
+            switch (trigger_type) {
+                case "traffic_accident":
+                    trigger = new AccidentTrigger(properties);
+                    break;
+                case "traffic_flow":
+                    trigger = new FlowTrigger(properties);
+                    break;
+                case "weather_event":
+                    trigger = new WeatherEventTrigger(properties);
+                    break;
+                case "weather_temperature":
+                    trigger = new TemperatureTrigger(properties);
+                    break;
+                case "twitter":
+                    trigger = new TwitterTrigger(properties);
+                    break;
+            }
+            active_asset.triggers.push(trigger);
+            sendTriggerUpdateRequest(trigger, true);
+        }   
+        hidePopup();
     } else {
-        //create trigger
-        switch (trigger_type) {
-            case "traffic_accident":
-                trigger = new AccidentTrigger(properties);
-                break;
-            case "traffic_flow":
-                trigger = new FlowTrigger(properties);
-                break;
-            case "weather_event":
-                trigger = new WeatherEventTrigger(properties);
-                break;
-            case "weather_temperature":
-                trigger = new TemperatureTrigger(properties);
-                break;
-            case "twitter":
-                trigger = new TwitterTrigger(properties);
-                break;
-        }
-        active_asset.triggers.push(trigger);
-        sendTriggerUpdateRequest(trigger, true);
-    }   
-    hidePopup();
+        $(event.target.dataset.popup + " .error").text(validateObj.errorMessage);
+        $(event.target.dataset.popup + " .error").show();
+    }
 }
 
-function getProperties(popup) {
+function validate(popup) {
+    var inputs = $(popup + " .prop").toArray(),
+        value, el;
+    for (var i = 0, length = inputs.length; i < length; i++) {
+        el = inputs[i];
+        value = el.value;
+        if (el.required && /^\s*$/.test(value)) {
+            errorMessage = el.parentNode.firstElementChild.textContent + " field is required"; 
+            return {
+                isValid: false,
+                errorMessage: errorMessage
+            };
+        }
+        switch (el.dataset.type) {
+            case "int":
+                if (!/^\s*$/.test(value) && !/^-?\d+$/.test(value)) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain an integer number";
+                    return {
+                        isValid: false,
+                        errorMessage: errorMessage
+                    };
+                }
+                break;
+            case "float":
+                if (!/^\s*$/.test(value) && !/^-?\d+(\.\d+)?$/.test(value)) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number";
+                    return {
+                        isValid: false,
+                        errorMessage: errorMessage
+                    };
+                }
+                break;
+            case "url":
+                if (!/^\s*$/.test(value) && !el.validity.valid) {
+                    errorMessage = "Incorrect URL";
+                    return {
+                        isValid: false,
+                        errorMessage: errorMessage
+                    };
+                }
+        }
+        if (el.dataset.min && el.dataset.max && (value < parseInt(el.dataset.min) || value > parseInt(el.dataset.max))) {
+            errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number between " + el.dataset.min + " and " + el.dataset.max;
+            return {
+                isValid: false,
+                errorMessage: errorMessage
+            };
+        }
+    }
+    return {isValid: true, errorMessage: null};
+} 
+
+function getProperties(popup) {  
     var properties = {};
     $(popup + " .prop").toArray().forEach(function(el) {
         if (el.type === "checkbox") {

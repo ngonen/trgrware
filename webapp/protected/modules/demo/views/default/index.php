@@ -52,7 +52,7 @@
     <form>
         <div class="popup-field">
             <span class="popup-label">Asset Name</span>
-            <input data-property="name" class="textinput prop" type="text">
+            <input data-property="name" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Description</span>
@@ -60,7 +60,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Cap Period</span>
-            <input data-property="capPeriod" class="textinput prop" type="text">
+            <input data-property="capPeriod" data-type="int" class="textinput prop" type="text">
         </div>
         <div class="popup-field">
             <span class="popup-label">Cap Unit</span>
@@ -72,16 +72,17 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Sign ID</span>
-            <input data-property="sid" class="textinput prop" type="text">
+            <input data-property="sid" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Lattitude</span>
-            <input data-property="lat" class="textinput prop" type="text">
+            <input data-property="lat" data-type="float" data-min="-90" data-max="90" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Longitude</span>
-            <input data-property="lng" class="textinput prop" type="text">
+            <input data-property="lng" data-type="float" data-min="-90" data-max="90" class="textinput prop" type="text" required>
         </div>
+        <div class="popup-field error"></div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#asset_popup" value="Submit" onclick="updateAsset(event)">
             <input class="button" type="button" value="Cancel" onclick="onCancel()">
@@ -93,15 +94,15 @@
     <form>
         <div class="popup-field">
             <span class="popup-label">Campain ID</span>
-            <input data-property="cid" class="textinput prop" type="text">
+            <input data-property="cid" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Retrigger Wait Period</span>
-            <input data-property="rwp" class="textinput prop" type="text">
+            <input data-property="rwp" data-type="int" class="textinput prop" type="text">
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" class="textinput prop" type="text">
+            <input data-property="radius" data-type="float" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Severity</span>
@@ -111,8 +112,9 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Callback URL</span>
-            <input data-property="url" class="textinput prop" type="text">
+            <input data-property="url" data-type="url" class="textinput prop" type="url" required>
         </div>
+        <div class="popup-field error"></div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#trigger_accident_popup" value="Submit" onclick="updateTrigger(event)">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
@@ -124,24 +126,25 @@
     <form>
         <div class="popup-field">
             <span class="popup-label">Campain ID</span>
-            <input data-property="cid" class="textinput prop" type="text">
+            <input data-property="cid" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Retrigger Wait Period</span>
-            <input data-property="rwp" class="textinput prop" type="text">
+            <input data-property="rwp" data-type="int" class="textinput prop" type="text">
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" class="textinput prop" type="text">
+            <input data-property="radius" data-type="float" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Speed Under</span>
-            <input data-property="speedUnder" class="textinput prop" type="text">
+            <input data-property="speedUnder" data-type="int" data-min="0" data-max="200" data-default="25" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Callback URL</span>
-            <input data-property="url" class="textinput prop" type="text">
+            <input data-property="url" data-type="url" class="textinput prop" type="url" required>
         </div>
+        <div class="popup-field error"></div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#trigger_flow_popup" value="Submit" onclick="updateTrigger(event)">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
@@ -153,7 +156,7 @@
     <form>
         <div class="popup-field">
             <span class="popup-label">Campain ID</span>
-            <input data-property="cid" class="textinput prop" type="text">
+            <input data-property="cid" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Retrigger Wait Period</span>
@@ -161,11 +164,11 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Hashtag</span>
-            <input data-property="hashtag" class="textinput prop" type="text">
+            <input data-property="hashtag" data-type="hashtag" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Callback URL</span>
-            <input data-property="url" class="textinput prop" type="text">
+            <input data-property="url" data-type="url" class="textinput prop" type="url" required>
         </div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#trigger_twitter_popup" value="Submit" onclick="updateTrigger(event)">
@@ -178,15 +181,15 @@
     <form>
         <div class="popup-field">
             <span class="popup-label">Campain ID</span>
-            <input data-property="cid" class="textinput prop" type="text">
+            <input data-property="cid" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Retrigger Wait Period</span>
-            <input data-property="rwp" class="textinput prop" type="text">
+            <input data-property="rwp" data-type="int" class="textinput prop" type="text">
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" class="textinput prop" type="text">
+            <input data-property="radius" data-type="float" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Threshold</span>
@@ -197,12 +200,13 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Target Temp.</span>
-            <input data-property="temperature" class="textinput prop" type="text">
+            <input data-property="temperature" data-type="int" data-min="-50" data-max="150" data-default="0" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Callback URL</span>
-            <input data-property="url" class="textinput prop" type="text">
+            <input data-property="url" data-type="url" class="textinput prop" type="url" required>
         </div>
+        <div class="popup-field error"></div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#trigger_temperature_popup" value="Submit" onclick="updateTrigger(event)">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
@@ -214,7 +218,7 @@
     <form>
         <div class="popup-field">
             <span class="popup-label">Campain ID</span>
-            <input data-property="cid" class="textinput prop" type="text">
+            <input data-property="cid" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Retrigger Wait Period</span>
@@ -222,7 +226,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" class="textinput prop" type="text">
+            <input data-property="radius" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Storm (Generic)</span>
@@ -255,12 +259,12 @@
             <input data-property="windy" type="checkbox" class="prop">
             <div class="popup-field subitem">
                 <span class="popup-label">Wind Speed Over</span>
-                <input data-property="windSpeed" class="textinput prop" type="text">
+                <input data-property="windSpeed" data-type="int" data-min="0" data-max="200" data-default="25" class="textinput prop" type="text">
             </div>
         </div>
         <div class="popup-field">
             <span class="popup-label">Callback URL</span>
-            <input data-property="url" class="textinput prop" type="text">
+            <input data-property="url" data-type="url" class="textinput prop" type="url" required>
         </div>
         <div class="buttons-block">
             <input class="button button_action" type="button" data-popup="#trigger_weather_popup" value="Submit" onclick="updateTrigger(event)">
@@ -342,4 +346,15 @@
     </div>
 </div>
 
+
+
+
+
+
 </div>
+
+<form >
+	<input type="text" required="required">
+
+<input type="submit" value="aa">
+</form>
