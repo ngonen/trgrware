@@ -157,6 +157,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .footer-links-container .footer-links {
     margin: 0 auto;
     max-width: 978px;
+    width: 315px;
 }
 
 .footer-links ul {
