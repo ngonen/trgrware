@@ -345,16 +345,3 @@
         <button name="cancel">Cancel</button>
     </div>
 </div>
-
-
-
-
-
-
-</div>
-
-<form >
-	<input type="text" required="required">
-
-<input type="submit" value="aa">
-</form>
