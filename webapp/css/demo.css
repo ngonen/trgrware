@@ -190,7 +190,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 #map_canvas { 
     height: 800px;
-    width: 1280px;
+    width: 100%;
     display: inline-block;
     margin-bottom: -7px;
     margin-left: -180px;
