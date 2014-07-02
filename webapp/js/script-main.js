@@ -168,7 +168,8 @@ function sendTriggerUpdateRequest(trigger, isNewTrigger) {
 }
 
 function removeTrigger(event) {
-    var type, trigger, data;
+    var type = event.target.parentNode.dataset.type,
+        trigger, data;
     hideMenu();
     if (confirm("Are you sure you want to remove this trigger?")) {
         trigger = active_asset.triggers.filter(function(tr) { return tr.type === type; })[0];
