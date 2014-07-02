@@ -79,6 +79,9 @@ function clearPopupFields() {
                     el.value = "";
                 }
                 break;
+            case "url":
+                el.value = "";
+                break;
             case "checkbox":
                 el.checked = false;
                 break;
@@ -89,18 +92,31 @@ function clearPopupFields() {
     });
 }
 
-function sendAssetUpdateRequest(asset) {
-    var data = {
-        asset_id: asset.id,
-        center: asset.lat + "|" + asset.lng
-    };
+function sendAJAX(url, data, callback) {
     $.ajax({
-        url: "/demo/default/UpdateAsset",
+        url: url,
         type: "POST",
         data: data,
-        success: function() { console.log("Triggers updated"); },
-        error: function() { console.log("Error on asset updating"); }
+        success: callback,
+        error: function(error) { console.log(error.statusText + ": " + error.responseText); }
     });
+}
+
+function onSuccess(data) {
+    var response = JSON.parse(data);
+    if (response.status) {
+        console.log(response.message);
+    } else {
+        console.log(response.errorMessage);
+    }
+}
+
+function sendAssetUpdateRequest(asset) {
+    var data = {
+        assetId: asset.id,
+        center: asset.lat + "|" + asset.lng
+    };
+    sendAJAX("/demo/Default/UpdateAsset", data, onSuccess);
 }
 
 function updateAsset(event) {
@@ -132,15 +148,38 @@ function updateAsset(event) {
     }
 }
 
+function removeAsset() {
+    var marker;
+    hideMenu();
+    if (confirm("Are you sure you want to remove this asset?")) {
+        if (active_asset.triggers.length) {
+            sendAJAX("/demo/Default/DeleteAsset", { assetId: active_asset.id }, onSuccess);
+        }
+        marker = markers.filter(function(m) { return m.title === active_asset.id; })[0];
+        marker.setMap(null);
+        markers.splice(markers.indexOf(marker), 1);
+        assets.splice(assets.indexOf(active_asset), 1);
+    }
+}
+
 function sendTriggerUpdateRequest(trigger, isNewTrigger) {
-    var url = isNewTrigger ? "/demo/default/RegisterEvent" : "/demo/default/UpdateEvent";
-    $.ajax({
-        url: url,
-        type: "POST",
-        data: trigger.getData(),
-        success: function() { console.log("Trigger was successfully registered.") },
-        error: function() { console.log("Trigger was not registered.") }
-    });
+    var url = isNewTrigger ? "/demo/Default/RegisterEvent" : "/demo/Default/UpdateEvent";
+    sendAJAX(url, trigger.getData(), onSuccess);
+}
+
+function removeTrigger(event) {
+    var type, trigger, data;
+    hideMenu();
+    if (confirm("Are you sure you want to remove this trigger?")) {
+        trigger = active_asset.triggers.filter(function(tr) { return tr.type === type; })[0];
+        data = {
+            assetId: active_asset.id,
+            eventType: type
+        };
+        active_asset.triggers.splice(active_asset.triggers.indexOf(trigger), 1);
+        sendAJAX("/demo/Default/DeleteEvent", data, onSuccess);
+    }
+    event.stopPropagation();
 }
 
 function updateTrigger(event) {
@@ -187,8 +226,8 @@ function updateTrigger(event) {
 
 function validate(popup) {
     var inputs = $(popup + " .prop").toArray(),
-        value, el;
-    for (var i = 0, length = inputs.length; i < length; i++) {
+        value, el, errorMessage, i, length;
+    for (i = 0, length = inputs.length; i < length; i++) {
         el = inputs[i];
         value = el.value;
         if (el.required && /^\s*$/.test(value)) {
@@ -225,6 +264,16 @@ function validate(popup) {
                         errorMessage: errorMessage
                     };
                 }
+                break;
+            case "hashtag":
+                if (!/^#/.test(value)) {
+                    errorMessage = "Incorrect hashtag";
+                    return {
+                        isValid: false,
+                        errorMessage: errorMessage
+                    }
+                }
+                break;
         }
         if (el.dataset.min && el.dataset.max && (value < parseInt(el.dataset.min) || value > parseInt(el.dataset.max))) {
             errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number between " + el.dataset.min + " and " + el.dataset.max;
@@ -250,6 +299,7 @@ function getProperties(popup) {
 }
 
 function onCancel() {
+    var marker;
     if (!active_asset) {
         marker = markers.filter(function(m) { return m.title === props.id; })[0];
         marker.setMap(null);
@@ -275,17 +325,13 @@ function displayMenu(ev){
     } else {
         $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu").css("left", 150 + "px");
     }
-    if (ev.clientY + menu.clientHeight + 105 > innerHeight) {
-        $(".submenu").css("top", -70 + "px");
-    } else {
-        $(".submenu").css("top", "0");
-    }
     menu.style.visibility = "visible";
     ev.preventDefault();
 }
 
 function hideMenu() {
     $("#context_menu").css("visibility", "hidden");
+    $(".cross").hide();
 }
 
 function showIncidents(incidents) {
@@ -312,7 +358,8 @@ function clearMap(markersArray) {
 function showWeather(data) {
     var response = JSON.parse(data),
         stations;
-    if (response.refreshKey === refreshKey) {
+    onSuccess(data);
+    if (response.refreshKey === refreshKey && response.status) {
         clearMap(weatherStations);
         try {
             stations = xmlToJSON.parseString(response.weather).Inrix[0].Weather[0].Conditions[0].Station;
@@ -388,12 +435,7 @@ function getWeather() {
             token: "vHLYSm6wX-CKUT89bPCLg*fhk*asdVvRSa813n5GMhs|",
             refreshKey: refreshKey
         };
-    $.ajax({
-        url: "/demo/default/AjaxGetWeatherInRadius",
-        type: "POST",
-        data: data,
-        success: showWeather
-    });
+    sendAJAX("/demo/Default/AjaxGetWeatherInRadius", data, showWeather);
 }
 
 function getMapInfo() {
@@ -439,18 +481,18 @@ function hidePopup() {
 }
 
 function getStandardDegreeName(temperature){
-    if(temperature < 0)   return 'coldest';
-    if(temperature < 10)  return 'colder';
-    if(temperature < 20)  return 'cold';
-    if(temperature < 30)  return 'coolest';
-    if(temperature < 40)  return 'cooler';
-    if(temperature < 50)  return 'cool';
-    if(temperature < 60)  return 'warm';
-    if(temperature < 70)  return 'warmer';
-    if(temperature < 80)  return 'warmest';
-    if(temperature < 90)  return 'hot';
-    if(temperature < 100) return 'hotter';
-    if(temperature < 212) return 'hottest';
+    if(temperature < 0)   { return 'coldest'; }
+    if(temperature < 10)  { return 'colder'; }
+    if(temperature < 20)  { return 'cold'; }
+    if(temperature < 30)  { return 'coolest'; }
+    if(temperature < 40)  { return 'cooler'; }
+    if(temperature < 50)  { return 'cool'; }
+    if(temperature < 60)  { return 'warm'; }
+    if(temperature < 70)  { return 'warmer'; }
+    if(temperature < 80)  { return 'warmest'; }
+    if(temperature < 90)  { return 'hot'; }
+    if(temperature < 100) { return 'hotter'; }
+    if(temperature < 212) { return 'hottest'; }
 }
 
 function extend(childObj, parentObj) {
@@ -503,7 +545,7 @@ $(function() {
     $(".assets_list").on("dragstart", function(ev) {
         ev.originalEvent.dataTransfer.setData("action", "create_asset");
         ev.originalEvent.dataTransfer.setData("type", ev.originalEvent.target.dataset.type);
-    })
+    });
     $(".triggers_list").on("dragstart", function(ev) {
         ev.originalEvent.dataTransfer.setData("action", "trigger_event");
         ev.originalEvent.dataTransfer.setData("type", ev.originalEvent.target.dataset.type);
@@ -549,8 +591,12 @@ $(function() {
             showPopup("#asset_popup");
             markers.push(marker);
             google.maps.event.addListener(marker, "rightclick", function(ev) {
+               hideMenu();
                active_asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
-               displayMenu(ev.Ra)
+               active_asset.triggers.map(function(tr) { return  tr.type; }).forEach(function(type) {
+                   $("#context_menu [data-type='" + type + "'] .cross").show(); 
+               });
+               displayMenu(ev.Ra);
             });
             google.maps.event.addListener(marker, "dragend", function(ev) {
                 var asset = assets.filter(function(asset) { return asset.id === marker.title; })[0],
@@ -579,7 +625,7 @@ $(function() {
                         error: function() { console.log("Error on triggering event."); }
                     });
                 } else {
-                    alert("Trigger with chosen event type wasn't found!")
+                    alert("Trigger with chosen event type wasn't found!");
                 }
             }
         }

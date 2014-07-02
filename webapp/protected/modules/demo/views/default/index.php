@@ -294,24 +294,40 @@
         <div class="submenu">
             <div class="menu_item traffic_menu">Traffic
                 <div class="traffic_sub_menu">
-                    <div class="menu_item" data-popup="#trigger_accident_popup" data-type="traffic_accident" onclick="showTriggerPopup(event)">Incident</div>
-                    <div class="menu_item" data-popup="#trigger_flow_popup" data-type="traffic_flow" onclick="showTriggerPopup(event)">Flow</div>
+                    <div class="menu_item" data-popup="#trigger_accident_popup" data-type="traffic_accident" onclick="showTriggerPopup(event)">
+                        Incident
+                        <div class="cross hidden" onclick="removeTrigger(event)"></div>
+                    </div>
+                    <div class="menu_item" data-popup="#trigger_flow_popup" data-type="traffic_flow" onclick="showTriggerPopup(event)">
+                        Flow
+                        <div class="cross hidden" onclick="removeTrigger(event)"></div>
+                    </div>
                 </div>
             </div>
             <div class="menu_item weather_menu">Weather
                 <div class="weather_sub_menu">
-                    <div class="menu_item" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup(event)">Event</div>
-                    <div class="menu_item" data-popup="#trigger_temperature_popup" data-type="weather_temperature" onclick="showTriggerPopup(event)">Temperature</div>
+                    <div class="menu_item" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup(event)">
+                        Event
+                        <div class="cross hidden" onclick="removeTrigger(event)"></div>
+                    </div>
+                    <div class="menu_item" data-popup="#trigger_temperature_popup" data-type="weather_temperature" onclick="showTriggerPopup(event)">
+                        Temperature
+                        <div class="cross hidden" onclick="removeTrigger(event)"></div>
+                    </div>
                 </div>
             </div>
             <div class="menu_item social_menu">Social
                 <div class="social_sub_menu">
-                    <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter" onclick="showTriggerPopup(event)">Twitter</div>
+                    <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter" onclick="showTriggerPopup(event)">
+                        Twitter
+                        <div class="cross hidden" onclick="removeTrigger(event)"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="menu_item" onclick="showPropertiesPopup()">Properties</div>
+    <div class="menu_item" onclick="removeAsset()">Remove asset</div>
 </div>
             
 

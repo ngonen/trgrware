@@ -516,3 +516,11 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	display: none;
 }
 
+.cross {
+    float: right;
+	cursor: pointer;
+    background: no-repeat url(/img/close.png) -3px 3px;
+	width: 24px;
+	height: 24px;
+}
+
