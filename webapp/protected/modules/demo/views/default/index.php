@@ -318,7 +318,7 @@
             </div>
             <div class="menu_item sub social_menu">Social
                 <div class="social_sub_menu">
-                    <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter" onclick="showTriggerPopup(event)">
+                    <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="social_twitter" onclick="showTriggerPopup(event)">
                         Twitter
                         <div class="cross hidden" onclick="removeTrigger(event)"></div>
                     </div>

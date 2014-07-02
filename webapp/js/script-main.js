@@ -272,7 +272,7 @@ function validate(popup) {
                     return {
                         isValid: false,
                         errorMessage: errorMessage
-                    }
+                    };
                 }
                 break;
         }
@@ -433,7 +433,6 @@ function getWeather() {
     var data = {
             center: center.lat() + "|" + center.lng(),
             radius: width / 2,
-            token: "vHLYSm6wX-CKUT89bPCLg*fhk*asdVvRSa813n5GMhs|",
             refreshKey: refreshKey
         };
     sendAJAX("/demo/Default/AjaxGetWeatherInRadius", data, showWeather);
