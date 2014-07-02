@@ -19,8 +19,8 @@
                     <nav class="appbar-nav">
                         <ul class="breadcrumbs">
                             <li><a href="/" class="crumb product-name">Home</a></li>
-                            <li class="nav-title">TRGRware demo</li>
-                            <li><a href="/" class="crumb product-name">Logout (<?php echo Yii::app()->user->name ?>)</a></li>
+                            <li class="nav-title"><a href="/demo" class="crumb product-name">TRGRware demo</a></li>
+                            <li><a href="/site/logout" class="crumb product-name">Logout (<?php echo Yii::app()->user->name ?>)</a></li>
                         </ul>
                     </nav>
                     <div class="appbar-buttons"></div>

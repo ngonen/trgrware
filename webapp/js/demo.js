@@ -1,4 +1,13 @@
 (function() {
+    var assets = [23423424, 34534, 345, 53452534, 354, 325,123, 22, 45435, 534535],
+        assetIds = {
+            'w': [],
+            'i': [],
+            'f': []
+        };
+
+//    getSecurityToken();
+
     function showButtons() {
         $("#GetIncidentInfo").attr("disabled", false);
         $("#GetWeatherInfo").attr("disabled", false);
@@ -44,6 +53,54 @@
         });
     }
 
+    function registerEvent(data, url) {
+        $.ajax({
+            url: url ? url : '/demo/default/RegisterEvent',
+            type: "POST",
+            data: data,
+            beforeSend: function() {
+                $("#Loader").css({ 'display': 'block' });
+                $("#EventRegistration > p").hide();
+            },
+            complete: function() {
+                $("#Loader").hide();
+            },
+            error: function(error) {
+                alert(error.msg || error.message || "Unexpected error.");
+            },
+            success: function(data) {
+                var response = JSON.parse(data);
+
+                if (response.status) {
+                    $("#EventRegistration > p").html(response.message).show();
+                } else {
+                    alert(response.errorMessage);
+                }
+            }
+        });
+    }
+
+    function deleteAssetInfo(url, data) {
+        $.ajax({
+            url: url,
+            data: data,
+            beforeSend: function() {
+                $("#Loader").css({ 'display': 'block' });
+            },
+            complete: function() {
+                $("#Loader").hide();
+            },
+            error: function(error) {
+                alert(error.msg || error.message || "Unexpected error.");
+            },
+            success: function(data) {
+                var response = JSON.parse(data);
+
+                alert(response.status ? response.message : response.errorMessage);
+            }
+        });
+    }
+
     $(document).on("click", "#GetIncidentInfo", function() {
         var data = {
             center: "34.014|-118.2869",
@@ -67,7 +124,8 @@
         var data = {
                 center: "34.014|-118.2869",
                 radius: "5",
-                token: $("#Token").val()
+                token: $("#Token").val(),
+                refreshKey: "344dgfs"
             };
 
         getInfo("/demo/default/AjaxGetWeatherInRadius", data, function(data) {
@@ -129,5 +187,144 @@
         });
     });
 
-    getSecurityToken();
+    $(document).on("click", "#BtnWeather", function() {
+        var id = Math.random(0, 10000),
+            data = {
+                id: "asset-" + id,
+                event: "weather",
+                center: "34.014|-118.2869",
+                radius: "4",
+                url: "http://gae-gh.appspot.com/"
+            };
+
+        assetIds['w'].push(id);
+        registerEvent(data);
+    });
+
+    $(document).on("click", "#BtnTrafficInfo", function() {
+        var id = Math.random(0, 10000),
+            data = {
+                id: "asset-" + id,
+                event: "incidents",
+                center: "34.014|-118.2869",
+                radius: "1",
+                url: "http://google.com/"
+            };
+
+        assetIds['i'].push(id);
+        registerEvent(data);
+    });
+
+    $(document).on("click", "#BtnTrafficFlow", function() {
+        var id = Math.random(0, 10000),
+            data = {
+                id: "asset-" + id,
+                event: "speed",
+                center: "34.014|-118.2869",
+                radius: "4",
+                url: "http://football.ua/",
+                mpx: Math.random(0, 10) * 10
+            };
+
+        assetIds['f'].push(id);
+        registerEvent(data);
+    });
+
+    $(document).on("click", "#BtnUpdateTrafficFlow", function() {
+        var data = {
+                id: "asset-" + assetIds['f'][1],
+                event: "speed",
+                center: "34.014|-118.286",
+                radius: 0.5,
+                url: "http://football.ua/ukraine/fsdf",
+                mpx: 20
+            },
+            url = "/demo/default/UpdateEvent";
+
+        registerEvent(data, url);
+    });
+
+    $(document).on("click", "#BtnUpdateAsset", function() {
+        var data = {
+                id: "asset-" + assetIds['f'][1],
+                center: "35|-100"
+            },
+            url = "/demo/default/UpdateAsset";
+
+        registerEvent(data, url);
+    });
+
+    $(document).on("click", "#BtnCronTest", function() {
+        $.ajax({
+            url: '/demo/Cron/WeatherTemperatureNotifier',
+            beforeSend: function() {
+                $("#Loader").css({ 'display': 'block' });
+            },
+            complete: function() {
+                $("#Loader").hide();
+            },
+            error: function(error) {
+                alert(error.msg || error.message || "Unexpected error.");
+            },
+            success: function(data) {
+//                var response = JSON.parse(data);
+            }
+        });
+    });
+
+    $(document).on("click", "#BtnCronTestAccident", function() {
+        $.ajax({
+            url: '/demo/Cron/TrafficIncidentsNotifier',
+            beforeSend: function() {
+                $("#Loader").css({ 'display': 'block' });
+            },
+            complete: function() {
+                $("#Loader").hide();
+            },
+            error: function(error) {
+                alert(error.msg || error.message || "Unexpected error.");
+            },
+            success: function(data) {
+//                var response = JSON.parse(data);
+            }
+        });
+    });
+
+    $(document).on("click", "#BtnCronTestFlow", function() {
+        $.ajax({
+            url: '/demo/Cron/TrafficSpeedNotifier',
+            beforeSend: function() {
+                $("#Loader").css({ 'display': 'block' });
+            },
+            complete: function() {
+                $("#Loader").hide();
+            },
+            error: function(error) {
+                alert(error.msg || error.message || "Unexpected error.");
+            },
+            success: function(data) {
+//                var response = JSON.parse(data);
+            }
+        });
+    });
+
+    $(document).on("click", "#BtnDeleteEvent", function() {
+        var url = '/demo/Default/DeleteEvent',
+            data = {
+                assetId: $("#assetId").val(),
+                eventType: $("#eventType").val()
+            };
+
+        deleteAssetInfo(url, data);
+    });
+
+    $(document).on("click", "#BtnDeleteAsset", function() {
+        var url = '/demo/Default/DeleteAsset',
+            data = {
+                assetId: $("#assetId").val()
+            };
+
+        deleteAssetInfo(url, data);
+    });
 })();
+

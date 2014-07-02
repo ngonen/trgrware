@@ -125,7 +125,10 @@ return array(
             'inrixAPIUrl' => 'http://api.sandbox.inrix.com/Traffic/Inrix.ashx',
             'vendorId' => '1410303725',
             'consumerId' => '14ea4638-ffbb-4ba8-abba-d86a42e9887f'
-        )
+        ),
+        'eventStoragePath' => ENV_DEV
+            ? Yii::getPathOfAlias('assets') . "/eventStorage.txt"
+            : 'gs://gae-yii.appspot.com/assets-bucket/eventStorage.txt'
 		// this is used in contact page
 //		'adminEmail'=>'webmaster@example.com',
 	),

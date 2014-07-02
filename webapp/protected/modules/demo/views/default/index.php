@@ -290,9 +290,9 @@
     </form>
 </div>
 <div id="context_menu">
-    <div class="menu_item triggers_menu">Triggers
+    <div class="menu_item sub triggers_menu">Triggers
         <div class="submenu">
-            <div class="menu_item traffic_menu">Traffic
+            <div class="menu_item sub traffic_menu">Traffic
                 <div class="traffic_sub_menu">
                     <div class="menu_item" data-popup="#trigger_accident_popup" data-type="traffic_accident" onclick="showTriggerPopup(event)">
                         Incident
@@ -304,7 +304,7 @@
                     </div>
                 </div>
             </div>
-            <div class="menu_item weather_menu">Weather
+            <div class="menu_item sub weather_menu">Weather
                 <div class="weather_sub_menu">
                     <div class="menu_item" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup(event)">
                         Event
@@ -316,7 +316,7 @@
                     </div>
                 </div>
             </div>
-            <div class="menu_item social_menu">Social
+            <div class="menu_item sub social_menu">Social
                 <div class="social_sub_menu">
                     <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter" onclick="showTriggerPopup(event)">
                         Twitter
@@ -360,6 +360,17 @@
 <button id="GetSegmentSpeedInfo" disabled="disabled">Get Segment Speed Info</button>
 <button id="SimulateCallback">Simulate Galaxy Request</button>
 
+    <label style="display: block; text-align: center; font-weight: bold;">Test block</label>
+    <button id="BtnCronTest">Cron Test Weather</button>
+    <button id="BtnCronTestAccident">Cron Test Accident</button>
+    <button id="BtnCronTestFlow">Cron Test Flow</button>
+
+    <div style="border: 1px solid; margin: 2px;">
+        AssetId:<input type="test" id="assetId" value="" />
+        EventType:<input type="test" id="eventType" value="" />
+        <button id="BtnDeleteAsset">Delete Asset</button>
+        <button id="BtnDeleteEvent">Delete Event</button>
+    </div>
 <div class="modal-dialog-bg" style="opacity: 0.75; width: 1920px; height: 656px; display: none;" aria-hidden="true"></div>
 <div class="modal-dialog p6n-popup" style="left: 761px; top: 100px; opacity: 1; display: none;" aria-labelledby=":gg" tabindex="0" role="dialog">
     <div class="modal-dialog-title p6n-popup-title modal-dialog-title-draggable">

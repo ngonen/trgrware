@@ -1,4 +1,12 @@
 cron:
-#- description: Test cron job
-#  url: /site/TestCron
+#- description: Notifier for weather subscribers
+#  url: /demo/Cron/WeatherTemperatureNotifier
+#  schedule: every 1 mins
+#
+#- description: Notifier for incident subscribers
+#  url: /demo/Cron/TrafficIncidentsNotifier
+#  schedule: every 2 mins
+#
+#- description: Notifier for Speed subscribers
+#  url: /demo/Cron/TrafficSpeedNotifier
 #  schedule: every 1 mins

@@ -48,7 +48,7 @@ $this->breadcrumbs=array(
 
 	<div class="row buttons">
 		<?php echo CHtml::submitButton('Login'); ?>
-        <?php echo CHtml::link('Login with Google', $googleLoginUrl); ?>
+<!--        --><?php //echo CHtml::link('Login with Google', $googleLoginUrl); ?>
 	</div>
 
 <?php $this->endWidget(); ?>

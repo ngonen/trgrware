@@ -1,20 +1,29 @@
 <?php
 
-class DefaultController extends Controller
+class DefaultController extends DemoBaseController
 {
     public $layout = '/layouts/layout';
 
-	public function actionIndex()
-	{
+	public function actionIndex() {
         if (Yii::app()->user->isGuest) {
             Yii::app()->user->returnUrl = "/demo";
 
             $this->redirect('site/login');
         }
 
+        // Clear file storage
+        $filePath = Yii::app()->params['eventStoragePath'];
+
+        if (is_file($filePath)) {
+            syslog(LOG_INFO, "Remove storage file.");
+
+            unlink($filePath);
+        }
+
 		$this->render('index');
 	}
 
+    // TODO: remove as redundant
     public function actionAjaxGetSecurityToken() {
         $token = $this->getSecurityToken();
 
@@ -27,31 +36,17 @@ class DefaultController extends Controller
         $this->endApp();
     }
 
+    // TODO: remove as redundant
     public function actionAjaxGetIncidentInfo() {
         syslog(LOG_INFO, "Action AjaxGetIncidentInfo start.");
 
-        if (/*!YII_DEBUG && */!Yii::app()->request->isAjaxRequest) {
+        if (!Yii::app()->request->isAjaxRequest) {
             throw new CHttpException('403', 'Forbidden access.');
         }
 
-        $token = Yii::app()->request->getParam('token');
         $center = Yii::app()->request->getParam('center');
         $radius = Yii::app()->request->getParam('radius');
-
-//        syslog(LOG_INFO, "token: " . $token);
-//        syslog(LOG_INFO, "center: " . $center);
-//        syslog(LOG_INFO, "radius: " . $radius);
-
-        $context = stream_context_create(array(
-            'http' => array(
-                'method' => 'GET',
-                'header' => "cache-control: private, max-age=0, no-cache"
-//                'content' => $content
-            )
-        ));
-        $result = file_get_contents('http://api.sandbox.inrix.com/Traffic/Inrix.ashx?Action=GetIncidentsInRadius&Center=' . $center
-            . '&Radius=' . $radius . '&Token=' . $token . '&IncedentType=Incidents', false, $context);
-        $resultXML = simplexml_load_string($result);
+        $resultXML = $this->getIncidentInfo($center, $radius);
 
         syslog(LOG_INFO, "XML result created: " . $resultXML);
 
@@ -69,66 +64,50 @@ class DefaultController extends Controller
     public function actionAjaxGetWeatherInRadius() {
         syslog(LOG_INFO, "Action AjaxGetWeatherInRadius start.");
 
-        if (/*!YII_DEBUG && */!Yii::app()->request->isAjaxRequest) {
+        if (!Yii::app()->request->isAjaxRequest) {
             throw new CHttpException('403', 'Forbidden access.');
         }
 
-        $token = Yii::app()->request->getParam('token');
+        $response = [
+            "status" => false
+        ];
+
         $center = Yii::app()->request->getParam('center');
         $radius = Yii::app()->request->getParam('radius');
-        
-//        syslog(LOG_INFO, "token: " . $token);
-//        syslog(LOG_INFO, "center: " . $center);
-//        syslog(LOG_INFO, "radius: " . $radius);
+        $refreshKey = Yii::app()->request->getParam('refreshKey');
 
-        $context = stream_context_create(array(
-            'http' => array(
-                'method' => 'GET',
-                'header' => "cache-control: private, max-age=0, no-cache"
-            )
-        ));
-        $result = file_get_contents(Yii::app()->params['Inrix']['inrixAPIUrl'] . "?Action=GetWeatherInRadius&Center=" . $center
-            . "&Radius=" . $radius . "&Token=" . $token, false, $context);
-        $resultXML = simplexml_load_string($result);
+        if (!$center || !$radius || !$refreshKey) {
+            $response["errorMessage"] = "Check your parameters".
 
-        syslog(LOG_INFO, "XML result created.");
+            $this->renderJSON($response);
+            $this->endApp();
+        }
 
+        $resultXML = $this->getWeatherInRadius($center, $radius);
         $response = array(
-            "status" => count($resultXML->SegmentSpeedResults) > 0,
-            "refreshKey" => Yii::app()->request->getParam('refreshKey'),
+            "status" => $resultXML->Weather->Conditions && count($resultXML->Weather->Conditions->Station) > 0,
+            "refreshKey" => $refreshKey,
             "weather" => $resultXML->asXML()
         );
 
         $this->renderJSON($response);
-        $this->endApp();
 
         syslog(LOG_INFO, "Action AjaxGetWeatherInRadius end.");
+
+        $this->endApp();
     }
 
+    // TODO: remove as redundant
     public function actionAjaxGetSegmentSpeedInRadius() {
         syslog(LOG_INFO, "Action AjaxGetSegmentSpeedInRadius start.");
 
-        if (/*!YII_DEBUG && */!Yii::app()->request->isAjaxRequest) {
+        if (!Yii::app()->request->isAjaxRequest) {
             throw new CHttpException('403', 'Forbidden access.');
         }
 
-        $token = Yii::app()->request->getParam('token');
         $center = Yii::app()->request->getParam('center');
         $radius = Yii::app()->request->getParam('radius');
-
-//        syslog(LOG_INFO, "token: " . $token);
-//        syslog(LOG_INFO, "center: " . $center);
-//        syslog(LOG_INFO, "radius: " . $radius);
-
-        $context = stream_context_create(array(
-            'http' => array(
-                'method' => 'GET',
-                'header' => "cache-control: private, max-age=0, no-cache"
-            )
-        ));
-        $result = file_get_contents(Yii::app()->params['Inrix']['inrixAPIUrl'] . "?Action=GetSegmentSpeedInRadius&Center="
-            . $center . "&Radius=" . $radius . "&Token=" . $token, false, $context);
-        $resultXML = simplexml_load_string($result);
+        $resultXML = $this->getSegmentSpeedInRadius($center, $radius);
 
         $response = array(
             "status" => count($resultXML->SegmentSpeedResults) > 0,
@@ -141,50 +120,362 @@ class DefaultController extends Controller
         syslog(LOG_INFO, "Action AjaxGetWeatherInBoxFGC end.");
     }
 
-    public function actionGalaxyCallBack() {
-        $context = stream_context_create(array(
-            'http' => array(
-                'method' => 'GET',
-                'header' => "cache-control: private, max-age=0, no-cache"
-            )
-        ));
-        $result = file_get_contents(Yii::app()->params['galaxyDomainUrl'] . "?i_user=rgralert&" .
-            "i_password=123&i_password=123&i_stationId=-1&i_command=event&i_param1=accident&callback=", false, $context);
+    /**
+     * Adds asset to events queue
+     * This queue will be used by cron for notifying subscribed users
+     */
+    public function actionRegisterEvent() {
+        syslog(LOG_INFO, "Action 'RegisterEvent' started.");
 
-        $response = array(
-            "status" => $result ? true : false,
-            "result" => $result
-        );
+        if (!Yii::app()->request->isAjaxRequest) {
+            throw new CHttpException('403', 'Forbidden access.');
+        }
+
+        $event = Yii::app()->request->getParam('eventType');
+        $filePath = Yii::app()->params['eventStoragePath'];
+        $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
+        $response = [
+            "status" => false
+        ];
+        $eventParams = [
+            'id' => Yii::app()->request->getParam('asset_id'),
+            'center' => Yii::app()->request->getParam('center'),
+            'radius' => Yii::app()->request->getParam('radius'),
+            'url' => Yii::app()->request->getParam('callbackURL')
+        ];
+
+        switch ($event) {
+            case DemoBaseController::WEATHER_TEMPERATURE: {
+                $eventParams['temperature'] = Yii::app()->request->getParam('temperature');
+                $eventParams['threshold'] = Yii::app()->request->getParam('threshold');
+
+                break;
+            }
+
+            case DemoBaseController::TRAFFIC_INCIDENTS: {
+                $eventParams['severity'] = Yii::app()->request->getParam('severity');
+
+                break;
+            }
+
+            case DemoBaseController::TRAFFIC_FLOW: {
+                $eventParams['speedUnder'] = Yii::app()->request->getParam('speedUnder');
+
+                break;
+            }
+        }
+
+        if (is_file($filePath)) {
+            syslog(LOG_INFO, "Storage exists. Start to unserialize.");
+
+            $fc = unserialize(file_get_contents($filePath, 0, $ctx));
+        } else {
+            syslog(LOG_INFO, "Storage does not exist. Start to create.");
+
+            $fc = [
+                DemoBaseController::WEATHER_TEMPERATURE => [],
+                DemoBaseController::TRAFFIC_INCIDENTS => [],
+                DemoBaseController::TRAFFIC_FLOW => []
+            ];
+        }
+
+        $fc[$event][] = $eventParams;
+        $isPut = file_put_contents($filePath, serialize($fc), 0, $ctx);
+
+        if ($isPut) {
+            syslog(LOG_INFO, "Storage has been successfully saved.");
+
+            $response["status"] = $isPut > 0;
+            $response["message"] = "Your event has been successfully queued.";
+            $response["statistic"] = [
+                DemoBaseController::WEATHER_TEMPERATURE => count($fc[DemoBaseController::WEATHER_TEMPERATURE]),
+                DemoBaseController::TRAFFIC_INCIDENTS => count($fc[DemoBaseController::TRAFFIC_INCIDENTS]),
+                DemoBaseController::TRAFFIC_FLOW => count($fc[DemoBaseController::TRAFFIC_FLOW])
+            ];
+            $response["content"] = $fc;
+            $response["assetId"] = Yii::app()->request->getParam('asset_id');
+            $response["eventType"] = $event;
+        } else {
+            $response["errorMessage"] = "Error when tried to store event.";
+        }
 
         $this->renderJSON($response);
+
+        syslog(LOG_INFO, "Action 'RegisterEvent' finished.");
+
+        $this->endApp();
+    }
+
+    /**
+     * Update triggers in storage for specific type of event
+     * @throws CHttpException
+     */
+    public function actionUpdateEvent() {
+        syslog(LOG_INFO, "Action 'UpdateEvent' started.");
+
+        if (!Yii::app()->request->isAjaxRequest) {
+            throw new CHttpException('403', 'Forbidden access.');
+        }
+
+        $assetId = Yii::app()->request->getParam('asset_id');
+        $event = Yii::app()->request->getParam('eventType');
+        $filePath = Yii::app()->params['eventStoragePath'];
+        $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
+        $response = [
+            "status" => false
+        ];
+        $eventParams = [
+            'id' => $assetId,
+            'center' => Yii::app()->request->getParam('center'),
+            'radius' => Yii::app()->request->getParam('radius'),
+            'url' => Yii::app()->request->getParam('callbackURL')
+        ];
+        $isFound = false;
+        $storageExists = is_file($filePath);
+
+        switch ($event) {
+            case DemoBaseController::WEATHER_TEMPERATURE: {
+                $eventParams['temperature'] = Yii::app()->request->getParam('temperature');
+                $eventParams['threshold'] = Yii::app()->request->getParam('threshold');
+
+                break;
+            }
+
+            case DemoBaseController::TRAFFIC_INCIDENTS: {
+                $eventParams['severity'] = Yii::app()->request->getParam('severity');
+
+                break;
+            }
+
+            case DemoBaseController::TRAFFIC_FLOW: {
+                $eventParams['speedUnder'] = Yii::app()->request->getParam('speedUnder');
+
+                break;
+            }
+        }
+
+        if ($storageExists) {
+            $fc = unserialize(file_get_contents($filePath, 0, $ctx));
+
+            foreach ($fc[$event] as $key => $value) {
+                if ($value['id'] == $assetId) {
+                    $isFound = true;
+                    $fc[$event][$key] = $eventParams;
+
+                    break;
+                }
+            }
+        }
+
+        if (!$isFound || !$storageExists) {
+            $fc = [
+                DemoBaseController::WEATHER_TEMPERATURE => [],
+                DemoBaseController::TRAFFIC_INCIDENTS => [],
+                DemoBaseController::TRAFFIC_FLOW => []
+            ];
+            $fc[$event][] = $eventParams;
+        }
+
+        $isPut = file_put_contents($filePath, serialize($fc), 0, $ctx);
+
+        if ($isPut) {
+            $response["status"] = $isPut > 0;
+            $response["message"] = $isFound
+                ? "Your event has been successfully updated."
+                : "Your event has been successfully created.";
+            $response["statistic"] = [
+                DemoBaseController::WEATHER_TEMPERATURE => count($fc[DemoBaseController::WEATHER_TEMPERATURE]),
+                DemoBaseController::TRAFFIC_INCIDENTS => count($fc[DemoBaseController::TRAFFIC_INCIDENTS]),
+                DemoBaseController::TRAFFIC_FLOW => count($fc[DemoBaseController::TRAFFIC_FLOW])
+            ];
+            $response["content"] = $fc;
+        } else {
+            $response["errorMessage"] = "Error when tried to store event.";
+        }
+
+        $this->renderJSON($response);
+
+        syslog(LOG_INFO, "Action 'UpdateEvent' finished.");
+
+        $this->endApp();
+    }
+
+    /**
+     * Update triggers in storage for asset
+     * @throws CHttpException
+     */
+    public function actionUpdateAsset() {
+        syslog(LOG_INFO, "Action 'UpdateAsset' started.");
+
+        if (!Yii::app()->request->isAjaxRequest) {
+            throw new CHttpException('403', 'Forbidden access.');
+        }
+
+        $assetId = Yii::app()->request->getParam('asset_id');
+        $filePath = Yii::app()->params['eventStoragePath'];
+        $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
+        $response = ["status" => false];
+        $storageExists = is_file($filePath);
+
+        if ($storageExists) {
+            $fc = unserialize(file_get_contents($filePath, 0, $ctx));
+
+            if (!is_array($fc)) {
+                file_put_contents($filePath, "", 0, $ctx);
+
+                $response["errorMessage"] = "Data in storage is not correct. Reload the page.";
+
+                $this->renderJSON($response);
+                $this->endApp();
+            }
+
+            foreach ($fc as $key => $value) {
+                foreach ($value as $i => $item) {
+                    if ($item['id'] == $assetId) {
+                        $fc[$key][$i]['center'] = Yii::app()->request->getParam('center');
+                    }
+                }
+            }
+
+            $isPut = file_put_contents($filePath, serialize($fc), 0, $ctx);
+
+            if ($isPut) {
+                $response["status"] = $isPut > 0;
+                $response["message"] = "Your asset has been successfully updated.";
+                $response["statistic"] = [
+                    DemoBaseController::WEATHER_TEMPERATURE => count($fc[DemoBaseController::WEATHER_TEMPERATURE]),
+                    DemoBaseController::TRAFFIC_INCIDENTS => count($fc[DemoBaseController::TRAFFIC_INCIDENTS]),
+                    DemoBaseController::TRAFFIC_FLOW => count($fc[DemoBaseController::TRAFFIC_FLOW])
+                ];
+                $response["content"] = $fc;
+            } else {
+                $response["errorMessage"] = "Error when tried to store event.";
+            }
+        } else {
+            $response["errorMessage"] = "Events for this asset were not found in storage. Please create it again.";
+        }
+
+        $this->renderJSON($response);
+
+        syslog(LOG_INFO, "Action 'UpdateAsset' started.");
+
+        $this->endApp();
+    }
+
+    // TODO: test action
+    /**
+     * Delete created asset on the map
+     */
+    public function actionDeleteAsset() {
+        syslog(LOG_INFO, "Action 'DeleteAsset' started.");
+
+        if (!Yii::app()->request->isAjaxRequest) {
+            throw new CHttpException('403', 'Forbidden access.');
+        }
+
+        $response = $this->deleteAssetInfo(Yii::app()->request->getParam('assetId'));
+
+        $this->renderJSON($response);
+
+        syslog(LOG_INFO, "Action 'DeleteAsset' finished.");
+
+        $this->endApp();
+    }
+
+    // TODO: test action
+    /**
+     * Delete event for asset
+     */
+    public function actionDeleteEvent() {
+        syslog(LOG_INFO, "Action 'DeleteEvent' started.");
+
+        if (!Yii::app()->request->isAjaxRequest) {
+            throw new CHttpException('403', 'Forbidden access.');
+        }
+
+        $response = $this->deleteAssetInfo(Yii::app()->request->getParam('assetId'), Yii::app()->request->getParam('eventType'));
+
+        $this->renderJSON($response);
+
+        syslog(LOG_INFO, "Action 'DeleteEvent' finished.");
+
         $this->endApp();
     }
 
 
-    /**
-     * Get Security Token for vendor
-     * @return bool
-     * @throws InvalidArgumentException
-     */
-    private function getSecurityToken() {
-        $context = stream_context_create(array(
-            'http' => array(
-                'method' => 'GET',
-                'header' => "cache-control: private, max-age=0, no-cache\r\n"
-            )
-        ));
-        $result = file_get_contents(Yii::app()->params['Inrix']['inrixAPIUrl'] . "?Action=GetSecurityToken&VendorID="
-            . Yii::app()->params['Inrix']['vendorId'] . "&ConsumerID=" . Yii::app()->params['Inrix']['consumerId'], false, $context);
-        $resultXML = simplexml_load_string($result);
 
-        if (!$resultXML->AuthResponse->AuthToken) {
-            throw new InvalidArgumentException("Auth token could not be found.");
+
+
+    private function deleteAssetInfo($assetId, $eventType = false) {
+        $response = ["status" => false];
+        $filePath = Yii::app()->params['eventStoragePath'];
+        $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
+        $isFound = false;
+
+        if (is_file($filePath)) {
+            $fc = unserialize(file_get_contents($filePath, 0, $ctx));
+
+            if (is_array($fc)) {
+                if ($eventType) {
+                    syslog(LOG_INFO, "Start delete event.");
+
+                    foreach ($fc[$eventType] as $key => $value) {
+                        if ($value['id'] == $assetId) {
+                            unset($fc[$eventType][$key]);
+
+                            $isFound = true;
+                        }
+                    }
+
+                    $response["eventType"] = $eventType;
+                } else {
+                    syslog(LOG_INFO, "Start delete asset.");
+
+                    foreach ($fc as $key => $value) {
+                        foreach ($value as $i => $item) {
+                            if ($item['id'] == $assetId) {
+                                unset($fc[$key][$i]);
+
+                                $isFound = true;
+                            }
+                        }
+                    }
+                }
+
+                if (!$isFound) {
+                    $response["errorMessage"] = $eventType
+                        ? "Event has not been found in storage."
+                        : "Asset has not been found in storage.";
+
+                    return $response;
+                }
+
+                $isPut = file_put_contents($filePath, serialize($fc), 0, $ctx);
+
+                if ($isPut) {
+                    $response["status"] = $isPut > 0;
+                    $response["assetId"] = $assetId;
+                    $response["statistic"] = [
+                        DemoBaseController::WEATHER_TEMPERATURE => count($fc[DemoBaseController::WEATHER_TEMPERATURE]),
+                        DemoBaseController::TRAFFIC_INCIDENTS => count($fc[DemoBaseController::TRAFFIC_INCIDENTS]),
+                        DemoBaseController::TRAFFIC_FLOW => count($fc[DemoBaseController::TRAFFIC_FLOW])
+                    ];
+                    $response["content"] = $fc;
+                    $response["message"] = $eventType
+                        ? "Event has been successfully deleted."
+                        : "Asset has been successfully deleted.";
+                } else {
+                    $response["errorMessage"] = "Error when tried to store event.";
+                }
+            } else {
+                file_put_contents($filePath, "", 0, $ctx);
+
+                $response["errorMessage"] = "Data in storage is not correct. Reload the page.";
+            }
+        } else {
+            $response["errorMessage"] = "FileStorage was not found. Reload the page.";
         }
 
-        syslog(LOG_INFO, "AuthToken: " . $resultXML->AuthResponse->AuthToken);
-
-        return is_object($resultXML->AuthResponse->AuthToken)
-            ? $resultXML->AuthResponse->AuthToken->__toString()
-            : false;
+        return $response;
     }
 }

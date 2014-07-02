@@ -93,11 +93,11 @@ class SiteController extends Controller
 		}
 
 		// collect user input data
-		if(isset($_POST['LoginForm']))
+		if (isset($_POST['LoginForm']))
 		{
 			$model->attributes=$_POST['LoginForm'];
 			// validate user input and redirect to the previous page if valid
-			if($model->validate() && $model->login()) {
+			if ($model->validate() && $model->login()) {
                 $this->redirect(Yii::app()->user->returnUrl);
             }
 		}
@@ -135,10 +135,15 @@ class SiteController extends Controller
 
     }
 
+    // TODO: delete
     public function actionTest()
     {
         echo '<pre>';
-        echo "is_file('gs://yii-assets/dir/file.txt');";
+
+        var_dump(Yii::app()->basePath . '/../assets');
+        var_dump(is_file(Yii::app()->basePath . "/../assets/file.txt"));
+
+        echo "is_file('gs://assets/file.txt');";
         var_dump(is_file('gs://yii-assets/dir/file.txt'));
 
         echo "is_dir('gs://yii-assets/dir');";
@@ -155,9 +160,7 @@ class SiteController extends Controller
         echo '</pre>';
     }
 
-
-
-
+    // TODO: delete
     public function actionQueueAdd() {
         require_once 'google/appengine/api/taskqueue/PushTask.php';
         require_once 'google/appengine/api/taskqueue/PushQueue.php';
@@ -169,21 +172,30 @@ class SiteController extends Controller
         $a = 2;
     }
 
+    // TODO: delete
     public function actionQueueTask() {
         $a = 2;
 
         echo 'Queue Task was executed.';
     }
 
+    // TODO: delete
     public function actionTestCron() {
         syslog(LOG_INFO, 'TestCron function was executed.');
     }
 
+    // TODO: delete
     public function actionFile() {
         $options = [ "gs" => [ "Content-Type" => "text/plain" ]];
         $ctx = stream_context_create($options);
         file_put_contents("gs://gae-yii.appspot.com/myFile.txt", "Hello", 0, $ctx);
 
-        return file_get_contents("gs://gae-yii.appspot.com/myFile.txt");
+        $fp = fopen("gs://gae-yii.appspot.com/file.txt", 'w');
+        fwrite($fp, 'Hello ');
+        fwrite($fp, 'world');
+        fwrite($fp, '!');
+        fclose($fp);
+
+//        return file_get_contents("gs://gae-yii.appspot.com/myFile.txt");
     }
 }
