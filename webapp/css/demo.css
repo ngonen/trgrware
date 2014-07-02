@@ -392,16 +392,15 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     background-color: #FFF;
     visibility: hidden;
     position: absolute;
-    line-height: 30px;
+    line-height: 28px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 	border: 1px solid lightgray;
 	border-radius: 5px;
-	padding: 4px 0 4px 0;
 }
 
 .menu_item {
     display: block;
-    padding: 5px 0px 0 5px;
+    padding: 0px 0px 0 5px;
     cursor: context-menu;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 14px;
@@ -449,14 +448,14 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .weather_menu:hover .weather_sub_menu {
 	display: block;
 	position: absolute;
-	top: 35px;
+	top: 29px;
 	left: 150px;
 }
 
 .social_menu:hover .social_sub_menu {
 	display: block;
 	position: absolute;
-	top: 70px;
+	top: 58px;
 	left: 150px;
 }
 
@@ -467,7 +466,6 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	border: 1px solid lightgray;
 	margin-top: -1px;
 	border-radius: 5px;
-	padding: 4px 0 4px 0;
 }
 
 .weather_station {
@@ -546,7 +544,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .cross {	
     cursor: pointer;
     position: relative;
-    top: -17px;
+    top: -15px;
     left: 120px;
 }
 
@@ -579,3 +577,8 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	background: #FFF;
 }
 
+.separator {
+	height: 1px;
+	overflow: hidden;
+	background-color: #e5e5e5;
+}

@@ -298,24 +298,28 @@
                         Incident
                         <div class="cross hidden" onclick="removeTrigger(event)"></div>
                     </div>
+                    <div class="separator"></div>
                     <div class="menu_item" data-popup="#trigger_flow_popup" data-type="traffic_flow" onclick="showTriggerPopup(event)">
                         Flow
                         <div class="cross hidden" onclick="removeTrigger(event)"></div>
                     </div>
                 </div>
             </div>
+            <div class="separator"></div>
             <div class="menu_item sub weather_menu">Weather
                 <div class="weather_sub_menu">
                     <div class="menu_item" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup(event)">
                         Event
                         <div class="cross hidden" onclick="removeTrigger(event)"></div>
                     </div>
+                    <div class="separator"></div>
                     <div class="menu_item" data-popup="#trigger_temperature_popup" data-type="weather_temperature" onclick="showTriggerPopup(event)">
                         Temperature
                         <div class="cross hidden" onclick="removeTrigger(event)"></div>
                     </div>
                 </div>
             </div>
+            <div class="separator"></div>
             <div class="menu_item sub social_menu">Social
                 <div class="social_sub_menu">
                     <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="social_twitter" onclick="showTriggerPopup(event)">
@@ -326,7 +330,9 @@
             </div>
         </div>
     </div>
+    <div class="separator"></div>
     <div class="menu_item" onclick="showPropertiesPopup()">Properties</div>
+    <div class="separator"></div>
     <div class="menu_item" onclick="removeAsset()">Remove asset</div>
 </div>
             
