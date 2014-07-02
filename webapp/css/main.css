@@ -56,16 +56,18 @@ body
 {
 	padding:6px 20px 5px 20px;
 	margin:0px;
+    height: 15px;
 }
 
 #mainmenu ul li
 {
 	display: inline;
+    float: left;
 }
 
 #mainmenu ul li a
 {
-	color:#ffffff;
+	color: #FFFFFF;
 	background-color:transparent;
 	font-size:12px;
 	font-weight:bold;

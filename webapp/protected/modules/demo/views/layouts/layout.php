@@ -19,7 +19,8 @@
                     <nav class="appbar-nav">
                         <ul class="breadcrumbs">
                             <li><a href="/" class="crumb product-name">Home</a></li>
-                            <li><a href="/" class="crumb product-name">Logout (<?php echo Yii::app()->user->name ?>)</a></li>
+                            <li class="nav-title"><a href="/demo" class="crumb product-name">TRGRware demo</a></li>
+                            <li><a href="/site/logout" class="crumb product-name">Logout (<?php echo Yii::app()->user->name ?>)</a></li>
                         </ul>
                     </nav>
                     <div class="appbar-buttons"></div>
@@ -27,10 +28,8 @@
             </div>
         </header>
 
-        <section class="primary-container">
-            <div class="page-width-container">
-                <?php echo $content; ?>
-            </div>
+        <section class="primary-container">           
+            <?php echo $content; ?>
         </section>
 
         <footer role="contentinfo" class="primary-footer nocontent">
