@@ -60,6 +60,10 @@
         </div>
     </div>
 </div>
+<div class="loading">
+    <img src="/img/loading.gif" width="12px" height="12px">
+    Updating map
+</div>
 <div id="map_canvas"></div>
 <div class="popup_bg"></div>
 <div id="asset_popup" class="popup">

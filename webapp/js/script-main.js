@@ -13,6 +13,7 @@ var props;
 var active_asset;
 var trigger_type;
 var refreshKey;
+var updateMap;
 
 // Add INRIX Tile layer (see inrix.layer.js for details)
 var traffic = new InrixTileLayer(map);
@@ -382,8 +383,13 @@ function showWeather(data) {
                    title: "weather station"
                 }));
             });
+        
         } catch(err) {
             console.log("Cannot parse responce");
+        }
+        $(".loading").removeClass("weather");
+        if ($(".loading")[0].classList.length < 2) {
+            $(".loading").hide();
         }
     }
 }
@@ -400,6 +406,10 @@ function getIncidents() {
         incidentSource: "All",
         success:function (incidents) {
             showIncidents(incidents);
+            $(".loading").removeClass("incidents");
+            if ($(".loading")[0].classList.length < 2) {
+                $(".loading").hide();
+            }
         }
     };
     IncidentMgr.getIncidentsInBox(params);
@@ -440,11 +450,16 @@ function getWeather() {
 
 function getMapInfo() {
     if (map.getZoom() > 11) {
+        if ($("#temperature")[0].checked || $("#accidents")[0].checked) {
+            $(".loading").show();
+        }
         if ($("#temperature")[0].checked) {
             getWeather();
+            $(".loading").addClass("weather");
         }
         if ($("#accidents")[0].checked) {
             getIncidents();
+            $(".loading").addClass("incidents");
         }
     } else {
         refreshKey = null;
@@ -503,6 +518,14 @@ function extend(childObj, parentObj) {
     childObj.superclass = parentObj.prototype;
 }
 
+function autoUpdateMap() {
+    function update() {
+        getMapInfo();
+        autoUpdateMap();
+    }   
+    updateMap = setTimeout(update, 60000);
+}
+
 $(function() {
     // Setup INRIX configuration with the right set of credentials (vendorID, vendorToken)
     var configuration = {
@@ -524,6 +547,7 @@ $(function() {
     }
     google.maps.event.addListener(map, "bounds_changed", function() {
         getMapInfo();
+        autoUpdateMap();
         google.maps.event.clearListeners(map, 'bounds_changed');
     });
     $("#traffic").on("change", function(ev) {
@@ -531,16 +555,44 @@ $(function() {
     });
     $("#accidents").on("change", function(ev) {
         if (map.getZoom() > 11) {
-            ev.target.checked ? getIncidents() : clearMap(incidentMarkers);
+            if (ev.target.checked) {
+                getIncidents();
+                $(".loading").show();
+                $(".loading").addClass("incidents");
+            } else {
+                clearMap(incidentMarkers);
+                $(".loading").removeClass("incidents");
+                if ($(".loading")[0].classList.length < 2) {
+                    $(".loading").hide();
+                }
+            }
         }
     });
     $("#temperature").on("change", function(ev) {
         if (map.getZoom() > 11) {
-            ev.target.checked ? getWeather() : turnOfInfo(weatherStations);
+            if (ev.target.checked) {
+                getWeather();
+                $(".loading").show();
+                $(".loading").addClass("weather");
+            } else {
+                turnOfInfo(weatherStations);
+                $(".loading").removeClass("weather");
+                if ($(".loading")[0].classList.length < 2) {
+                    $(".loading").hide();
+                }
+            }
         }
     });
-    google.maps.event.addListener(map, "dragend", getMapInfo);
-    google.maps.event.addListener(map, "zoom_changed", onZoom);
+    google.maps.event.addListener(map, "dragend", function() {
+        clearTimeout(updateMap);
+        getMapInfo();
+        autoUpdateMap();
+    });
+    google.maps.event.addListener(map, "zoom_changed", function() {
+        clearTimeout(updateMap);
+        onZoom();
+        autoUpdateMap();
+    });
     $("body").on("click", hideMenu);
     $(".assets_list").on("dragstart", function(ev) {
         ev.originalEvent.dataTransfer.setData("action", "create_asset");

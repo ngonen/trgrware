@@ -194,6 +194,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     display: inline-block;
     margin-bottom: -7px;
     margin-left: -180px;
+    margin-right: -140px;
 }
 
 .header {
@@ -537,10 +538,6 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	background-color:#C80100;	
 }
 
-.hidden {
-	display: none;
-}
-
 .cross {	
     cursor: pointer;
     position: relative;
@@ -581,4 +578,17 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	height: 1px;
 	overflow: hidden;
 	background-color: #e5e5e5;
+}
+
+.loading {
+	position: relative;
+	right: -125px;
+	float: right;
+	margin: 10px 0 0 15px;
+	display: none;
+	font-size: 15px;
+}
+
+.hidden {
+	display: none;
 }
