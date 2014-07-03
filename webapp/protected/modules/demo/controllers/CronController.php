@@ -2,39 +2,6 @@
 
 class CronController extends DemoBaseController
 {
-    // TODO: delete
-    public function actionEvents() {
-        syslog(LOG_INFO, "Action actionEvents started.");
-
-        $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
-
-        if (is_file($filePath)) {
-            $fc = unserialize(file_get_contents($filePath, 0, $ctx));
-
-            syslog(LOG_INFO, "Content unserialized.");
-
-            foreach ($fc as $key => $value) {
-                foreach ($value as $v) {
-                    syslog(LOG_INFO, $key . ": id-" . $v['id'] . ", center-" . $v['center']);
-
-                    if ($key == 'weather') {
-                        syslog(LOG_INFO, "Callback request for weather URL was sent.");
-
-                        file_get_contents($v['url'] . "?id=" . $v['id'], false, stream_context_create(array(
-                            'http' => array(
-                                'method' => 'GET',
-                                'header' => "cache-control: private, max-age=0, no-cache"
-                            )
-                        )));
-                    }
-                }
-            }
-        }
-
-        syslog(LOG_INFO, "Action actionEvents finished.");
-    }
-
     public function actionWeatherTemperatureNotifier() {
         syslog(LOG_INFO, "Action WeatherNotifier started.");
 

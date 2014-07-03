@@ -10,6 +10,7 @@ html.hcfe {
     margin: 0;
     padding: 0;
     position: relative;
+	overflow-x: hidden;
 }
 html {
     overflow-y: scroll;
@@ -84,9 +85,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .appbar-nav .crumb, .appbar-nav .crumb:visited {
     color: #999;
 }
-.appbar-nav .product-name {
-    margin-left: 1em;
-}
+
 .hcfe a {
     color: #245dc1;
     text-decoration: none;
@@ -130,7 +129,7 @@ img {
 .primary-container {
     box-shadow: 0 -30px 30px -4px #999;
     margin: 0 auto;
-    max-width: 1280px;
+    max-width: 75%;
 }
 article, aside, details, figcaption, figure, footer, header, hgroup, nav, section {
     display: block;
@@ -193,7 +192,8 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     width: 100%;
     display: inline-block;
     margin-bottom: -7px;
-    margin-left: -180px;
+    margin-left: -16.67%;
+    margin-right: -140px;
 }
 
 .header {
@@ -206,10 +206,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .left_panel {
-    width: 180px;
+    width: 16.67%;
     float: left;
     position: relative;
-    left: -180px;
+    left: -16.67%;
     display: inline-block;
 }
 
@@ -226,6 +226,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .list_item {
 	padding-top: 2px;
+	padding-left: 10px;
 }
 
 .popup {
@@ -244,12 +245,12 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	color: red;
 	text-align: center;
 	width: 346px;
-	padding-top: 10px;
+	padding-top: 17px;
 }
 
 #asset_popup {
-    margin-top: -209px;	
-    margin-left: -184px;
+    margin-top: -216px;	
+    margin-left: -185px;
 }
 
 #asset_popup .error {
@@ -257,23 +258,23 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 #trigger_weather_popup {
-	margin-top: -260px;
-	margin-left: -214px;
+	margin-top: -295px;
+	margin-left: -215px;
 }
 
 #trigger_temperature_popup {
-	margin-top: -170px;
-	margin-left: -214px;
+	margin-top: -196px;
+	margin-left: -215px;
 }
 
 #trigger_accident_popup, #trigger_flow_popup {
-	margin-top: -150px;
-	margin-left: -214px;
+	margin-top: -172px;
+	margin-left: -215px;
 }
 
 #trigger_twitter_popup {
-	margin-top: -131px;
-	margin-left: -214px;
+	margin-top: -157px;
+	margin-left: -215px;
 }
 
 .popup-field {
@@ -370,14 +371,14 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     margin: 0 0 16px;
 	font-size: 110%;
     font-weight: bold;
-    margin-bottom: 13px;
+    margin-bottom: 23px;
     text-align: center;
 }
 
 .buttons-block {
 	width: 150px;
 	margin: auto;
-	padding-top: 16px;
+	padding-top: 20px;
 }
 
 .title {
@@ -537,10 +538,6 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	background-color:#C80100;	
 }
 
-.hidden {
-	display: none;
-}
-
 .cross {	
     cursor: pointer;
     position: relative;
@@ -581,4 +578,20 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	height: 1px;
 	overflow: hidden;
 	background-color: #e5e5e5;
+}
+
+.loading {
+	position: relative;
+	right: -140px;
+	top: 10px;
+	float: right;
+	margin: 10px 0 0 15px;
+	display: none;
+	font-size: 17px;
+	font-style: italic;
+	width: 125px;
+}
+
+.hidden {
+	display: none;
 }

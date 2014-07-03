@@ -15,7 +15,9 @@
 <div class="left_panel">
     <div class="title">Assets</div>
     <div class="assets_list">
-        <img src="img/screen.png" width="18" height="18" class="item" id="asset-1" data-type="screen" draggable="true"/>Screen
+        <div class="list_item">
+            <img src="img/screen.png" width="18" height="18" class="item" id="asset-1" data-type="screen" draggable="true"/>Screen
+        </div>
     </div>
     <div class="title">Triggers</div>
     <div class="triggers_list">
@@ -59,6 +61,10 @@
             <label for="temperature">Temperature</label>
         </div>
     </div>
+</div>
+<div class="loading">
+    <img src="/img/loading.gif" width="13px" height="13px">
+    Updating map
 </div>
 <div id="map_canvas"></div>
 <div class="popup_bg"></div>
@@ -246,7 +252,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Storm (Generic)</span>
-            <input data-property="storm" type="checkbox" class="prop">
+            <input data-property="storm" type="checkbox" class="prop exclusive">
             <div class="popup-field subitem">
                 <span class="popup-label">Severity</span>
                 <select data-property="severity" class="drop-down prop">

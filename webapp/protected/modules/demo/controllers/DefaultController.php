@@ -61,42 +61,6 @@ class DefaultController extends DemoBaseController
         syslog(LOG_INFO, "Action AjaxGetIncidentInfo end.");
     }
 
-    public function actionAjaxGetWeatherInRadius() {
-        syslog(LOG_INFO, "Action AjaxGetWeatherInRadius start.");
-
-        if (!Yii::app()->request->isAjaxRequest) {
-            throw new CHttpException('403', 'Forbidden access.');
-        }
-
-        $response = [
-            "status" => false
-        ];
-
-        $center = Yii::app()->request->getParam('center');
-        $radius = Yii::app()->request->getParam('radius');
-        $refreshKey = Yii::app()->request->getParam('refreshKey');
-
-        if (!$center || !$radius || !$refreshKey) {
-            $response["errorMessage"] = "Check your parameters".
-
-            $this->renderJSON($response);
-            $this->endApp();
-        }
-
-        $resultXML = $this->getWeatherInRadius($center, $radius);
-        $response = array(
-            "status" => $resultXML->Weather->Conditions && count($resultXML->Weather->Conditions->Station) > 0,
-            "refreshKey" => $refreshKey,
-            "weather" => $resultXML->asXML()
-        );
-
-        $this->renderJSON($response);
-
-        syslog(LOG_INFO, "Action AjaxGetWeatherInRadius end.");
-
-        $this->endApp();
-    }
-
     // TODO: remove as redundant
     public function actionAjaxGetSegmentSpeedInRadius() {
         syslog(LOG_INFO, "Action AjaxGetSegmentSpeedInRadius start.");
@@ -118,6 +82,42 @@ class DefaultController extends DemoBaseController
         $this->endApp();
 
         syslog(LOG_INFO, "Action AjaxGetWeatherInBoxFGC end.");
+    }
+
+    public function actionAjaxGetWeatherInRadius() {
+        syslog(LOG_INFO, "Action AjaxGetWeatherInRadius start.");
+
+        if (!Yii::app()->request->isAjaxRequest) {
+            throw new CHttpException('403', 'Forbidden access.');
+        }
+
+        $response = [
+            "status" => false
+        ];
+
+        $center = Yii::app()->request->getParam('center');
+        $radius = Yii::app()->request->getParam('radius');
+        $refreshKey = Yii::app()->request->getParam('refreshKey');
+
+        if (!$center || !$radius || !$refreshKey) {
+            $response["errorMessage"] = "Check your parameters".
+
+                $this->renderJSON($response);
+            $this->endApp();
+        }
+
+        $resultXML = $this->getWeatherInRadius($center, $radius);
+        $response = array(
+            "status" => $resultXML->Weather->Conditions && count($resultXML->Weather->Conditions->Station) > 0,
+            "refreshKey" => $refreshKey,
+            "weather" => $resultXML->asXML()
+        );
+
+        $this->renderJSON($response);
+
+        syslog(LOG_INFO, "Action AjaxGetWeatherInRadius end.");
+
+        $this->endApp();
     }
 
     /**
@@ -362,7 +362,6 @@ class DefaultController extends DemoBaseController
         $this->endApp();
     }
 
-    // TODO: test action
     /**
      * Delete created asset on the map
      */
@@ -382,7 +381,6 @@ class DefaultController extends DemoBaseController
         $this->endApp();
     }
 
-    // TODO: test action
     /**
      * Delete event for asset
      */

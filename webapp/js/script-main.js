@@ -13,6 +13,7 @@ var props;
 var active_asset;
 var trigger_type;
 var refreshKey;
+var updateMap;
 
 // Add INRIX Tile layer (see inrix.layer.js for details)
 var traffic = new InrixTileLayer(map);
@@ -92,13 +93,13 @@ function clearPopupFields() {
     });
 }
 
-function sendAJAX(url, data, callback) {
+function sendAJAX(url, data, callback, errorCallback) {
     $.ajax({
         url: url,
         type: "POST",
         data: data,
         success: callback,
-        error: function(error) { console.log(error.statusText + ": " + error.responseText); }
+        error: errorCallback || function(error) { console.log(error.statusText + ": " + error.responseText); }
     });
 }
 
@@ -149,12 +150,18 @@ function updateAsset(event) {
 }
 
 function removeAsset() {
-    var marker;
+    var choice = false,
+        marker;
     hideMenu();
-    if (confirm("Are you sure you want to remove this asset?")) {
-        if (active_asset.triggers.length) {
+    if (active_asset.triggers.length) {
+        if (confirm("There are events attached to this asset. Are you sure you want to remove it?")) {
             sendAJAX("/demo/Default/DeleteAsset", { assetId: active_asset.id }, onSuccess);
+            choice = true;
         }
+    } else if (confirm("Are you sure you want to remove this asset?")) {
+        choice = true;
+    }
+    if (choice) {
         marker = markers.filter(function(m) { return m.title === active_asset.id; })[0];
         marker.setMap(null);
         markers.splice(markers.indexOf(marker), 1);
@@ -211,7 +218,7 @@ function updateTrigger(event) {
                 case "weather_temperature":
                     trigger = new TemperatureTrigger(properties);
                     break;
-                case "twitter":
+                case "social_twitter":
                     trigger = new TwitterTrigger(properties);
                     break;
             }
@@ -382,8 +389,13 @@ function showWeather(data) {
                    title: "weather station"
                 }));
             });
+        
         } catch(err) {
             console.log("Cannot parse responce");
+        }
+        $(".loading").removeClass("weather");
+        if ($(".loading")[0].classList.length < 2) {
+            $(".loading").hide();
         }
     }
 }
@@ -400,6 +412,10 @@ function getIncidents() {
         incidentSource: "All",
         success:function (incidents) {
             showIncidents(incidents);
+            $(".loading").removeClass("incidents");
+            if ($(".loading")[0].classList.length < 2) {
+                $(".loading").hide();
+            }
         }
     };
     IncidentMgr.getIncidentsInBox(params);
@@ -435,18 +451,32 @@ function getWeather() {
             radius: width / 2,
             refreshKey: refreshKey
         };
-    sendAJAX("/demo/Default/AjaxGetWeatherInRadius", data, showWeather);
+    sendAJAX("/demo/Default/AjaxGetWeatherInRadius", data, showWeather, function(error) {
+        console.log(error.statusText + ": " + error.responseText);
+        $(".loading").removeClass("weather");
+        if ($(".loading")[0].classList.length < 2) {
+            $(".loading").hide();
+        }
+    });
 }
 
 function getMapInfo() {
     if (map.getZoom() > 11) {
+        if ($("#temperature")[0].checked || $("#accidents")[0].checked) {
+            $(".loading").show();
+        }
         if ($("#temperature")[0].checked) {
             getWeather();
+            $(".loading").addClass("weather");
         }
         if ($("#accidents")[0].checked) {
             getIncidents();
+            $(".loading").addClass("incidents");
         }
     } else {
+        $(".loading").hide();
+        $(".loading").removeClass("weather");
+        $(".loading").removeClass("incidents");
         refreshKey = null;
         clearMap(weatherStations);
         clearMap(incidentMarkers);
@@ -503,6 +533,14 @@ function extend(childObj, parentObj) {
     childObj.superclass = parentObj.prototype;
 }
 
+function autoUpdateMap() {
+    function update() {
+        getMapInfo();
+        autoUpdateMap();
+    }   
+    updateMap = setTimeout(update, 60000);
+}
+
 $(function() {
     // Setup INRIX configuration with the right set of credentials (vendorID, vendorToken)
     var configuration = {
@@ -524,6 +562,7 @@ $(function() {
     }
     google.maps.event.addListener(map, "bounds_changed", function() {
         getMapInfo();
+        autoUpdateMap();
         google.maps.event.clearListeners(map, 'bounds_changed');
     });
     $("#traffic").on("change", function(ev) {
@@ -531,16 +570,66 @@ $(function() {
     });
     $("#accidents").on("change", function(ev) {
         if (map.getZoom() > 11) {
-            ev.target.checked ? getIncidents() : clearMap(incidentMarkers);
+            if (ev.target.checked) {
+                getIncidents();
+                $(".loading").show();
+                $(".loading").addClass("incidents");
+            } else {
+                clearMap(incidentMarkers);
+                $(".loading").removeClass("incidents");
+                if ($(".loading")[0].classList.length < 2) {
+                    $(".loading").hide();
+                }
+            }
         }
     });
     $("#temperature").on("change", function(ev) {
         if (map.getZoom() > 11) {
-            ev.target.checked ? getWeather() : turnOfInfo(weatherStations);
+            if (ev.target.checked) {
+                getWeather();
+                $(".loading").show();
+                $(".loading").addClass("weather");
+            } else {
+                turnOfInfo(weatherStations);
+                $(".loading").removeClass("weather");
+                if ($(".loading")[0].classList.length < 2) {
+                    $(".loading").hide();
+                }
+            }
         }
     });
-    google.maps.event.addListener(map, "dragend", getMapInfo);
-    google.maps.event.addListener(map, "zoom_changed", onZoom);
+    $(".exclusive").on("change", function(ev) {
+        //debugger;
+        var inputs = Array.prototype.slice.call(ev.target.form.elements),
+            checkboxes = inputs.filter(function(el) { return (el.type === "checkbox" && el !== ev.target); });
+        if (ev.target.checked) {      
+            checkboxes.forEach(function(el) {
+               el.checked = false;
+               el.disabled = true;
+               $(el.parentNode).find(".subitem input").toArray().forEach(function(input) {
+                  input.disabled = true;
+                  input.value = "";
+               });
+            });
+        } else {
+            checkboxes.forEach(function(el) {
+               el.disabled = false;
+               $(el.parentNode).find(".subitem input").toArray().forEach(function(input) {
+                  input.disabled = false; 
+               });
+            });
+        }
+    });
+    google.maps.event.addListener(map, "dragend", function() {
+        clearTimeout(updateMap);
+        getMapInfo();
+        autoUpdateMap();
+    });
+    google.maps.event.addListener(map, "zoom_changed", function() {
+        clearTimeout(updateMap);
+        onZoom();
+        autoUpdateMap();
+    });
     $("body").on("click", hideMenu);
     $(".assets_list").on("dragstart", function(ev) {
         ev.originalEvent.dataTransfer.setData("action", "create_asset");
@@ -618,14 +707,13 @@ $(function() {
                 var trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
                 if (trigger) {
                     alert("Triggering event!");
-                    var url = "//" + trigger.url + "?sid=" + asset.sid + "&cid=" + trigger.cid;
                     $.ajax({
-                        url: url,
+                        url: trigger.url,
                         success: function() { console.log("Successfully triggered."); },
                         error: function() { console.log("Error on triggering event."); }
                     });
                 } else {
-                    alert("Trigger with chosen event type wasn't found!");
+                    alert("Selected event was not found!");
                 }
             }
         }

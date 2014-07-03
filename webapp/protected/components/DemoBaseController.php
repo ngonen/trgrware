@@ -93,20 +93,4 @@ abstract class DemoBaseController extends Controller {
             )
         ));
     }
-
-
-    // TODO: delete
-    public function actionGalaxyCallBack() {
-        $context = $this->getStreamContext();
-        $result = file_get_contents(Yii::app()->params['galaxyDomainUrl'] . "?i_user=rgralert&" .
-            "i_password=123&i_password=123&i_stationId=-1&i_command=event&i_param1=accident&callback=", false, $context);
-
-        $response = array(
-            "status" => $result ? true : false,
-            "result" => $result
-        );
-
-        $this->renderJSON($response);
-        $this->endApp();
-    }
 } 
