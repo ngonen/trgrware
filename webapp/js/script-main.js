@@ -468,6 +468,9 @@ function getMapInfo() {
             $(".loading").addClass("incidents");
         }
     } else {
+        $(".loading").hide();
+        $(".loading").removeClass("weather");
+        $(".loading").removeClass("incidents");
         refreshKey = null;
         clearMap(weatherStations);
         clearMap(incidentMarkers);

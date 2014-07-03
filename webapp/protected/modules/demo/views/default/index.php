@@ -61,7 +61,7 @@
     </div>
 </div>
 <div class="loading">
-    <img src="/img/loading.gif" width="12px" height="12px">
+    <img src="/img/loading.gif" width="13px" height="13px">
     Updating map
 </div>
 <div id="map_canvas"></div>
