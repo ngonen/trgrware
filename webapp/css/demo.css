@@ -10,6 +10,7 @@ html.hcfe {
     margin: 0;
     padding: 0;
     position: relative;
+	overflow-x: hidden;
 }
 html {
     overflow-y: scroll;
