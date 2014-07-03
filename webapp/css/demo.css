@@ -225,6 +225,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .list_item {
 	padding-top: 2px;
+	padding-left: 10px;
 }
 
 .popup {

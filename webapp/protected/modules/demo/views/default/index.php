@@ -15,7 +15,9 @@
 <div class="left_panel">
     <div class="title">Assets</div>
     <div class="assets_list">
-        <img src="img/screen.png" width="18" height="18" class="item" id="asset-1" data-type="screen" draggable="true"/>Screen
+        <div class="list_item">
+            <img src="img/screen.png" width="18" height="18" class="item" id="asset-1" data-type="screen" draggable="true"/>Screen
+        </div>
     </div>
     <div class="title">Triggers</div>
     <div class="triggers_list">
