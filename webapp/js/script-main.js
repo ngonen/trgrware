@@ -211,7 +211,7 @@ function updateTrigger(event) {
                 case "weather_temperature":
                     trigger = new TemperatureTrigger(properties);
                     break;
-                case "twitter":
+                case "social_twitter":
                     trigger = new TwitterTrigger(properties);
                     break;
             }
