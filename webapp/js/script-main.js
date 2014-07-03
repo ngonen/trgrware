@@ -93,13 +93,13 @@ function clearPopupFields() {
     });
 }
 
-function sendAJAX(url, data, callback) {
+function sendAJAX(url, data, callback, errorCallback) {
     $.ajax({
         url: url,
         type: "POST",
         data: data,
         success: callback,
-        error: function(error) { console.log(error.statusText + ": " + error.responseText); }
+        error: errorCallback || function(error) { console.log(error.statusText + ": " + error.responseText); }
     });
 }
 
@@ -451,7 +451,13 @@ function getWeather() {
             radius: width / 2,
             refreshKey: refreshKey
         };
-    sendAJAX("/demo/Default/AjaxGetWeatherInRadius", data, showWeather);
+    sendAJAX("/demo/Default/AjaxGetWeatherInRadius", data, showWeather, function(error) {
+        console.log(error.statusText + ": " + error.responseText);
+        $(".loading").removeClass("weather");
+        if ($(".loading")[0].classList.length < 2) {
+            $(".loading").hide();
+        }
+    });
 }
 
 function getMapInfo() {
