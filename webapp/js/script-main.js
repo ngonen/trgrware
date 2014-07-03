@@ -150,12 +150,18 @@ function updateAsset(event) {
 }
 
 function removeAsset() {
-    var marker;
+    var choice = false,
+        marker;
     hideMenu();
-    if (confirm("Are you sure you want to remove this asset?")) {
-        if (active_asset.triggers.length) {
+    if (active_asset.triggers.length) {
+        if (confirm("There are events attached to this asset. Are you sure you want to remove it?")) {
             sendAJAX("/demo/Default/DeleteAsset", { assetId: active_asset.id }, onSuccess);
+            choice = true;
         }
+    } else if (confirm("Are you sure you want to remove this asset?")) {
+        choice = true;
+    }
+    if (choice) {
         marker = markers.filter(function(m) { return m.title === active_asset.id; })[0];
         marker.setMap(null);
         markers.splice(markers.indexOf(marker), 1);
@@ -676,7 +682,7 @@ $(function() {
                         error: function() { console.log("Error on triggering event."); }
                     });
                 } else {
-                    alert("Trigger with chosen event type wasn't found!");
+                    alert("Selected event was not found!");
                 }
             }
         }
