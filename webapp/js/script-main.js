@@ -670,9 +670,8 @@ $(function() {
                 var trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
                 if (trigger) {
                     alert("Triggering event!");
-                    var url = "//" + trigger.url + "?sid=" + asset.sid + "&cid=" + trigger.cid;
                     $.ajax({
-                        url: url,
+                        url: trigger.url,
                         success: function() { console.log("Successfully triggered."); },
                         error: function() { console.log("Error on triggering event."); }
                     });
