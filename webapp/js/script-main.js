@@ -598,6 +598,28 @@ $(function() {
             }
         }
     });
+    $(".exclusive").on("change", function(ev) {
+        //debugger;
+        var inputs = Array.prototype.slice.call(ev.target.form.elements),
+            checkboxes = inputs.filter(function(el) { return (el.type === "checkbox" && el !== ev.target); });
+        if (ev.target.checked) {      
+            checkboxes.forEach(function(el) {
+               el.checked = false;
+               el.disabled = true;
+               $(el.parentNode).find(".subitem input").toArray().forEach(function(input) {
+                  input.disabled = true;
+                  input.value = "";
+               });
+            });
+        } else {
+            checkboxes.forEach(function(el) {
+               el.disabled = false;
+               $(el.parentNode).find(".subitem input").toArray().forEach(function(input) {
+                  input.disabled = false; 
+               });
+            });
+        }
+    });
     google.maps.event.addListener(map, "dragend", function() {
         clearTimeout(updateMap);
         getMapInfo();

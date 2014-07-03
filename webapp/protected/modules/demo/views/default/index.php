@@ -250,7 +250,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Storm (Generic)</span>
-            <input data-property="storm" type="checkbox" class="prop">
+            <input data-property="storm" type="checkbox" class="prop exclusive">
             <div class="popup-field subitem">
                 <span class="popup-label">Severity</span>
                 <select data-property="severity" class="drop-down prop">
