@@ -595,3 +595,16 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .hidden {
 	display: none;
 }
+
+.gm-style-iw + div {
+	display: none;
+}
+
+.gm-style-iw {
+	left: 10px !important;
+	top: 8px !important;
+}
+
+.infowindow_content {
+	text-align: justify;
+}

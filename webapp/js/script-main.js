@@ -5,6 +5,7 @@ var mapOptions = {
     mapTypeId: google.maps.MapTypeId.ROADMAP
 };
 var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+var infoWindow = new google.maps.InfoWindow({ content: "", disableAutoPan: true, maxWidth: 250 });
 var markers = [];
 var incidentMarkers = [];
 var weatherStations = [];
@@ -343,15 +344,24 @@ function hideMenu() {
 }
 
 function showIncidents(incidents) {
+    var marker;
     if (map.getZoom() > 11) {
         clearMap(incidentMarkers);
         incidents.forEach(function(incident) {
-            incidentMarkers.push(new google.maps.Marker({
+            marker = new google.maps.Marker({
                 position: new google.maps.LatLng(incident.latitude, incident.longitude),
                 map: map,
                 icon: 'img/incidentPin@2x-small.png',
                 title: 'incident'
-            }));
+            });
+            google.maps.event.addListener(marker, "mouseover", function() {
+                infoWindow.setContent("<div class='infowindow_content'>" + incident.fullDesc + "</div>");
+                infoWindow.open(map, this);
+            });
+            google.maps.event.addListener(marker, "mouseout", function() {
+                infoWindow.close();
+            });
+            incidentMarkers.push(marker);
         });
     }
 }
@@ -373,24 +383,37 @@ function showWeather(data) {
             try {
                 stations = xmlToJSON.parseString(response.weather).Inrix[0].Weather[0].Conditions[0].Station;
                 stations.forEach(function(station) {
-                   var temperature = station.Current[0].Temperature[0]._attr.actual._value;
-                   var degreeClass = getStandardDegreeName(temperature);
-                   var location = station._attr.point._value;
-                   var lat = parseFloat(location.substring(0, location.indexOf("|")));
-                   var lng = parseFloat(location.substring(location.indexOf("|") + 1, location.length));
-                   weatherStations.push(new MarkerWithLabel({
-                       position: new google.maps.LatLng(lat, lng),
-                       draggable: false,
-                       raiseOnDrag: false,
-                       map: map,
-                       icon: 'img/x.gif',
-                       labelContent: temperature + "\u00B0",
-                       labelAnchor: new google.maps.Point(16, 19),
-                       labelClass: "weather_station " + degreeClass,
-                       title: "weather station"
-                   }));
+                    var temperature = station.Current[0].Temperature[0]._attr.actual._value;
+                    var degreeClass = getStandardDegreeName(temperature);
+                    var location = station._attr.point._value;
+                    var lat = parseFloat(location.substring(0, location.indexOf("|")));
+                    var lng = parseFloat(location.substring(location.indexOf("|") + 1, location.length));
+                    var marker = new MarkerWithLabel({
+                        position: new google.maps.LatLng(lat, lng),
+                        draggable: false,
+                        raiseOnDrag: false,
+                        map: map,
+                        icon: 'img/x.gif',
+                        labelContent: temperature + "\u00B0",
+                        labelAnchor: new google.maps.Point(16, 19),
+                        labelClass: "weather_station " + degreeClass,
+                        title: "weather station"
+                    });
+                    google.maps.event.addListener(marker, "mouseover", function() {
+                        infoWindow.setContent("<p>Station:     " + station._attr.name._value + "</p>" +
+                                              "<p>Elevation:   " + station._attr.elevation._value + " yd</p>" +
+                                              "<p>Humidity:    " + station.Current[0].Humidity[0]._attr.relative._value + "%</p>" +
+                                              "<p>Temperature: " + temperature + "\u00B0F</p>" +
+                                              "<p>Pressure:    " + station.Current[0].Pressure[0]._attr.actual._value + " mbar</p>" +
+                                              "<p>Wind speed:  " + station.Current[0].Wind[0]._attr.speed._value + " mph</p>"
+                                              );
+                         infoWindow.open(map, this);
+                    });
+                    google.maps.event.addListener(marker, "mouseout", function() {
+                         infoWindow.close();
+                    });
+                    weatherStations.push(marker);
                 });
-
             } catch(err) {
                 console.log("Cannot parse responce");
             }
