@@ -43,7 +43,7 @@
             <img src="img/cloud-wind.png" width="18" height="18" class="item" data-type="weather_event" draggable="true"/>Wind
         </div>
         <div class="list_item">
-            <img src="img/twitter.jpg" width="18" height="18" class="item" data-type="social_twitter" draggable="true"/>Twitter
+            <img src="img/twitter.jpg" width="18" height="18" class="item" data-type="twitter_hash_tag" draggable="true"/>Twitter
         </div>
     </div>
     <div class="title">Map info</div>
@@ -329,7 +329,7 @@
             <div class="separator"></div>
             <div class="menu_item sub social_menu">Social
                 <div class="social_sub_menu">
-                    <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="social_twitter" onclick="showTriggerPopup(event)">
+                    <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter_hash_tag" onclick="showTriggerPopup(event)">
                         Twitter
                         <div class="cross hidden" onclick="removeTrigger(event)"></div>
                     </div>

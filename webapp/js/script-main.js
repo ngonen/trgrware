@@ -220,7 +220,7 @@ function updateTrigger() {
                 case "weather_temperature":
                     trigger = new TemperatureTrigger(properties);
                     break;
-                case "social_twitter":
+                case "twitter_hash_tag":
                     trigger = new TwitterTrigger(properties);
                     break;
             }
@@ -586,7 +586,7 @@ function getType(trigger) {
         case "weather_temperature":
             type = "Temperature";
             break;
-        case "social_twitter":
+        case "twitter_hash_tag":
             type = "Twitter";
             break;
     }
