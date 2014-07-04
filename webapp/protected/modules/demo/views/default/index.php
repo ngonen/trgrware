@@ -68,6 +68,7 @@
 </div>
 <div id="map_canvas"></div>
 <div class="popup_bg"></div>
+<div class="transparent_bg"></div>
 <div id="asset_popup" class="popup">
     <div class="popup_title">Asset properties</div>
     <form>

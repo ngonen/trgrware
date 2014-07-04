@@ -155,7 +155,7 @@ function removeAsset() {
         marker;
     hideMenu();
     if (active_asset.triggers.length) {
-        if (confirm("There are events attached to this asset. Are you sure you want to remove it?")) {
+        if (confirm("There are events attached to this asset.\nAre you sure you want to remove this asset?")) {
             sendAJAX("/demo/Default/DeleteAsset", { assetId: active_asset.id }, onSuccess);
             choice = true;
         }
@@ -319,6 +319,7 @@ function onCancel() {
 
 function displayMenu(ev){
     var menu = $("#context_menu")[0];
+    $(".transparent_bg").show();
     if (ev.clientY + menu.clientHeight > innerHeight) {
         menu.style.top =  pageYOffset - menu.clientHeight + ev.clientY + "px";
     } else {
@@ -341,6 +342,7 @@ function displayMenu(ev){
 function hideMenu() {
     $("#context_menu").css("visibility", "hidden");
     $(".cross").hide();
+    $(".transparent_bg").hide();
 }
 
 function showIncidents(incidents) {
@@ -566,6 +568,28 @@ function autoUpdateMap() {
     updateMap = setTimeout(update, 60000);
 }
 
+function getType(trigger) {
+    var type;
+    switch (trigger.type) {
+        case "traffic_accident":
+            type = "Incident";
+            break;
+        case "traffic_flow":
+            type = "Traffic flow";
+            break;
+        case "weather_event":
+            type = "Weather event";
+            break;
+        case "weather_temperature":
+            type = "Temperature";
+            break;
+        case "social_twitter":
+            type = "Twitter";
+            break;
+    }
+    return type;
+}
+
 $(function() {
     // Setup INRIX configuration with the right set of credentials (vendorID, vendorToken)
     var configuration = {
@@ -624,7 +648,6 @@ $(function() {
         }
     });
     $(".exclusive").on("change", function(ev) {
-        //debugger;
         var inputs = Array.prototype.slice.call(ev.target.form.elements),
             checkboxes = inputs.filter(function(el) { return (el.type === "checkbox" && el !== ev.target); });
         if (ev.target.checked) {      
@@ -693,7 +716,8 @@ $(function() {
                 map: map,
                 draggable: true,
                 icon: "img/screen_pin.png",
-                title: 'asset' + getUnigueID()
+                title: 'asset' + getUnigueID(),
+                zIndex: 1000
             });
             props = { 
                 id: marker.title,
@@ -705,12 +729,30 @@ $(function() {
             showPopup("#asset_popup");
             markers.push(marker);
             google.maps.event.addListener(marker, "rightclick", function(ev) {
-               hideMenu();
-               active_asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
-               active_asset.triggers.map(function(tr) { return  tr.type; }).forEach(function(type) {
-                   $("#context_menu [data-type='" + type + "'] .cross").show(); 
-               });
-               displayMenu(ev.Ra);
+                hideMenu();
+                active_asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
+                active_asset.triggers.map(function(tr) { return  tr.type; }).forEach(function(type) {
+                    $("#context_menu [data-type='" + type + "'] .cross").show(); 
+                });
+                displayMenu(ev.Ra);
+            });
+            google.maps.event.addListener(marker, "mouseover", function(ev) {
+                var asset = assets.filter(function(asset) { return asset.id === marker.title; })[0],
+                    content;
+                if (asset.triggers.length) {
+                    content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><ul>";
+                    asset.triggers.forEach(function(tr) {
+                       content += "<li>" + getType(tr) + "</li>"; 
+                    });
+                    content += "</ul></div>";
+                    infoWindow.setContent(content);
+                } else {
+                    infoWindow.setContent("No events attached to this asset.");
+                }
+                infoWindow.open(map, this);
+            });
+            google.maps.event.addListener(marker, "mouseout", function(ev) {
+                infoWindow.close();
             });
             google.maps.event.addListener(marker, "dragend", function(ev) {
                 var asset = assets.filter(function(asset) { return asset.id === marker.title; })[0],
