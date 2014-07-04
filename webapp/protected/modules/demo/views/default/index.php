@@ -69,7 +69,7 @@
 <div id="map_canvas"></div>
 <div class="popup_bg"></div>
 <div class="transparent_bg"></div>
-<div id="asset_popup" class="popup">
+<div id="asset_popup" class="popup" tabindex="0">
     <div class="popup_title">Asset properties</div>
     <form>
         <div class="popup-field">
@@ -111,7 +111,7 @@
         </div>
     </form>
 </div>
-<div id="trigger_accident_popup" class="popup trigger_popup">
+<div id="trigger_accident_popup" class="popup trigger_popup" tabindex="0">
     <div class="popup_title">Trigger properties</div>
     <form>
         <div class="popup-field">
@@ -143,7 +143,7 @@
         </div>
     </form>
 </div>
-<div id="trigger_flow_popup" class="popup trigger_popup">
+<div id="trigger_flow_popup" class="popup trigger_popup" tabindex="0">
     <div class="popup_title">Trigger properties</div>
     <form>
         <div class="popup-field">
@@ -173,7 +173,7 @@
         </div>
     </form>
 </div>
-<div id="trigger_twitter_popup" class="popup trigger_popup">
+<div id="trigger_twitter_popup" class="popup trigger_popup" tabindex="0">
     <div class="popup_title">Trigger properties</div>
     <form>
         <div class="popup-field">
@@ -199,7 +199,7 @@
         </div>
     </form>
 </div>
-<div id="trigger_temperature_popup" class="popup trigger_popup">
+<div id="trigger_temperature_popup" class="popup trigger_popup" tabindex="0">
     <div class="popup_title">Trigger properties</div>
     <form>
         <div class="popup-field">
@@ -236,7 +236,7 @@
         </div>
     </form>
 </div>
-<div id="trigger_weather_popup" class="popup trigger_popup">
+<div id="trigger_weather_popup" class="popup trigger_popup" tabindex="0">
     <div class="popup_title">Trigger properties</div>
     <form>
         <div class="popup-field">

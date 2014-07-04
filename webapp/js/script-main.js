@@ -529,6 +529,7 @@ function turnOfInfo(markersArray) {
 function showPopup(selector) {
     active_popup = selector;
     $(selector).show();
+    $(selector).focus();
     $(".popup_bg").show();
 }
 
