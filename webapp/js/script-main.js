@@ -12,6 +12,7 @@ var weatherStations = [];
 var assets = [];
 var props;
 var active_asset;
+var active_popup;
 var trigger_type;
 var refreshKey;
 var updateMap;
@@ -64,10 +65,10 @@ function showTriggerPopup(event) {
 }
 
 function showPropertiesPopup() {
-    showPopup("#asset_popup");
     $("#asset_popup .prop").toArray().forEach(function(el) {
        el.value =  active_asset[el.dataset.property];
     });
+    showPopup("#asset_popup");
 }
 
 function clearPopupFields() {
@@ -121,14 +122,14 @@ function sendAssetUpdateRequest(asset) {
     sendAJAX("/demo/Default/UpdateAsset", data, onSuccess);
 }
 
-function updateAsset(event) {
-    var validateObj = validate(event.target.dataset.popup),
+function updateAsset() {
+    var validateObj = validate(active_popup),
         marker, id, type, properties, lat, lng;
         
     if (validateObj.isValid) {
         id = active_asset? active_asset.id : props.id;
         type = active_asset? active_asset.type : props.type;
-        properties = getProperties(event.target.dataset.popup);
+        properties = getProperties("#asset_popup");
         properties.id = id;
         properties.type = type;
         marker = markers.filter(function(m) { return m.title === properties.id; })[0];
@@ -145,8 +146,8 @@ function updateAsset(event) {
         }
         hidePopup();
     } else {
-        $(event.target.dataset.popup + " .error").text(validateObj.errorMessage);
-        $(event.target.dataset.popup + " .error").show();
+        $(active_popup + " .error").text(validateObj.errorMessage);
+        $(active_popup + " .error").show();
     }
 }
 
@@ -191,12 +192,12 @@ function removeTrigger(event) {
     event.stopPropagation();
 }
 
-function updateTrigger(event) {
-    var validateObj = validate(event.target.dataset.popup),
+function updateTrigger() {
+    var validateObj = validate(active_popup),
         properties,
         trigger;
     if (validateObj.isValid) {
-        properties = getProperties(event.target.dataset.popup);
+        properties = getProperties(active_popup);
         properties.type = trigger_type;
         properties.asset_id = active_asset.id;
         trigger = active_asset.triggers.filter(function(trigger) { return trigger.type === trigger_type; })[0];
@@ -228,8 +229,8 @@ function updateTrigger(event) {
         }   
         hidePopup();
     } else {
-        $(event.target.dataset.popup + " .error").text(validateObj.errorMessage);
-        $(event.target.dataset.popup + " .error").show();
+        $(active_popup + " .error").text(validateObj.errorMessage);
+        $(active_popup + " .error").show();
     }
 }
 
@@ -525,7 +526,8 @@ function turnOfInfo(markersArray) {
     refreshKey = null;
 }
 
-function showPopup(selector, ev) {
+function showPopup(selector) {
+    active_popup = selector;
     $(selector).show();
     $(".popup_bg").show();
 }
@@ -679,6 +681,22 @@ $(function() {
         autoUpdateMap();
     });
     $("body").on("click", hideMenu);
+    $("#asset_popup").on("keyup", function(ev) {
+        if (ev.keyCode === 13) {
+            updateAsset();
+        }
+        if (ev.keyCode === 27) {
+            onCancel();
+        }
+    });
+    $(".trigger_popup").on("keyup", function(ev) {
+        if (ev.keyCode === 13) {
+            updateTrigger();
+        }
+        if (ev.keyCode === 27) {
+            hidePopup();
+        }
+    });
     $(".assets_list").on("dragstart", function(ev) {
         ev.originalEvent.dataTransfer.setData("action", "create_asset");
         ev.originalEvent.dataTransfer.setData("type", ev.originalEvent.target.dataset.type);

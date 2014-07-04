@@ -106,7 +106,7 @@
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
-            <input class="button button_action" type="button" data-popup="#asset_popup" value="Submit" onclick="updateAsset(event)">
+            <input class="button button_action" type="button" value="Submit" onclick="updateAsset()">
             <input class="button" type="button" value="Cancel" onclick="onCancel()">
         </div>
     </form>
@@ -138,7 +138,7 @@
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
-            <input class="button button_action" type="button" data-popup="#trigger_accident_popup" value="Submit" onclick="updateTrigger(event)">
+            <input class="button button_action" type="button" value="Submit" onclick="updateTrigger()">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
         </div>
     </form>
@@ -168,7 +168,7 @@
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
-            <input class="button button_action" type="button" data-popup="#trigger_flow_popup" value="Submit" onclick="updateTrigger(event)">
+            <input class="button button_action" type="button" value="Submit" onclick="updateTrigger()">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
         </div>
     </form>
@@ -194,7 +194,7 @@
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
-            <input class="button button_action" type="button" data-popup="#trigger_twitter_popup" value="Submit" onclick="updateTrigger(event)">
+            <input class="button button_action" type="button" value="Submit" onclick="updateTrigger()">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
         </div>
     </form>
@@ -231,7 +231,7 @@
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
-            <input class="button button_action" type="button" data-popup="#trigger_temperature_popup" value="Submit" onclick="updateTrigger(event)">
+            <input class="button button_action" type="button" value="Submit" onclick="updateTrigger()">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
         </div>
     </form>
@@ -291,7 +291,7 @@
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
-            <input class="button button_action" type="button" data-popup="#trigger_weather_popup" value="Submit" onclick="updateTrigger(event)">
+            <input class="button button_action" type="button" value="Submit" onclick="updateTrigger()">
             <input class="button" type="button" value="Cancel" onclick="hidePopup()">
         </div>
     </form>
