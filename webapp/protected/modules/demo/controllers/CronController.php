@@ -10,40 +10,50 @@ class CronController extends DemoBaseController
 
         if (is_file($filePath)) {
             $weatherSubscribers = unserialize(file_get_contents($filePath, 0, $ctx))[DemoBaseController::WEATHER_TEMPERATURE];
-            $streamContext = $this->getStreamContext();
-            $securityToken = $this->getSecurityToken();
+            $count = count($weatherSubscribers);
 
-            if (!$securityToken) {
-                syslog(LOG_WARNING, "Cannot get security token.");
-            } else {
-                foreach ($weatherSubscribers as $key => $value) {
-                    $result = $this->getWeatherInRadius($value['center'], $value['radius'], $securityToken);
+            if ($count) {
+                syslog(LOG_WARNING, "Count of subscribers for 'weather temperature': " . $count);
 
-                    if ($result->Weather && $result->Weather->Conditions) {
-                        foreach ($result->Weather->Conditions->Station as $k => $station) {
-                            $actualTemperature = $station->Current->Temperature->attributes()['actual'];
-                            $condition = $value['threshold'] == "Over"
-                                ? $actualTemperature >= $value['temperature']
-                                : $actualTemperature < $value['temperature'];
+                $streamContext = $this->getStreamContext();
+                $securityToken = $this->getSecurityToken();
 
-                            syslog(LOG_INFO, "Actual temperature: " . $actualTemperature . ", expected temperature: "
-                                . $value['temperature'] . ", threshold: " . $value['threshold']);
+                if (!$securityToken) {
+                    syslog(LOG_WARNING, "Cannot get security token.");
+                } else {
+                    syslog(LOG_WARNING, "Start loop subscribers.");
 
-                            if ($condition) {
-                                $url = $value["url"];
+                    foreach ($weatherSubscribers as $key => $value) {
+                        $result = $this->getWeatherInRadius($value['center'], $value['radius'], $securityToken);
 
-                                file_get_contents($url, false, $streamContext);
+                        if ($result->Weather && $result->Weather->Conditions) {
+                            foreach ($result->Weather->Conditions->Station as $k => $station) {
+                                $actualTemperature = $station->Current->Temperature->attributes()['actual'];
+                                $condition = $value['threshold'] == "Over"
+                                    ? $actualTemperature >= $value['temperature']
+                                    : $actualTemperature < $value['temperature'];
 
-                                syslog(LOG_INFO, "[WeatherTemperature] Request '" . $key . "' for asset "
-                                    . $value['id'] . " has been sent to url " . $url);
+                                syslog(LOG_INFO, "Actual temperature: " . $actualTemperature . ", expected temperature: "
+                                    . $value['temperature'] . ", threshold: " . $value['threshold']);
 
-                                break;
+                                if ($condition) {
+                                    $url = $value["url"];
+
+                                    file_get_contents($url, false, $streamContext);
+
+                                    syslog(LOG_INFO, "[WeatherTemperature] Request '" . $key . "' for asset "
+                                        . $value['id'] . " has been sent to url " . $url);
+
+                                    break;
+                                }
                             }
+                        } else {
+                            syslog(LOG_INFO, "Empty result.");
                         }
-                    } else {
-                        syslog(LOG_INFO, "Do not have any new info to push.");
                     }
                 }
+            } else {
+                syslog(LOG_INFO, "Subscribers for weather temperature were not found.");
             }
         } else {
             syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
@@ -60,26 +70,36 @@ class CronController extends DemoBaseController
 
         if (is_file($filePath)) {
             $incidentSubscribers = unserialize(file_get_contents($filePath, 0, $ctx))[DemoBaseController::TRAFFIC_INCIDENTS];
-            $streamContext = $this->getStreamContext();
-            $securityToken = $this->getSecurityToken();
+            $count = count($incidentSubscribers);
 
-            if (!$securityToken) {
-                syslog(LOG_WARNING, "Cannot get security token.");
-            } else {
-                foreach ($incidentSubscribers as $key => $value) {
-                    $result = $this->getIncidentInfo($value['center'], $value['radius'], $securityToken);
+            if ($count) {
+                syslog(LOG_WARNING, "Count of subscribers for 'traffic incident': " . $count);
 
-                    if ($result->Incidents && count($result->Incidents->Incident)) {
-                        $url = $value["url"];
+                $streamContext = $this->getStreamContext();
+                $securityToken = $this->getSecurityToken();
 
-                        file_get_contents($url, false, $streamContext);
+                if (!$securityToken) {
+                    syslog(LOG_WARNING, "Cannot get security token.");
+                } else {
+                    syslog(LOG_WARNING, "Start loop 'traffic incident' subscribers.");
 
-                        syslog(LOG_INFO, "[TrafficIncidents] Request '" . $key . "' for asset "
-                            . $value['id'] . " has been sent to url " . $url);
-                    } else {
-                        syslog(LOG_INFO, "Do not have any new info to push.");
+                    foreach ($incidentSubscribers as $key => $value) {
+                        $result = $this->getIncidentInfo($value['center'], $value['radius'], $securityToken);
+
+                        if ($result->Incidents && count($result->Incidents->Incident)) {
+                            $url = $value["url"];
+
+                            file_get_contents($url, false, $streamContext);
+
+                            syslog(LOG_INFO, "[TrafficIncidents] Request '" . $key . "' for asset "
+                                . $value['id'] . " has been sent to url " . $url);
+                        } else {
+                            syslog(LOG_INFO, "Empty result.");
+                        }
                     }
                 }
+            } else {
+                syslog(LOG_INFO, "Subscribers for traffic incidents were not found.");
             }
         } else {
             syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
@@ -96,32 +116,42 @@ class CronController extends DemoBaseController
 
         if (is_file($filePath)) {
             $speedSubscribers =  unserialize(file_get_contents($filePath, 0, $ctx))[DemoBaseController::TRAFFIC_FLOW];
-            $streamContext = $this->getStreamContext();
-            $securityToken = $this->getSecurityToken();
+            $count = count($speedSubscribers);
 
-            if (!$securityToken) {
-                syslog(LOG_WARNING, "Cannot get security token.");
-            } else {
-                foreach ($speedSubscribers as $key => $value) {
-                    $result = $this->getSegmentSpeedInRadius($value['center'], $value['radius'], $securityToken);
+            if ($count) {
+                syslog(LOG_WARNING, "Count of subscribers for 'traffic speed': " . $count);
 
-                    if ($result->SegmentSpeedResultSet && $result->SegmentSpeedResultSet->SegmentSpeedResults) {
-                        foreach ($result->SegmentSpeedResultSet->SegmentSpeedResults->Segment as $k => $segment) {
-                            if ($segment->attributes()['speed'] <= $value['speedUnder']) {
-                                $url = $value['url'];
+                $streamContext = $this->getStreamContext();
+                $securityToken = $this->getSecurityToken();
 
-                                file_get_contents($url, false, $streamContext);
+                if (!$securityToken) {
+                    syslog(LOG_WARNING, "Cannot get security token.");
+                } else {
+                    syslog(LOG_WARNING, "Start loop 'traffic speed' subscribers.");
 
-                                syslog(LOG_INFO, "[TrafficSpeed] Request '" . $key . "' for asset "
-                                    . $value['id'] . " has been sent to url " . $url);
+                    foreach ($speedSubscribers as $key => $value) {
+                        $result = $this->getSegmentSpeedInRadius($value['center'], $value['radius'], $securityToken);
 
-                                break;
+                        if ($result->SegmentSpeedResultSet && $result->SegmentSpeedResultSet->SegmentSpeedResults) {
+                            foreach ($result->SegmentSpeedResultSet->SegmentSpeedResults->Segment as $k => $segment) {
+                                if ($segment->attributes()['speed'] <= $value['speedUnder']) {
+                                    $url = $value['url'];
+
+                                    file_get_contents($url, false, $streamContext);
+
+                                    syslog(LOG_INFO, "[TrafficSpeed] Request '" . $key . "' for asset "
+                                        . $value['id'] . " has been sent to url " . $url);
+
+                                    break;
+                                }
                             }
+                        } else {
+                            syslog(LOG_INFO, "Empty result.");
                         }
-                    } else {
-                        syslog(LOG_INFO, "Have not gotten any new info to push.");
                     }
                 }
+            } else {
+                syslog(LOG_INFO, "Subscribers for 'traffic speed' were not found.");
             }
         } else {
             syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);

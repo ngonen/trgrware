@@ -367,31 +367,33 @@ function showWeather(data) {
     var response = JSON.parse(data),
         stations;
     onSuccess(data);
-    if (response.refreshKey === refreshKey && response.status) {
+    if (response.refreshKey === refreshKey) {
         clearMap(weatherStations);
-        try {
-            stations = xmlToJSON.parseString(response.weather).Inrix[0].Weather[0].Conditions[0].Station;
-            stations.forEach(function(station) {
-               var temperature = station.Current[0].Temperature[0]._attr.actual._value;
-               var degreeClass = getStandardDegreeName(temperature);
-               var location = station._attr.point._value;
-               var lat = parseFloat(location.substring(0, location.indexOf("|")));
-               var lng = parseFloat(location.substring(location.indexOf("|") + 1, location.length));
-               weatherStations.push(new MarkerWithLabel({
-                   position: new google.maps.LatLng(lat, lng),
-                   draggable: false,
-                   raiseOnDrag: false,
-                   map: map,
-                   icon: 'img/x.gif',
-                   labelContent: temperature + "\u00B0",
-                   labelAnchor: new google.maps.Point(16, 19),
-                   labelClass: "weather_station " + degreeClass,
-                   title: "weather station"
-                }));
-            });
-        
-        } catch(err) {
-            console.log("Cannot parse responce");
+        if (response.status) {
+            try {
+                stations = xmlToJSON.parseString(response.weather).Inrix[0].Weather[0].Conditions[0].Station;
+                stations.forEach(function(station) {
+                   var temperature = station.Current[0].Temperature[0]._attr.actual._value;
+                   var degreeClass = getStandardDegreeName(temperature);
+                   var location = station._attr.point._value;
+                   var lat = parseFloat(location.substring(0, location.indexOf("|")));
+                   var lng = parseFloat(location.substring(location.indexOf("|") + 1, location.length));
+                   weatherStations.push(new MarkerWithLabel({
+                       position: new google.maps.LatLng(lat, lng),
+                       draggable: false,
+                       raiseOnDrag: false,
+                       map: map,
+                       icon: 'img/x.gif',
+                       labelContent: temperature + "\u00B0",
+                       labelAnchor: new google.maps.Point(16, 19),
+                       labelClass: "weather_station " + degreeClass,
+                       title: "weather station"
+                   }));
+                });
+
+            } catch(err) {
+                console.log("Cannot parse responce");
+            }
         }
         $(".loading").removeClass("weather");
         if ($(".loading")[0].classList.length < 2) {
