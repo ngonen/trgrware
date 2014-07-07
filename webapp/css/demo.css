@@ -631,3 +631,8 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .add-fields {
 	cursor: pointer;
 }
+
+.popup .cross {
+	top: -20px;
+	left: 369px;
+}

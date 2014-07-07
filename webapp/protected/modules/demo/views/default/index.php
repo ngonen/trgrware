@@ -99,7 +99,7 @@
         <div class="popup-field">
             <span class="popup-label">Platform:</span>
             <div class="popup-field">
-                <input data-property="platform" name="platform" value="digitalSignageOS" class="prop" type="radio">
+                <input data-property="platform" data-default="1" name="platform" value="digitalSignageOS" class="prop" type="radio" checked>
                 <span class="popup-label">Digital Signage OS</span>
             </div>
             <div class="popup-field">
@@ -202,7 +202,7 @@
             <span class="popup-label">Campaign ID</span>
             <input data-property="cid" class="textinput prop array-element" type="text" required>
         </div>
-        <div class="add-fields" onclick="addTwitterFields()">Add</div>
+        <a class="add-fields" onclick="addTwitterFields()">Add campaigns</a>
         <div class="popup-field error"></div>
         <div class="buttons-block">
             <input class="button button_action" type="button" value="Submit" onclick="updateTrigger()">

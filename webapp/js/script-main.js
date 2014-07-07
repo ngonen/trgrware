@@ -112,7 +112,7 @@ function clearPopupFields() {
                 el.options.selectedIndex = 0;
                 break;
             case "radio":
-                el.checked = false;
+                el.checked = el.dataset.default ? true : false;
                 break;
         }
     });
@@ -379,7 +379,7 @@ function displayMenu(ev){
 
 function hideMenu() {
     $("#context_menu").css("visibility", "hidden");
-    $(".cross").hide();
+    $("#context_menu .cross").hide();
     $(".transparent_bg").hide();
 }
 
@@ -631,13 +631,18 @@ function getType(trigger_type) {
 }
 
 function addTwitterFields() {
-    var content = "<div class='popup-field additional'>" +
+    var content = "<div class='additional'><div class='popup-field'>" +
                   "<span class='popup-label'>Count</span>" +
                   "<input data-property='count' data-type='int' class='textinput prop array-element' type='text' required>" +
-                  "</div><div class='popup-field additional'>" +
+                  "</div><div class='remove-fields cross'onclick='removeContainer(event)'></div>" +
+                  "<div class='popup-field'>" +
                   "<span class='popup-label'>Campaign ID</span>" +
-                  "<input data-property='cid' class='textinput prop array-element' type='text' required></div>";
+                  "<input data-property='cid' class='textinput prop array-element' type='text' required></div></div>";
     $(".add-fields").before(content);
+}
+
+function removeContainer(event) {
+    $(event.target.parentNode).remove();
 }
 
 $(function() {
