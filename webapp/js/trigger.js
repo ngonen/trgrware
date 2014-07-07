@@ -79,13 +79,25 @@ function TwitterTrigger(properties) {
     this.setProperties = function(properties) {
         superclass_setProperties(properties);
         _self.hashtag = properties.hashtag;
+        _self.count = properties.count;
     };
-    
-    var superclass_getData = this.getData;
     this.getData = function() {
-        var data = superclass_getData();
-        data.hashtag = _self.hashtag;
-        return data;
+        var asset = assets.filter(function(a) { return a.id === _self.asset_id; })[0],
+            campaigns = [],
+            i, length;
+        for (i = 0, length = _self.url.length; i < length; i++) {
+            campaigns.push({
+                count: _self.count[i],
+                callbackURL: _self.url[i]
+            });
+        }
+        return {
+            asset_id: _self.asset_id,
+            eventType: _self.type,
+            retriggerPeriod: _self.rwp,
+            hashtag: _self.hashtag,
+            campaigns: JSON.stringify(campaigns)
+        };
     }
     
     this.setProperties(properties);   

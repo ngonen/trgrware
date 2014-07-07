@@ -49,15 +49,29 @@ var getUnigueID = (function () {
 
 function showTriggerPopup(event) {
     var data = event.target.dataset,
-        trigger;
+        count = {},
+        i, length, trigger;
     trigger_type = data.type;
     trigger = active_asset.triggers.filter(function(trigger) { return trigger.type === trigger_type; })[0];
     if (trigger) {
+        if (trigger.type === "twitter_hash_tag" && trigger.url.length > 1) {
+            for (i = 0, length = trigger.url.length; i < length - 1; i++) {
+                addTwitterFields();
+            }
+        }
         $(data.popup + " .prop").toArray().forEach(function(el) {
-            if (el.type === "checkbox") {
-                el.checked = trigger[el.dataset.property];
+            if ($(el).hasClass("array-element")) {
+                if (!count[el.dataset.property]) {
+                    count[el.dataset.property] = 0;
+                }
+                el.value = trigger[el.dataset.property][count[el.dataset.property]];
+                count[el.dataset.property]++;
             } else {
-                el.value = trigger[el.dataset.property];
+                if (el.type === "checkbox") {
+                    el.checked = trigger[el.dataset.property];
+                } else {
+                    el.value = trigger[el.dataset.property];
+                }
             }
         });
     }
@@ -73,6 +87,7 @@ function showPropertiesPopup() {
 
 function clearPopupFields() {
     $('.popup .error').hide();
+    $('.popup .additional').remove();
     $('.popup .prop').toArray().forEach(function(el) {
         switch (el.type) {
             case "text":
@@ -299,10 +314,15 @@ function validate(popup) {
 function getProperties(popup) {  
     var properties = {};
     $(popup + " .prop").toArray().forEach(function(el) {
-        if (el.type === "checkbox") {
-            properties[el.dataset.property] = el.checked;
+        if ($(el).hasClass("array-element")) {
+            properties[el.dataset.property] = properties[el.dataset.property] || [];
+            properties[el.dataset.property].push(el.value);
         } else {
-            properties[el.dataset.property] = el.value;
+            if (el.type === "checkbox") {
+                properties[el.dataset.property] = el.checked;
+            } else {
+                properties[el.dataset.property] = el.value;
+            }
         }
     });
     return properties;
@@ -591,6 +611,17 @@ function getType(trigger) {
             break;
     }
     return type;
+}
+
+function addTwitterFields() {
+    var content = "<div class='popup-field additional'>" +
+                  "<span class='popup-label'>Count</span>" +
+                  "<input data-property='count' data-type='int' class='textinput prop array-element' type='text' required>" +
+                  "</div><div class='popup-field additional'>" +
+                  "<span class='popup-label'>Callback URL</span>" +
+                  "<input data-property='url' data-type='url' class='textinput prop array-element' type='url' required></div>";
+    $(".add-fields").before(content);
+    //debugger;
 }
 
 $(function() {

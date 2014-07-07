@@ -182,16 +182,21 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Retrigger Wait Period</span>
-            <input data-property="rwp" class="textinput prop" type="text">
+            <input data-property="rwp" data-type="int" class="textinput prop" type="text">
         </div>
         <div class="popup-field">
             <span class="popup-label">Hashtag</span>
             <input data-property="hashtag" data-type="hashtag" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
-            <span class="popup-label">Callback URL</span>
-            <input data-property="url" data-type="url" class="textinput prop" type="url" required>
+            <span class="popup-label">Count</span>
+            <input data-property="count" data-type="int" class="textinput prop array-element" type="text" required>
         </div>
+        <div class="popup-field">
+            <span class="popup-label">Callback URL</span>
+            <input data-property="url" data-type="url" class="textinput prop array-element" type="url" required>
+        </div>
+        <div class="add-fields" onclick="addTwitterFields()">ADD</div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
             <input class="button button_action" type="button" value="Submit" onclick="updateTrigger()">
