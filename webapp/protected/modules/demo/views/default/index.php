@@ -13,13 +13,13 @@
 ?>
 
 <div class="left_panel">
-    <div class="title">Assets</div>
+    <div class="title">Digital Assets</div>
     <div class="assets_list">
         <div class="list_item">
             <img src="img/screen.png" width="18" height="18" class="item" id="asset-1" data-type="screen" draggable="true"/>Screen
         </div>
     </div>
-    <div class="title">Triggers</div>
+    <div class="title">Simulate Trigger</div>
     <div class="triggers_list">
         <div class="list_item">
             <img src="img/incident@2x.png" width="18" height="18" class="item" data-type="traffic_accident" draggable="true"/>Accident
@@ -46,7 +46,7 @@
             <img src="img/twitter.jpg" width="18" height="18" class="item" data-type="twitter_hash_tag" draggable="true"/>Twitter
         </div>
     </div>
-    <div class="title">Map info</div>
+    <div class="title">Map Filter</div>
     <div>
         <div class="list_item">
             <input class="item_checkbox" type="checkbox" id="traffic" checked>
@@ -345,7 +345,7 @@
     <div class="separator"></div>
     <div class="menu_item" onclick="showPropertiesPopup()">Properties</div>
     <div class="separator"></div>
-    <div class="menu_item" onclick="removeAsset()">Remove asset</div>
+    <div class="menu_item" onclick="removeAsset()">Remove Asset</div>
 </div>
             
 
