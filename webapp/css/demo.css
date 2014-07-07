@@ -293,7 +293,11 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .trigger_popup .popup-label {
-	min-width: 150px;
+	min-width: 160px;
+}
+
+.trigger_popup .additional .popup-label {
+	min-width: 164px;
 }
 
 .button {
@@ -622,4 +626,8 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .infowindow_title {
 	font-weight: bold !important;
+}
+
+.add-fields {
+	cursor: pointer;
 }

@@ -70,31 +70,23 @@
 <div class="popup_bg"></div>
 <div class="transparent_bg"></div>
 <div id="asset_popup" class="popup" tabindex="0">
-    <div class="popup_title">Asset properties</div>
+    <div class="popup_title">Asset Properties</div>
     <form>
         <div class="popup-field">
-            <span class="popup-label">Asset Name</span>
+            <span class="popup-label">Sign Name</span>
             <input data-property="name" class="textinput prop" type="text" required>
-        </div>
-        <div class="popup-field">
-            <span class="popup-label">Description</span>
-            <input data-property="description" class="textinput prop" type="text">
-        </div>
-        <div class="popup-field">
-            <span class="popup-label">Cap Period</span>
-            <input data-property="capPeriod" data-type="int" class="textinput prop" type="text">
-        </div>
-        <div class="popup-field">
-            <span class="popup-label">Cap Unit</span>
-            <select data-property="capUnit" class="drop-down prop">
-                <option value="weeks">Weeks</option>
-                <option value="days">Days</option>
-                <option value="hours">Hours</option>
-            </select>
         </div>
         <div class="popup-field">
             <span class="popup-label">Sign ID</span>
             <input data-property="sid" class="textinput prop" type="text" required>
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Group ID</span>
+            <input class="textinput" type="text" value="N/A" disabled>
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Max Triggers</span>
+            <input data-property="maxTriggers" data-type="int" class="textinput prop" type="text">
         </div>
         <div class="popup-field">
             <span class="popup-label">Lattitude</span>
@@ -104,6 +96,25 @@
             <span class="popup-label">Longitude</span>
             <input data-property="lng" data-type="float" data-min="-90" data-max="90" class="textinput prop" type="text" required>
         </div>
+        <div class="popup-field">
+            <span class="popup-label">Platform:</span>
+            <div class="popup-field">
+                <input data-property="platform" name="platform" value="digitalSignageOS" class="prop" type="radio">
+                <span class="popup-label">Digital Signage OS</span>
+            </div>
+            <div class="popup-field">
+                <input data-property="platform" name="platform" value="omnivex" class="prop" type="radio">
+                <span class="popup-label">Omnivex</span>
+            </div>
+            <div class="popup-field">
+                <input data-property="platform" name="platform" value="navori" class="prop" type="radio">
+                <span class="popup-label">Navori</span>
+            </div>
+            <div class="popup-field">
+                <input data-property="platform" name="platform" value="scala" class="prop" type="radio">
+                <span class="popup-label">Scala</span>
+            </div>
+        </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
             <input class="button button_action" type="button" value="Submit" onclick="updateAsset()">
@@ -112,14 +123,14 @@
     </form>
 </div>
 <div id="trigger_accident_popup" class="popup trigger_popup" tabindex="0">
-    <div class="popup_title">Trigger properties</div>
+    <div class="popup_title">Traffic Incident - Trigger properties</div>
     <form>
         <div class="popup-field">
-            <span class="popup-label">Campain ID</span>
+            <span class="popup-label">Campaign ID</span>
             <input data-property="cid" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
-            <span class="popup-label">Retrigger Wait Period</span>
+            <span class="popup-label">Retrigger Wait Period (min)</span>
             <input data-property="rwp" data-type="int" class="textinput prop" type="text">
         </div>
         <div class="popup-field">
@@ -132,10 +143,6 @@
                 <option value="All">All</option>
             </select>
         </div>
-        <div class="popup-field">
-            <span class="popup-label">Callback URL</span>
-            <input data-property="url" data-type="url" class="textinput prop" type="url" required>
-        </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
             <input class="button button_action" type="button" value="Submit" onclick="updateTrigger()">
@@ -144,14 +151,14 @@
     </form>
 </div>
 <div id="trigger_flow_popup" class="popup trigger_popup" tabindex="0">
-    <div class="popup_title">Trigger properties</div>
+    <div class="popup_title">Traffic Flow - Trigger properties</div>
     <form>
         <div class="popup-field">
-            <span class="popup-label">Campain ID</span>
+            <span class="popup-label">Campaign ID</span>
             <input data-property="cid" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
-            <span class="popup-label">Retrigger Wait Period</span>
+            <span class="popup-label">Retrigger Wait Period (min)</span>
             <input data-property="rwp" data-type="int" class="textinput prop" type="text">
         </div>
         <div class="popup-field">
@@ -159,12 +166,15 @@
             <input data-property="radius" data-type="float" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
-            <span class="popup-label">Speed Under</span>
-            <input data-property="speedUnder" data-type="int" data-min="0" data-max="200" data-default="25" class="textinput prop" type="text" required>
+            <span class="popup-label">Condition</span>
+            <select data-property="condition" class="drop-down prop">
+                <option value="Over">Over</option>
+                <option value="Under">Under</option>
+            </select>
         </div>
         <div class="popup-field">
-            <span class="popup-label">Callback URL</span>
-            <input data-property="url" data-type="url" class="textinput prop" type="url" required>
+            <span class="popup-label">Threshold (mph)</span>
+            <input data-property="threshold" data-type="int" data-min="0" data-max="200" data-default="25" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
@@ -174,14 +184,10 @@
     </form>
 </div>
 <div id="trigger_twitter_popup" class="popup trigger_popup" tabindex="0">
-    <div class="popup_title">Trigger properties</div>
+    <div class="popup_title">Twitter - Trigger properties</div>
     <form>
         <div class="popup-field">
-            <span class="popup-label">Campain ID</span>
-            <input data-property="cid" class="textinput prop" type="text" required>
-        </div>
-        <div class="popup-field">
-            <span class="popup-label">Retrigger Wait Period</span>
+            <span class="popup-label">Retrigger Wait Period (min)</span>
             <input data-property="rwp" data-type="int" class="textinput prop" type="text">
         </div>
         <div class="popup-field">
@@ -193,10 +199,10 @@
             <input data-property="count" data-type="int" class="textinput prop array-element" type="text" required>
         </div>
         <div class="popup-field">
-            <span class="popup-label">Callback URL</span>
-            <input data-property="url" data-type="url" class="textinput prop array-element" type="url" required>
+            <span class="popup-label">Campaign ID</span>
+            <input data-property="cid" class="textinput prop array-element" type="text" required>
         </div>
-        <div class="add-fields" onclick="addTwitterFields()">ADD</div>
+        <div class="add-fields" onclick="addTwitterFields()">Add</div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
             <input class="button button_action" type="button" value="Submit" onclick="updateTrigger()">
@@ -205,14 +211,14 @@
     </form>
 </div>
 <div id="trigger_temperature_popup" class="popup trigger_popup" tabindex="0">
-    <div class="popup_title">Trigger properties</div>
+    <div class="popup_title">Temperature - Trigger properties</div>
     <form>
         <div class="popup-field">
-            <span class="popup-label">Campain ID</span>
+            <span class="popup-label">Campaign ID</span>
             <input data-property="cid" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
-            <span class="popup-label">Retrigger Wait Period</span>
+            <span class="popup-label">Retrigger Wait Period (min)</span>
             <input data-property="rwp" data-type="int" class="textinput prop" type="text">
         </div>
         <div class="popup-field">
@@ -220,19 +226,15 @@
             <input data-property="radius" data-type="float" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
-            <span class="popup-label">Threshold</span>
-            <select data-property="threshold" class="drop-down prop">
+            <span class="popup-label">Condition</span>
+            <select data-property="condition" class="drop-down prop">
                 <option value="Over">Over</option>
                 <option value="Under">Under</option>
             </select>
         </div>
         <div class="popup-field">
-            <span class="popup-label">Target Temp.</span>
-            <input data-property="temperature" data-type="int" data-min="-50" data-max="150" data-default="0" class="textinput prop" type="text" required>
-        </div>
-        <div class="popup-field">
-            <span class="popup-label">Callback URL</span>
-            <input data-property="url" data-type="url" class="textinput prop" type="url" required>
+            <span class="popup-label">Threshold (fahrenheit)</span>
+            <input data-property="threshold" data-type="int" data-min="-50" data-max="150" data-default="0" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
@@ -242,14 +244,14 @@
     </form>
 </div>
 <div id="trigger_weather_popup" class="popup trigger_popup" tabindex="0">
-    <div class="popup_title">Trigger properties</div>
+    <div class="popup_title">Weather Event - Trigger properties</div>
     <form>
         <div class="popup-field">
-            <span class="popup-label">Campain ID</span>
+            <span class="popup-label">Campaign ID</span>
             <input data-property="cid" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
-            <span class="popup-label">Retrigger Wait Period</span>
+            <span class="popup-label">Retrigger Wait Period (min)</span>
             <input data-property="rwp" class="textinput prop" type="text">
         </div>
         <div class="popup-field">
@@ -257,42 +259,38 @@
             <input data-property="radius" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
-            <span class="popup-label">Storm (Generic)</span>
-            <input data-property="storm" type="checkbox" class="prop exclusive">
-            <div class="popup-field subitem">
-                <span class="popup-label">Severity</span>
-                <select data-property="severity" class="drop-down prop">
-                    <option value="All">All</option>
-                </select>
-            </div>
-        </div>
-        <div class="popup-field">
             <span class="popup-label">Rain</span>
-            <input data-property="rain" type="checkbox" class="prop">
+            <input name="weather_event" value="rain" data-property="weather_event" type="radio" class="prop">
         </div>
         <div class="popup-field">
             <span class="popup-label">Snow</span>
-            <input data-property="snow" type="checkbox" class="prop">
+            <input name="weather_event" value="snow" data-property="weather_event" type="radio" class="prop">
         </div>
         <div class="popup-field">
             <span class="popup-label">Sunny</span>
-            <input data-property="sunny" type="checkbox" class="prop">
+            <input name="weather_event" value="sunny" data-property="weather_event" type="radio" class="prop">
         </div>
         <div class="popup-field">
             <span class="popup-label">Thunder Storm</span>
-            <input data-property="thunderStorm" type="checkbox" class="prop">
+            <input name="weather_event" value="thunderStorm" data-property="weather_event" type="radio" class="prop">
         </div>
         <div class="popup-field">
             <span class="popup-label">Windy</span>
-            <input data-property="windy" type="checkbox" class="prop">
+            <input name="weather_event" value="windy" data-property="weather_event" type="radio" class="prop">
             <div class="popup-field subitem">
                 <span class="popup-label">Wind Speed Over</span>
                 <input data-property="windSpeed" data-type="int" data-min="0" data-max="200" data-default="25" class="textinput prop" type="text">
             </div>
         </div>
         <div class="popup-field">
-            <span class="popup-label">Callback URL</span>
-            <input data-property="url" data-type="url" class="textinput prop" type="url" required>
+            <span class="popup-label">Storm (Generic)</span>
+            <input name="weather_event" value="storm" data-property="weather_event" type="radio" class="prop">
+            <div class="popup-field subitem">
+                <span class="popup-label">Severity</span>
+                <select data-property="stormSeverity" class="drop-down prop">
+                    <option value="All">All</option>
+                </select>
+            </div>
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">

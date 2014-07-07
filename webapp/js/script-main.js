@@ -50,27 +50,28 @@ var getUnigueID = (function () {
 function showTriggerPopup(event) {
     var data = event.target.dataset,
         count = {},
-        i, length, trigger;
+        i, length, trigger, property;
     trigger_type = data.type;
     trigger = active_asset.triggers.filter(function(trigger) { return trigger.type === trigger_type; })[0];
     if (trigger) {
-        if (trigger.type === "twitter_hash_tag" && trigger.url.length > 1) {
-            for (i = 0, length = trigger.url.length; i < length - 1; i++) {
+        if (trigger.type === "twitter_hash_tag" && trigger.cid.length > 1) {
+            for (i = 0, length = trigger.cid.length; i < length - 1; i++) {
                 addTwitterFields();
             }
         }
         $(data.popup + " .prop").toArray().forEach(function(el) {
+            property = el.dataset.property;
             if ($(el).hasClass("array-element")) {
-                if (!count[el.dataset.property]) {
-                    count[el.dataset.property] = 0;
+                if (!count[property]) {
+                    count[property] = 0;
                 }
-                el.value = trigger[el.dataset.property][count[el.dataset.property]];
-                count[el.dataset.property]++;
+                el.value = trigger[property][count[property]];
+                count[property]++;
             } else {
-                if (el.type === "checkbox") {
-                    el.checked = trigger[el.dataset.property];
+                if (el.type === "radio") {
+                    el.checked = (el.value === trigger[el.dataset.property]);
                 } else {
-                    el.value = trigger[el.dataset.property];
+                    el.value = trigger[property];
                 }
             }
         });
@@ -80,7 +81,11 @@ function showTriggerPopup(event) {
 
 function showPropertiesPopup() {
     $("#asset_popup .prop").toArray().forEach(function(el) {
-       el.value =  active_asset[el.dataset.property];
+        if (el.type === "radio") {
+            el.checked = (el.value === active_asset[el.dataset.property]);
+        } else {
+            el.value =  active_asset[el.dataset.property];
+        }
     });
     showPopup("#asset_popup");
 }
@@ -105,6 +110,9 @@ function clearPopupFields() {
                 break;
             case "select-one":
                 el.options.selectedIndex = 0;
+                break;
+            case "radio":
+                el.checked = false;
                 break;
         }
     });
@@ -308,6 +316,13 @@ function validate(popup) {
             };
         }
     }
+    if ($(popup + ' input[type=radio]').size() && !$(popup + ' input[type=radio]:checked').size()) {
+        errorMessage = "One of options should be selected";
+        return {
+            isValid: false,
+            errorMessage: errorMessage
+        };
+    }
     return {isValid: true, errorMessage: null};
 } 
 
@@ -318,8 +333,10 @@ function getProperties(popup) {
             properties[el.dataset.property] = properties[el.dataset.property] || [];
             properties[el.dataset.property].push(el.value);
         } else {
-            if (el.type === "checkbox") {
-                properties[el.dataset.property] = el.checked;
+            if (el.type === "radio") {
+                if (el.checked) {
+                    properties[el.dataset.property] = el.value;
+                }
             } else {
                 properties[el.dataset.property] = el.value;
             }
@@ -591,17 +608,17 @@ function autoUpdateMap() {
     updateMap = setTimeout(update, 60000);
 }
 
-function getType(trigger) {
+function getType(trigger_type) {
     var type;
-    switch (trigger.type) {
+    switch (trigger_type) {
         case "traffic_accident":
-            type = "Incident";
+            type = "Traffic Incident";
             break;
         case "traffic_flow":
-            type = "Traffic flow";
+            type = "Traffic Flow";
             break;
         case "weather_event":
-            type = "Weather event";
+            type = "Weather Event";
             break;
         case "weather_temperature":
             type = "Temperature";
@@ -618,10 +635,9 @@ function addTwitterFields() {
                   "<span class='popup-label'>Count</span>" +
                   "<input data-property='count' data-type='int' class='textinput prop array-element' type='text' required>" +
                   "</div><div class='popup-field additional'>" +
-                  "<span class='popup-label'>Callback URL</span>" +
-                  "<input data-property='url' data-type='url' class='textinput prop array-element' type='url' required></div>";
+                  "<span class='popup-label'>Campaign ID</span>" +
+                  "<input data-property='cid' class='textinput prop array-element' type='text' required></div>";
     $(".add-fields").before(content);
-    //debugger;
 }
 
 $(function() {
@@ -681,26 +697,17 @@ $(function() {
             }
         }
     });
-    $(".exclusive").on("change", function(ev) {
+    $("input[type='radio']").on("change", function(ev) {
         var inputs = Array.prototype.slice.call(ev.target.form.elements),
-            checkboxes = inputs.filter(function(el) { return (el.type === "checkbox" && el !== ev.target); });
-        if (ev.target.checked) {      
-            checkboxes.forEach(function(el) {
-               el.checked = false;
-               el.disabled = true;
-               $(el.parentNode).find(".subitem input").toArray().forEach(function(input) {
-                  input.disabled = true;
-                  input.value = "";
-               });
+            radiobuttons = inputs.filter(function(el) { return (el.type === "radio" && el !== ev.target); }); 
+        radiobuttons.forEach(function(el) {
+            $(el.parentNode).find(".subitem input, .subitem select").toArray().forEach(function(input) {
+                input.disabled = true;
             });
-        } else {
-            checkboxes.forEach(function(el) {
-               el.disabled = false;
-               $(el.parentNode).find(".subitem input").toArray().forEach(function(input) {
-                  input.disabled = false; 
-               });
-            });
-        }
+        });
+        $(ev.target.parentNode).find(".subitem input, .subitem select").toArray().forEach(function(input) {
+            input.disabled = false;
+        });
     });
     google.maps.event.addListener(map, "dragend", function() {
         clearTimeout(updateMap);
@@ -792,7 +799,7 @@ $(function() {
                 if (asset.triggers.length) {
                     content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><ul>";
                     asset.triggers.forEach(function(tr) {
-                       content += "<li>" + getType(tr) + "</li>"; 
+                       content += "<li>" + getType(tr.type) + "</li>"; 
                     });
                     content += "</ul></div>";
                     infoWindow.setContent(content);
@@ -818,19 +825,22 @@ $(function() {
             });
         } else if (action === "trigger_event") {
             var id = ev.target.parentNode.getAttribute("title"),
-                asset;
+                asset, trigger, url, type;
             if (id && id.indexOf("asset") !== -1) {
                 asset = assets.filter(function(a) { return a.id === id; })[0];
-                var trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
+                trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
+                type = getType(ev.dataTransfer.getData("type"));
                 if (trigger) {
-                    alert("Triggering event!");
-                    $.ajax({
-                        url: trigger.url,
-                        success: function() { console.log("Successfully triggered."); },
-                        error: function() { console.log("Error on triggering event."); }
-                    });
+                    if (trigger.type !== "twitter_hash_tag") { //temporary
+                        $.ajax({
+                            url: trigger.getURL(),
+                            success: function() { console.log("Successfully triggered."); },
+                            error: function() { console.log("Error on triggering event."); },
+                            complete: function() { alert(type + " Trigger Simulated."); }
+                        });
+                    }
                 } else {
-                    alert("Selected event was not found!");
+                    alert(type + " Trigger Was Not Set.");
                 }
             }
         }
