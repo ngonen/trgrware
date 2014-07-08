@@ -17,6 +17,7 @@ var trigger_type;
 var refreshKey;
 var updateMap;
 var contextMenuIsOpen;
+var markerDrag;
 
 // Add INRIX Tile layer (see inrix.layer.js for details)
 var traffic = new InrixTileLayer(map);
@@ -851,7 +852,7 @@ $(function() {
             });
             google.maps.event.addListener(marker, "mouseover", function(ev) {
                 var asset, content;
-                if (!contextMenuIsOpen) {
+                if (!contextMenuIsOpen && !markerDrag) {
                     asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
                     if (asset.triggers.length) {
                         content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><ul>";
@@ -869,10 +870,15 @@ $(function() {
             google.maps.event.addListener(marker, "mouseout", function(ev) {
                 infoWindow.close();
             });
+            google.maps.event.addListener(marker, "dragstart", function(ev) {
+                markerDrag = true;
+                infoWindow.close();
+            });
             google.maps.event.addListener(marker, "dragend", function(ev) {
                 var asset = assets.filter(function(asset) { return asset.id === marker.title; })[0],
                     lat = ev.latLng.lat(),
                     lng = ev.latLng.lng();
+                markerDrag = false;
                 if (asset.lat !== lat || asset.lng !== lng) {
                     asset.lat = ev.latLng.lat();
                     asset.lng = ev.latLng.lng();

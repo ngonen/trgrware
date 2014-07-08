@@ -88,7 +88,6 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .hcfe a {
     color: #245dc1;
-    text-decoration: none;
 }
 
 .appbar-nav .product-icon img {
@@ -618,11 +617,12 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	font-weight: bold !important;
 }
 
-.add-fields {
+.popup .add-fields {
 	cursor: pointer;
+	text-decoration: underline;
 }
 
 .popup .cross {
-	top: -20px;
-	left: 369px;
+	top: -26px;
+	left: 364px;
 }

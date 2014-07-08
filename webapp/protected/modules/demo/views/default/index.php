@@ -201,7 +201,7 @@
             <span class="popup-label">Campaign ID</span>
             <input data-property="cid" class="textinput prop array-element" type="text" required>
         </div>
-        <a class="add-fields" onclick="addTwitterFields()">Add campaigns</a>
+        <a class="add-fields" onclick="addTwitterFields()">Add</a>
         <div class="popup-field error"></div>
         <div class="buttons-block">
             <input class="button button_action" type="button" value="Submit" onclick="updateTrigger()">
