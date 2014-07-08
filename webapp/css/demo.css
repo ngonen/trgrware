@@ -248,7 +248,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 #asset_popup {
-    margin-top: -216px;	
+    margin-top: -278px;	
     margin-left: -185px;
 }
 
@@ -257,23 +257,28 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 #trigger_weather_popup {
-	margin-top: -295px;
-	margin-left: -215px;
+	margin-top: -276px;
+	margin-left: -220px;
 }
 
 #trigger_temperature_popup {
-	margin-top: -196px;
-	margin-left: -215px;
+	margin-top: -177px;
+	margin-left: -220px;
 }
 
-#trigger_accident_popup, #trigger_flow_popup {
-	margin-top: -172px;
-	margin-left: -215px;
+#trigger_accident_popup {
+	margin-top: -157px;
+	margin-left: -220px;
+}
+
+#trigger_flow_popup {
+	margin-top: -177px;
+	margin-left: -220px;
 }
 
 #trigger_twitter_popup {
-	margin-top: -157px;
-	margin-left: -215px;
+	margin-top: -168px;
+	margin-left: -220px;
 }
 
 .popup-field {
