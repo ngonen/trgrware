@@ -211,28 +211,30 @@ function sendTriggerUpdateRequest(asset, trigger, isNewTrigger) {
     });
 }
 
-function removeTrigger(event) {
-    var type = event.target.parentNode.dataset.type,
-        asset = active_asset,
-        trigger, data;
+function onTriggerRemove(event) {
+    var type = event.target.parentNode.dataset.type;
     hideMenu();
     if (confirm("Are you sure you want to remove this trigger?")) {
-        trigger = active_asset.triggers.filter(function(tr) { return checkEventType(tr.type) === type; })[0];
-        data = {
-            assetId: active_asset.id,
-            eventType: trigger.type
-        };
-        sendAJAX("/demo/Default/DeleteEvent", data, function(data) {
-            var response = JSON.parse(data);
-            if (response.status) {
-                asset.triggers.splice(active_asset.triggers.indexOf(trigger), 1);
-                console.log(response.message);
-            } else {
-                console.log(response.errorMessage);
-            }
-        });
+        removeTrigger(active_asset, type);
     }
     event.stopPropagation();
+}
+
+function removeTrigger(asset, eventType) {
+    var trigger = asset.triggers.filter(function(tr) { return checkEventType(tr.type) === eventType; })[0];
+    data = {
+        assetId: asset.id,
+        eventType: trigger.type
+    };
+    sendAJAX("/demo/Default/DeleteEvent", data, function(data) {
+        var response = JSON.parse(data);
+        if (response.status) {
+            asset.triggers.splice(asset.triggers.indexOf(trigger), 1);
+            console.log(response.message);
+        } else {
+            console.log(response.errorMessage);
+        }
+    });
 }
 
 function updateTrigger() {
@@ -246,12 +248,7 @@ function updateTrigger() {
         trigger = active_asset.triggers.filter(function(trigger) { return checkEventType(trigger.type) === trigger_type; })[0];
         if (trigger) {
             if (checkEventType(trigger.type) === "weather_event" && properties.type !== "weather_wind") { //temporary
-                var data = {
-                    assetId: active_asset.id,
-                    eventType: trigger.type
-                };
-                active_asset.triggers.splice(active_asset.triggers.indexOf(trigger), 1);
-                sendAJAX("/demo/Default/DeleteEvent", data, onSuccess);
+                removeTrigger(active_asset, "weather_event");
             } else {
                 //change trigger properties
                 trigger.setProperties(properties);

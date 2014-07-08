@@ -306,12 +306,12 @@
                 <div class="traffic_sub_menu">
                     <div class="menu_item" data-popup="#trigger_accident_popup" data-type="traffic_accident" onclick="showTriggerPopup(event)">
                         Incident
-                        <div class="cross hidden" onclick="removeTrigger(event)"></div>
+                        <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
                     <div class="separator"></div>
                     <div class="menu_item" data-popup="#trigger_flow_popup" data-type="traffic_flow" onclick="showTriggerPopup(event)">
                         Flow
-                        <div class="cross hidden" onclick="removeTrigger(event)"></div>
+                        <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
                 </div>
             </div>
@@ -320,12 +320,12 @@
                 <div class="weather_sub_menu">
                     <div class="menu_item" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup(event)">
                         Event
-                        <div class="cross hidden" onclick="removeTrigger(event)"></div>
+                        <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
                     <div class="separator"></div>
                     <div class="menu_item" data-popup="#trigger_temperature_popup" data-type="weather_temperature" onclick="showTriggerPopup(event)">
                         Temperature
-                        <div class="cross hidden" onclick="removeTrigger(event)"></div>
+                        <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
                 </div>
             </div>
@@ -334,7 +334,7 @@
                 <div class="social_sub_menu">
                     <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter_hash_tag" onclick="showTriggerPopup(event)">
                         Twitter
-                        <div class="cross hidden" onclick="removeTrigger(event)"></div>
+                        <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
                 </div>
             </div>
