@@ -16,6 +16,7 @@ var active_popup;
 var trigger_type;
 var refreshKey;
 var updateMap;
+var contextMenuIsOpen;
 
 // Add INRIX Tile layer (see inrix.layer.js for details)
 var traffic = new InrixTileLayer(map);
@@ -386,7 +387,8 @@ function onCancel() {
 
 function displayMenu(ev){
     var menu = $("#context_menu")[0];
-    $(".transparent_bg").show();
+    contextMenuIsOpen = true;
+    infoWindow.close();
     if (ev.clientY + menu.clientHeight > innerHeight) {
         menu.style.top =  pageYOffset - menu.clientHeight + ev.clientY + "px";
     } else {
@@ -409,7 +411,7 @@ function displayMenu(ev){
 function hideMenu() {
     $("#context_menu").css("visibility", "hidden");
     $("#context_menu .cross").hide();
-    $(".transparent_bg").hide();
+    contextMenuIsOpen = false;
 }
 
 function showIncidents(incidents) {
@@ -424,8 +426,10 @@ function showIncidents(incidents) {
                 title: 'incident'
             });
             google.maps.event.addListener(marker, "mouseover", function() {
-                infoWindow.setContent("<div class='infowindow_content'>" + incident.fullDesc + "</div>");
-                infoWindow.open(map, this);
+                if (!contextMenuIsOpen) {
+                    infoWindow.setContent("<div class='infowindow_content'>" + incident.fullDesc + "</div>");
+                    infoWindow.open(map, this);
+                }
             });
             google.maps.event.addListener(marker, "mouseout", function() {
                 infoWindow.close();
@@ -469,14 +473,16 @@ function showWeather(data) {
                         title: "weather station"
                     });
                     google.maps.event.addListener(marker, "mouseover", function() {
-                        infoWindow.setContent("<p>Station:     " + station._attr.name._value + "</p>" +
-                                              "<p>Elevation:   " + station._attr.elevation._value + " yd</p>" +
-                                              "<p>Humidity:    " + station.Current[0].Humidity[0]._attr.relative._value + "%</p>" +
-                                              "<p>Temperature: " + temperature + "\u00B0F</p>" +
-                                              "<p>Pressure:    " + station.Current[0].Pressure[0]._attr.actual._value + " mbar</p>" +
-                                              "<p>Wind speed:  " + station.Current[0].Wind[0]._attr.speed._value + " mph</p>"
-                                              );
-                         infoWindow.open(map, this);
+                        if (!contextMenuIsOpen) {
+                            infoWindow.setContent("<p>Station:     " + station._attr.name._value + "</p>" +
+                                                  "<p>Elevation:   " + station._attr.elevation._value + " yd</p>" +
+                                                  "<p>Humidity:    " + station.Current[0].Humidity[0]._attr.relative._value + "%</p>" +
+                                                  "<p>Temperature: " + temperature + "\u00B0F</p>" +
+                                                  "<p>Pressure:    " + station.Current[0].Pressure[0]._attr.actual._value + " mbar</p>" +
+                                                  "<p>Wind speed:  " + station.Current[0].Wind[0]._attr.speed._value + " mph</p>"
+                                                  );
+                             infoWindow.open(map, this);
+                        }
                     });
                     google.maps.event.addListener(marker, "mouseout", function() {
                          infoWindow.close();
@@ -769,6 +775,7 @@ $(function() {
         autoUpdateMap();
     });
     $("body").on("click", hideMenu);
+    $("body").on("dragstart", hideMenu);
     $("#asset_popup").on("keyup", function(ev) {
         if (ev.keyCode === 13) {
             updateAsset();
@@ -843,19 +850,21 @@ $(function() {
                 displayMenu(ev.Ra);
             });
             google.maps.event.addListener(marker, "mouseover", function(ev) {
-                var asset = assets.filter(function(asset) { return asset.id === marker.title; })[0],
-                    content;
-                if (asset.triggers.length) {
-                    content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><ul>";
-                    asset.triggers.forEach(function(tr) {
-                       content += "<li>" + getType(tr.type) + "</li>"; 
-                    });
-                    content += "</ul></div>";
-                    infoWindow.setContent(content);
-                } else {
-                    infoWindow.setContent("No events attached to this asset.");
+                var asset, content;
+                if (!contextMenuIsOpen) {
+                    asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
+                    if (asset.triggers.length) {
+                        content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><ul>";
+                        asset.triggers.forEach(function(tr) {
+                           content += "<li>" + getType(tr.type) + "</li>"; 
+                        });
+                        content += "</ul></div>";
+                        infoWindow.setContent(content);
+                    } else {
+                        infoWindow.setContent("No events attached to this asset.");
+                    }
+                    infoWindow.open(map, this);
                 }
-                infoWindow.open(map, this);
             });
             google.maps.event.addListener(marker, "mouseout", function(ev) {
                 infoWindow.close();
@@ -871,6 +880,9 @@ $(function() {
                         sendAssetUpdateRequest(asset);
                     }
                 }
+            });
+            google.maps.event.addListener(marker, "dragstart", function(ev) {
+                hideMenu();
             });
         } else if (action === "trigger_event") {
             var id = ev.target.parentNode.getAttribute("title"),
