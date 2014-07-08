@@ -196,13 +196,24 @@ function removeAsset() {
     }
 }
 
-function sendTriggerUpdateRequest(trigger, isNewTrigger) {
+function sendTriggerUpdateRequest(asset, trigger, isNewTrigger) {
     var url = isNewTrigger ? "/demo/Default/RegisterEvent" : "/demo/Default/UpdateEvent";
-    sendAJAX(url, trigger.getData(), onSuccess);
+    sendAJAX(url, trigger.getData(), function(data) {
+        var response = JSON.parse(data);
+        if (response.status) {
+            if (isNewTrigger) {
+                asset.triggers.push(trigger);
+            }
+            console.log(response.message);
+        } else {
+            console.log(response.errorMessage);
+        }
+    });
 }
 
 function removeTrigger(event) {
     var type = event.target.parentNode.dataset.type,
+        asset = active_asset,
         trigger, data;
     hideMenu();
     if (confirm("Are you sure you want to remove this trigger?")) {
@@ -211,8 +222,15 @@ function removeTrigger(event) {
             assetId: active_asset.id,
             eventType: trigger.type
         };
-        active_asset.triggers.splice(active_asset.triggers.indexOf(trigger), 1);
-        sendAJAX("/demo/Default/DeleteEvent", data, onSuccess);
+        sendAJAX("/demo/Default/DeleteEvent", data, function(data) {
+            var response = JSON.parse(data);
+            if (response.status) {
+                asset.triggers.splice(active_asset.triggers.indexOf(trigger), 1);
+                console.log(response.message);
+            } else {
+                console.log(response.errorMessage);
+            }
+        });
     }
     event.stopPropagation();
 }
@@ -227,9 +245,18 @@ function updateTrigger() {
         properties.asset_id = active_asset.id;
         trigger = active_asset.triggers.filter(function(trigger) { return checkEventType(trigger.type) === trigger_type; })[0];
         if (trigger) {
-            //change trigger properties
-            trigger.setProperties(properties);
-            sendTriggerUpdateRequest(trigger, false);
+            if (checkEventType(trigger.type) === "weather_event" && properties.type !== "weather_wind") { //temporary
+                var data = {
+                    assetId: active_asset.id,
+                    eventType: trigger.type
+                };
+                active_asset.triggers.splice(active_asset.triggers.indexOf(trigger), 1);
+                sendAJAX("/demo/Default/DeleteEvent", data, onSuccess);
+            } else {
+                //change trigger properties
+                trigger.setProperties(properties);
+                sendTriggerUpdateRequest(active_asset, trigger, false);
+            }
         } else {
             //create trigger
             switch (trigger_type) {
@@ -249,8 +276,7 @@ function updateTrigger() {
                     trigger = new TwitterTrigger(properties);
                     break;
             }
-            active_asset.triggers.push(trigger);
-            sendTriggerUpdateRequest(trigger, true);
+            sendTriggerUpdateRequest(active_asset, trigger, true);
         }   
         hidePopup();
     } else {
