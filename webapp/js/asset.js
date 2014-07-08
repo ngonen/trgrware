@@ -12,4 +12,4 @@ function Asset(properties) {
     
     this.triggers = [];
     this.setProperties(properties);
-};
+}

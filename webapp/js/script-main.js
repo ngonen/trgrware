@@ -52,7 +52,7 @@ function showTriggerPopup(event) {
         count = {},
         i, length, trigger, property;
     trigger_type = data.type;
-    trigger = active_asset.triggers.filter(function(trigger) { return trigger.type === trigger_type; })[0];
+    trigger = active_asset.triggers.filter(function(trigger) { return checkEventType(trigger.type) === trigger_type; })[0];
     if (trigger) {
         if (trigger.type === "twitter_hash_tag" && trigger.cid.length > 1) {
             for (i = 0, length = trigger.cid.length; i < length - 1; i++) {
@@ -60,18 +60,20 @@ function showTriggerPopup(event) {
             }
         }
         $(data.popup + " .prop").toArray().forEach(function(el) {
-            property = el.dataset.property;
-            if ($(el).hasClass("array-element")) {
-                if (!count[property]) {
-                    count[property] = 0;
-                }
-                el.value = trigger[property][count[property]];
-                count[property]++;
-            } else {
-                if (el.type === "radio") {
-                    el.checked = (el.value === trigger[el.dataset.property]);
+            if (!el.disabled) {
+                property = el.dataset.property;
+                if ($(el).hasClass("array-element")) {
+                    if (!count[property]) {
+                        count[property] = 0;
+                    }
+                    el.value = trigger[property][count[property]];
+                    count[property]++;
                 } else {
-                    el.value = trigger[property];
+                    if (el.type === "radio") {
+                        el.checked = (el.value === trigger[el.dataset.property]);
+                    } else {
+                        el.value = trigger[property];
+                    }
                 }
             }
         });
@@ -204,10 +206,10 @@ function removeTrigger(event) {
         trigger, data;
     hideMenu();
     if (confirm("Are you sure you want to remove this trigger?")) {
-        trigger = active_asset.triggers.filter(function(tr) { return tr.type === type; })[0];
+        trigger = active_asset.triggers.filter(function(tr) { return checkEventType(tr.type) === type; })[0];
         data = {
             assetId: active_asset.id,
-            eventType: type
+            eventType: trigger.type
         };
         active_asset.triggers.splice(active_asset.triggers.indexOf(trigger), 1);
         sendAJAX("/demo/Default/DeleteEvent", data, onSuccess);
@@ -221,9 +223,9 @@ function updateTrigger() {
         trigger;
     if (validateObj.isValid) {
         properties = getProperties(active_popup);
-        properties.type = trigger_type;
+        properties.type = properties.type || trigger_type;
         properties.asset_id = active_asset.id;
-        trigger = active_asset.triggers.filter(function(trigger) { return trigger.type === trigger_type; })[0];
+        trigger = active_asset.triggers.filter(function(trigger) { return checkEventType(trigger.type) === trigger_type; })[0];
         if (trigger) {
             //change trigger properties
             trigger.setProperties(properties);
@@ -262,58 +264,60 @@ function validate(popup) {
         value, el, errorMessage, i, length;
     for (i = 0, length = inputs.length; i < length; i++) {
         el = inputs[i];
-        value = el.value;
-        if (el.required && /^\s*$/.test(value)) {
-            errorMessage = el.parentNode.firstElementChild.textContent + " field is required"; 
-            return {
-                isValid: false,
-                errorMessage: errorMessage
-            };
-        }
-        switch (el.dataset.type) {
-            case "int":
-                if (!/^\s*$/.test(value) && !/^-?\d+$/.test(value)) {
-                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain an integer number";
-                    return {
-                        isValid: false,
-                        errorMessage: errorMessage
-                    };
-                }
-                break;
-            case "float":
-                if (!/^\s*$/.test(value) && !/^-?\d+(\.\d+)?$/.test(value)) {
-                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number";
-                    return {
-                        isValid: false,
-                        errorMessage: errorMessage
-                    };
-                }
-                break;
-            case "url":
-                if (!/^\s*$/.test(value) && !el.validity.valid) {
-                    errorMessage = "Incorrect URL";
-                    return {
-                        isValid: false,
-                        errorMessage: errorMessage
-                    };
-                }
-                break;
-            case "hashtag":
-                if (!/^#/.test(value)) {
-                    errorMessage = "Incorrect hashtag";
-                    return {
-                        isValid: false,
-                        errorMessage: errorMessage
-                    };
-                }
-                break;
-        }
-        if (el.dataset.min && el.dataset.max && (value < parseInt(el.dataset.min) || value > parseInt(el.dataset.max))) {
-            errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number between " + el.dataset.min + " and " + el.dataset.max;
-            return {
-                isValid: false,
-                errorMessage: errorMessage
-            };
+        if (!el.disabled) {
+            value = el.value;
+            if (el.required && /^\s*$/.test(value)) {
+                errorMessage = el.parentNode.firstElementChild.textContent + " field is required"; 
+                return {
+                    isValid: false,
+                    errorMessage: errorMessage
+                };
+            }
+            switch (el.dataset.type) {
+                case "int":
+                    if (!/^\s*$/.test(value) && !/^-?\d+$/.test(value)) {
+                        errorMessage = el.parentNode.firstElementChild.textContent + " field should contain an integer number";
+                        return {
+                            isValid: false,
+                            errorMessage: errorMessage
+                        };
+                    }
+                    break;
+                case "float":
+                    if (!/^\s*$/.test(value) && !/^-?\d+(\.\d+)?$/.test(value)) {
+                        errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number";
+                        return {
+                            isValid: false,
+                            errorMessage: errorMessage
+                        };
+                    }
+                    break;
+                case "url":
+                    if (!/^\s*$/.test(value) && !el.validity.valid) {
+                        errorMessage = "Incorrect URL";
+                        return {
+                            isValid: false,
+                            errorMessage: errorMessage
+                        };
+                    }
+                    break;
+                case "hashtag":
+                    if (!/^#/.test(value)) {
+                        errorMessage = "Incorrect hashtag";
+                        return {
+                            isValid: false,
+                            errorMessage: errorMessage
+                        };
+                    }
+                    break;
+            }
+            if (el.dataset.min && el.dataset.max && (value < parseInt(el.dataset.min) || value > parseInt(el.dataset.max))) {
+                errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number between " + el.dataset.min + " and " + el.dataset.max;
+                return {
+                    isValid: false,
+                    errorMessage: errorMessage
+                };
+            }
         }
     }
     if ($(popup + ' input[type=radio]').size() && !$(popup + ' input[type=radio]:checked').size()) {
@@ -329,16 +333,18 @@ function validate(popup) {
 function getProperties(popup) {  
     var properties = {};
     $(popup + " .prop").toArray().forEach(function(el) {
-        if ($(el).hasClass("array-element")) {
-            properties[el.dataset.property] = properties[el.dataset.property] || [];
-            properties[el.dataset.property].push(el.value);
-        } else {
-            if (el.type === "radio") {
-                if (el.checked) {
+        if (!el.disabled) {
+            if ($(el).hasClass("array-element")) {
+                properties[el.dataset.property] = properties[el.dataset.property] || [];
+                properties[el.dataset.property].push(el.value);
+            } else {
+                if (el.type === "radio") {
+                    if (el.checked) {
+                        properties[el.dataset.property] = el.value;
+                    }
+                } else {
                     properties[el.dataset.property] = el.value;
                 }
-            } else {
-                properties[el.dataset.property] = el.value;
             }
         }
     });
@@ -617,17 +623,32 @@ function getType(trigger_type) {
         case "traffic_flow":
             type = "Traffic Flow";
             break;
-        case "weather_event":
-            type = "Weather Event";
-            break;
         case "weather_temperature":
             type = "Temperature";
             break;
         case "twitter_hash_tag":
             type = "Twitter";
             break;
+        case "weather_rain":
+        case "weather_snow":
+        case "weather_sun":
+        case "weather_thunderStorm":
+        case "weather_wind":
+        case "weather_storm":
+            type = "Weather Event";
+            break;
     }
     return type;
+}
+
+function checkEventType(type) {
+    var eventType;
+    if (["weather_rain", "weather_sun", "weather_snow", "weather_thunderStorm", "weather_wind", "weather_storm"].indexOf(type) !== -1) {
+        eventType = "weather_event";
+    } else {
+        eventType = type;
+    }
+    return eventType;
 }
 
 function addTwitterFields() {
@@ -793,7 +814,7 @@ $(function() {
             google.maps.event.addListener(marker, "rightclick", function(ev) {
                 hideMenu();
                 active_asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
-                active_asset.triggers.map(function(tr) { return  tr.type; }).forEach(function(type) {
+                active_asset.triggers.map(function(tr) { return  checkEventType(tr.type); }).forEach(function(type) {
                     $("#context_menu [data-type='" + type + "'] .cross").show(); 
                 });
                 displayMenu(ev.Ra);

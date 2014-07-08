@@ -31,16 +31,16 @@
             <img src="img/temp@2x.png" width="18" height="18" class="item" data-type="weather_temperature" draggable="true"/>Temperature
         </div>
         <div class="list_item">
-            <img src="img/rain.png" width="18" height="18" class="item" data-type="weather_event" draggable="true"/>Rain
+            <img src="img/rain.png" width="18" height="18" class="item" data-type="weather_rain" draggable="true"/>Rain
         </div>
         <div class="list_item">
-            <img src="img/storm.jpg" width="18" height="18" class="item" data-type="weather_event" draggable="true"/>Storm
+            <img src="img/storm.jpg" width="18" height="18" class="item" data-type="weather_storm" draggable="true"/>Storm
         </div>
         <div class="list_item">
-            <img src="img/snowflake.jpg" width="18" height="18" class="item" data-type="weather_event" draggable="true"/>Snow
+            <img src="img/snowflake.jpg" width="18" height="18" class="item" data-type="weather_snow" draggable="true"/>Snow
         </div>
         <div class="list_item">
-            <img src="img/cloud-wind.png" width="18" height="18" class="item" data-type="weather_event" draggable="true"/>Wind
+            <img src="img/cloud-wind.png" width="18" height="18" class="item" data-type="weather_wind" draggable="true"/>Wind
         </div>
         <div class="list_item">
             <img src="img/twitter.jpg" width="18" height="18" class="item" data-type="twitter_hash_tag" draggable="true"/>Twitter
@@ -260,23 +260,23 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Rain</span>
-            <input name="weather_event" value="rain" data-property="weather_event" type="radio" class="prop">
+            <input name="weather_event" value="weather_rain" data-property="type" type="radio" class="prop">
         </div>
         <div class="popup-field">
             <span class="popup-label">Snow</span>
-            <input name="weather_event" value="snow" data-property="weather_event" type="radio" class="prop">
+            <input name="weather_event" value="weather_snow" data-property="type" type="radio" class="prop">
         </div>
         <div class="popup-field">
             <span class="popup-label">Sunny</span>
-            <input name="weather_event" value="sunny" data-property="weather_event" type="radio" class="prop">
+            <input name="weather_event" value="weather_sun" data-property="type" type="radio" class="prop">
         </div>
         <div class="popup-field">
             <span class="popup-label">Thunder Storm</span>
-            <input name="weather_event" value="thunderStorm" data-property="weather_event" type="radio" class="prop">
+            <input name="weather_event" value="weather_thunderStorm" data-property="type" type="radio" class="prop">
         </div>
         <div class="popup-field">
             <span class="popup-label">Windy</span>
-            <input name="weather_event" value="windy" data-property="weather_event" type="radio" class="prop">
+            <input name="weather_event" value="weather_wind" data-property="type" type="radio" class="prop">
             <div class="popup-field subitem">
                 <span class="popup-label">Wind Speed Over</span>
                 <input data-property="windSpeed" data-type="int" data-min="0" data-max="200" data-default="25" class="textinput prop" type="text">
@@ -284,7 +284,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Storm (Generic)</span>
-            <input name="weather_event" value="storm" data-property="weather_event" type="radio" class="prop">
+            <input name="weather_event" value="weather_storm" data-property="type" type="radio" class="prop">
             <div class="popup-field subitem">
                 <span class="popup-label">Severity</span>
                 <select data-property="stormSeverity" class="drop-down prop">

@@ -12,17 +12,17 @@ function Trigger(properties) {
         var asset = assets.filter(function(a) { return a.id === _self.asset_id; })[0];
         return "http://pluto.signage.me/WebService/sendCommand.ashx?i_user=trgralert&i_password=123&i_stationId=" +
                asset.sid + "&i_command=event&i_param1=" + _self.cid + "&i_param2=&callback=?onSendCommand";
-    }
+    };
     
     this.getData = function() {
         var asset = assets.filter(function(a) { return a.id === _self.asset_id; })[0];
-        return data = {
+        return {
             asset_id: _self.asset_id,
             center: asset.lat + "|" + asset.lng,
             callbackURL: _self.getURL(),
             eventType: _self.type
         };
-    }
+    };
     
     this.setProperties(properties);
 }
@@ -45,7 +45,7 @@ function AccidentTrigger(properties) {
         data.severity = _self.severity;
         data.radius = _self.radius;
         return data;
-    }
+    };
     
     this.setProperties(properties);
 }
@@ -71,7 +71,7 @@ function FlowTrigger(properties) {
         data.threshold = _self.threshold;
         data.radius = _self.radius;
         return data;
-    }
+    };
     
     this.setProperties(properties);
 }
@@ -144,7 +144,7 @@ function TemperatureTrigger(properties) {
         data.threshold = _self.threshold;
         data.radius = _self.radius;
         return data;
-    }
+    };
     
     this.setProperties(properties);  
 }
@@ -158,21 +158,31 @@ function WeatherEventTrigger(properties) {
     var superclass_setProperties = this.setProperties;
     this.setProperties = function(properties) {
         superclass_setProperties(properties);
-        _self.weather_event = properties.weather_event;
-        _self.stormSeverity = properties.stormSeverity;
-        _self.windSpeed = properties.windSpeed;
         _self.radius = properties.radius;
+        if (properties.windSpeed) {
+            _self.windSpeed = properties.windSpeed;
+        } else if (_self.windSpeed) {
+            delete _self.windSpeed;
+        }
+        if (properties.stormSeverity) {
+            _self.stormSeverity = properties.stormSeverity;
+        } else if (_self.stormSeverity) {
+            delete _self.stormSeverity;
+        }
     };
     
     var superclass_getData = this.getData;
     this.getData = function() {
         var data = superclass_getData();
-        data.weather_event = _self.weather_event;
-        data.stormSeverity = _self.stormSeverity;
-        data.windSpeed = _self.windSpeed;
         data.radius = _self.radius;
+        if (_self.stormSeverity) {
+            data.stormSeverity = _self.stormSeverity;
+        }
+        if (_self.windSpeed) {
+            data.speed = _self.windSpeed;
+        }
         return data;
-    }
+    };
     
     this.setProperties(properties);
 }
