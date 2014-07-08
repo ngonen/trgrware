@@ -347,46 +347,57 @@
 </div>
             
 
-<div class="page-width-container">
-<h1>
-    Demo page
-</h1>
-<br/><br/>
+<div class="page-width-container" style="display: none;">
+    <h1>
+        Demo page
+    </h1>
+    <br/><br/>
 
+    <button id="PopUp">Show popup</button>
+    <br/><br/><br/><br/>
 
-<button id="PopUp">Show popup</button>
-<br/><br/><br/><br/>
+    <div>
+        <label for="Token">Security Token</label>
+        <input type="text" id="Token" value=""/>
+        <button id="GetToken">Get New Token</button>
+    </div>
+    <br/><br/>
 
-<div>
-    <label for="Token">Security Token</label>
-    <input type="text" id="Token" value=""/>
-    <button id="GetToken">Get New Token</button>
-</div>
-<br/><br/>
+    <img id="Loader" src="/img/loading.gif" style="display: none; margin: 0 auto; width: 50px;">
 
-<img id="Loader" src="/img/loading.gif" style="display: none; margin: 0 auto; width: 50px;">
+    <div style="height: 50px;">
+        <div id="Results"></div>
+        <div id="CallBackInfo"></div>
+    </div>
 
-<div style="height: 50px;">
-    <div id="Results"></div>
-    <div id="CallBackInfo"></div>
-</div>
+    <button id="GetIncidentInfo" disabled="disabled">Get Incident Info</button>
+    <button id="GetWeatherInfo" disabled="disabled">Get Weather Info</button>
+    <button id="GetSegmentSpeedInfo" disabled="disabled">Get Segment Speed Info</button>
+    <button id="SimulateCallback">Simulate Galaxy Request</button>
 
-<button id="GetIncidentInfo" disabled="disabled">Get Incident Info</button>
-<button id="GetWeatherInfo" disabled="disabled">Get Weather Info</button>
-<button id="GetSegmentSpeedInfo" disabled="disabled">Get Segment Speed Info</button>
-<button id="SimulateCallback">Simulate Galaxy Request</button>
+    <div style="border: 1px solid; margin: 10px 0;">
+        <label style="display: block; text-align: center; font-weight: bold;">Test Cron</label>
+        <button id="BtnCronTest">Cron Test Weather</button>
+        <button id="BtnCronTestAccident">Cron Test Accident</button>
+        <button id="BtnCronTestFlow">Cron Test Flow</button>
+        <button id="BtnCronTestWind">Wind</button>
+    </div>
 
-    <label style="display: block; text-align: center; font-weight: bold;">Test block</label>
-    <button id="BtnCronTest">Cron Test Weather</button>
-    <button id="BtnCronTestAccident">Cron Test Accident</button>
-    <button id="BtnCronTestFlow">Cron Test Flow</button>
-
-    <div style="border: 1px solid; margin: 2px;">
+    <div style="border: 1px solid; margin: 10px 0;">
         AssetId:<input type="test" id="assetId" value="" />
         EventType:<input type="test" id="eventType" value="" />
         <button id="BtnDeleteAsset">Delete Asset</button>
         <button id="BtnDeleteEvent">Delete Event</button>
     </div>
+
+    <div style="border: 1px solid; margin: 10px 0;">
+        <label style="display: block; text-align: center; font-weight: bold;">Register events</label>
+        <button id="BtnWeather">Register weather temperature</button>
+        <button id="BtnWeatherSpeed">Register weather wind speed</button>
+        <button id="BtnWrongEventType">Register wrong event type</button>
+    </div>
+</div>
+
 <div class="modal-dialog-bg" style="opacity: 0.75; width: 1920px; height: 656px; display: none;" aria-hidden="true"></div>
 <div class="modal-dialog p6n-popup" style="left: 761px; top: 100px; opacity: 1; display: none;" aria-labelledby=":gg" tabindex="0" role="dialog">
     <div class="modal-dialog-title p6n-popup-title modal-dialog-title-draggable">
@@ -404,6 +415,4 @@
         <button name="save" class="goog-buttonset-default goog-buttonset-action" disabled="">Create</button>
         <button name="cancel">Cancel</button>
     </div>
-</div>
-
 </div>

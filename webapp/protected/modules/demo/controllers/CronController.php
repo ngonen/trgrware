@@ -1,16 +1,16 @@
 <?php
 
-class CronController extends DemoBaseController
+class CronController extends IDemoBaseController
 {
     public function actionWeatherTemperatureNotifier() {
         syslog(LOG_INFO, "Action WeatherNotifier started.");
 
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
+        $ctx = $this->getStreamContextForPlanText();
 
         if (is_file($filePath)) {
-            $weatherSubscribers = unserialize(file_get_contents($filePath, 0, $ctx))[DemoBaseController::WEATHER_TEMPERATURE];
-            $count = count($weatherSubscribers);
+            $subscribers = unserialize(file_get_contents($filePath, 0, $ctx))[IDemoBaseController::WEATHER_TEMPERATURE];
+            $count = count($subscribers);
 
             if ($count) {
                 syslog(LOG_WARNING, "Count of subscribers for 'weather temperature': " . $count);
@@ -23,18 +23,18 @@ class CronController extends DemoBaseController
                 } else {
                     syslog(LOG_WARNING, "Start loop subscribers.");
 
-                    foreach ($weatherSubscribers as $key => $value) {
+                    foreach ($subscribers as $key => $value) {
                         $result = $this->getWeatherInRadius($value['center'], $value['radius'], $securityToken);
 
                         if ($result->Weather && $result->Weather->Conditions) {
                             foreach ($result->Weather->Conditions->Station as $k => $station) {
                                 $actualTemperature = $station->Current->Temperature->attributes()['actual'];
-                                $condition = $value['threshold'] == "Over"
-                                    ? $actualTemperature >= $value['temperature']
-                                    : $actualTemperature < $value['temperature'];
+                                $condition = $value['condition'] == IDemoBaseController::OVER
+                                    ? $actualTemperature >= $value['threshold']
+                                    : $actualTemperature < $value['threshold'];
 
                                 syslog(LOG_INFO, "Actual temperature: " . $actualTemperature . ", expected temperature: "
-                                    . $value['temperature'] . ", threshold: " . $value['threshold']);
+                                    . $value['threshold'] . ", condition: " . $value['threshold']);
 
                                 if ($condition) {
                                     $url = $value["url"];
@@ -66,11 +66,11 @@ class CronController extends DemoBaseController
         syslog(LOG_INFO, "Action IncidentsNotifier started.");
 
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
+        $ctx = $this->getStreamContextForPlanText();
 
         if (is_file($filePath)) {
-            $incidentSubscribers = unserialize(file_get_contents($filePath, 0, $ctx))[DemoBaseController::TRAFFIC_INCIDENTS];
-            $count = count($incidentSubscribers);
+            $subscribers = unserialize(file_get_contents($filePath, 0, $ctx))[IDemoBaseController::TRAFFIC_INCIDENTS];
+            $count = count($subscribers);
 
             if ($count) {
                 syslog(LOG_WARNING, "Count of subscribers for 'traffic incident': " . $count);
@@ -83,7 +83,7 @@ class CronController extends DemoBaseController
                 } else {
                     syslog(LOG_WARNING, "Start loop 'traffic incident' subscribers.");
 
-                    foreach ($incidentSubscribers as $key => $value) {
+                    foreach ($subscribers as $key => $value) {
                         $result = $this->getIncidentInfo($value['center'], $value['radius'], $securityToken);
 
                         if ($result->Incidents && count($result->Incidents->Incident)) {
@@ -112,11 +112,11 @@ class CronController extends DemoBaseController
         syslog(LOG_INFO, "Action SpeedNotifier started.");
 
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
+        $ctx = $this->getStreamContextForPlanText();
 
         if (is_file($filePath)) {
-            $speedSubscribers =  unserialize(file_get_contents($filePath, 0, $ctx))[DemoBaseController::TRAFFIC_FLOW];
-            $count = count($speedSubscribers);
+            $subscribers =  unserialize(file_get_contents($filePath, 0, $ctx))[IDemoBaseController::TRAFFIC_FLOW];
+            $count = count($subscribers);
 
             if ($count) {
                 syslog(LOG_WARNING, "Count of subscribers for 'traffic speed': " . $count);
@@ -129,12 +129,17 @@ class CronController extends DemoBaseController
                 } else {
                     syslog(LOG_WARNING, "Start loop 'traffic speed' subscribers.");
 
-                    foreach ($speedSubscribers as $key => $value) {
+                    foreach ($subscribers as $key => $value) {
                         $result = $this->getSegmentSpeedInRadius($value['center'], $value['radius'], $securityToken);
 
                         if ($result->SegmentSpeedResultSet && $result->SegmentSpeedResultSet->SegmentSpeedResults) {
                             foreach ($result->SegmentSpeedResultSet->SegmentSpeedResults->Segment as $k => $segment) {
-                                if ($segment->attributes()['speed'] <= $value['speedUnder']) {
+                                $actualSpeed = $segment->attributes()['speed'];
+                                $condition = $value['condition'] == "Over"
+                                    ? $actualSpeed >= $value['threshold']
+                                    : $actualSpeed < $value['threshold'];
+
+                                if ($condition) {
                                     $url = $value['url'];
 
                                     file_get_contents($url, false, $streamContext);
@@ -158,5 +163,111 @@ class CronController extends DemoBaseController
         }
 
         syslog(LOG_INFO, "Action SpeedNotifier finished.");
+    }
+
+    // TODO: finish
+    // TODO: test
+    public function actionTwitterHashTagNotifier() {
+        syslog(LOG_INFO, "Action TwitterHashTagNotifier started.");
+
+        $filePath = Yii::app()->params['eventStoragePath'];
+        $ctx = $this->getStreamContextForPlanText();
+
+        if (is_file($filePath)) {
+            $subscribers =  unserialize(file_get_contents($filePath, 0, $ctx))[IDemoBaseController::TWITTER_HASH_TAG];
+            $count = count($subscribers);
+
+            if ($count) {
+                syslog(LOG_WARNING, "Count of subscribers for 'Twitter hashtag': " . $count);
+
+                $streamContext = $this->getStreamContext();
+
+                foreach ($subscribers as $key => $subscriber) {
+                    // TODO: Get result from Twitter
+                    $result = "";
+                    // TODO: Get count of hashtags
+                    $tagsCount = count($result);
+
+                    if ($tagsCount) {
+                        foreach ($subscriber['campaigns'] as $k => $campaign) {
+                            if ($tagsCount >= $campaign['count']) {
+                                file_get_contents($campaign['url'], false, $streamContext);
+
+                                syslog(LOG_INFO, "[Twitter hashtag] Request '" . $key . "' for asset "
+                                    . $subscriber['id'] . ", hashtag " . $subscriber['hashtag']
+                                    . " has been sent to url " . $campaign['url']);
+
+                                break;
+                            }
+                        }
+                    } else {
+                        syslog(LOG_INFO, "Result is empty.");
+                    }
+                }
+            } else {
+                syslog(LOG_INFO, "Subscribers for 'Twitter hashtags' were not found.");
+            }
+        } else {
+            syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
+        }
+
+        syslog(LOG_INFO, "Action TwitterHashTagNotifier finished.");
+    }
+
+    // TODO: test
+    public function actionWeatherWindSpeedNotifier() {
+        syslog(LOG_INFO, "Action WeatherWindNotifier started.");
+
+        $filePath = Yii::app()->params['eventStoragePath'];
+        $ctx = $this->getStreamContextForPlanText();
+
+        if (is_file($filePath)) {
+            $subscribers = unserialize(file_get_contents($filePath, 0, $ctx))[IDemoBaseController::WEATHER_WIND_SPEED];
+            $count = count($subscribers);
+
+            if ($count) {
+                syslog(LOG_WARNING, "Count of subscribers for 'Weather wind speed': " . $count);
+
+                $streamContext = $this->getStreamContext();
+                $securityToken = $this->getSecurityToken();
+
+                if (!$securityToken) {
+                    syslog(LOG_WARNING, "Cannot get security token.");
+                } else {
+                    syslog(LOG_WARNING, "Start loop subscribers.");
+
+                    foreach ($subscribers as $key => $subscriber) {
+                        $result = $this->getWeatherInRadius($subscriber['center'], $subscriber['radius'],
+                            $securityToken);
+
+                        if ($result->Weather && $result->Weather->Conditions) {
+                            foreach ($result->Weather->Conditions->Station as $k => $station) {
+                                $actualSpeed = $station->Current->Wind->attributes()['speed'];
+
+                                syslog(LOG_INFO, "Actual speed: " . $actualSpeed . ", expected speed: "
+                                    . $subscriber['speed']);
+
+                                if ($actualSpeed >= $subscriber['speed']) {
+                                    file_get_contents($subscriber["url"], false, $streamContext);
+
+                                    syslog(LOG_INFO, "[WeatherWind Speed] Request '" . $key . "' for asset "
+                                        . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+
+                                    break;
+                                }
+                            }
+                        } else {
+                            syslog(LOG_INFO, "Result is empty.");
+                        }
+                    }
+                }
+            } else {
+                syslog(LOG_INFO, "Subscribers for weather temperature were not found.");
+            }
+        } else {
+            syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
+        }
+
+        syslog(LOG_INFO, "Action WeatherWindNotifier finished.");
     }
 }

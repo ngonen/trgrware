@@ -1,9 +1,13 @@
 <?php
 
-abstract class DemoBaseController extends Controller {
+abstract class IDemoBaseController extends Controller {
     const WEATHER_TEMPERATURE = "weather_temperature";
+    const WEATHER_WIND_SPEED = "weather_wind";
     const TRAFFIC_FLOW = "traffic_flow";
     const TRAFFIC_INCIDENTS = "traffic_accident";
+    const TWITTER_HASH_TAG = "twitter_hash_tag";
+    const OVER = "Over";
+    const UNDER = "Under";
 
     /**
      * Get Security Token for vendor
@@ -93,4 +97,12 @@ abstract class DemoBaseController extends Controller {
             )
         ));
     }
-} 
+
+    protected function getStreamContextForPlanText() {
+        return stream_context_create([
+            "gs" => [
+                "Content-Type" => "text/plain"
+            ]
+        ]);
+    }
+}

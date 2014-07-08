@@ -1,6 +1,6 @@
 <?php
 
-class DefaultController extends DemoBaseController
+class DefaultController extends IDemoBaseController
 {
     public $layout = '/layouts/layout';
 
@@ -131,39 +131,18 @@ class DefaultController extends DemoBaseController
             throw new CHttpException('403', 'Forbidden access.');
         }
 
+        $response = ["status" => false];
         $event = Yii::app()->request->getParam('eventType');
+
+        if (!$event) {
+            $response['errorMessage'] = "Undefined type of event.";
+
+            $this->renderJSON($response);
+            $this->endApp();
+        }
+
         $filePath = Yii::app()->params['eventStoragePath'];
         $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
-        $response = [
-            "status" => false
-        ];
-        $eventParams = [
-            'id' => Yii::app()->request->getParam('asset_id'),
-            'center' => Yii::app()->request->getParam('center'),
-            'radius' => Yii::app()->request->getParam('radius'),
-            'url' => Yii::app()->request->getParam('callbackURL')
-        ];
-
-        switch ($event) {
-            case DemoBaseController::WEATHER_TEMPERATURE: {
-                $eventParams['temperature'] = Yii::app()->request->getParam('temperature');
-                $eventParams['threshold'] = Yii::app()->request->getParam('threshold');
-
-                break;
-            }
-
-            case DemoBaseController::TRAFFIC_INCIDENTS: {
-                $eventParams['severity'] = Yii::app()->request->getParam('severity');
-
-                break;
-            }
-
-            case DemoBaseController::TRAFFIC_FLOW: {
-                $eventParams['speedUnder'] = Yii::app()->request->getParam('speedUnder');
-
-                break;
-            }
-        }
 
         if (is_file($filePath)) {
             syslog(LOG_INFO, "Storage exists. Start to unserialize.");
@@ -173,24 +152,28 @@ class DefaultController extends DemoBaseController
             syslog(LOG_INFO, "Storage does not exist. Start to create.");
 
             $fc = [
-                DemoBaseController::WEATHER_TEMPERATURE => [],
-                DemoBaseController::TRAFFIC_INCIDENTS => [],
-                DemoBaseController::TRAFFIC_FLOW => []
+                IDemoBaseController::WEATHER_TEMPERATURE => [],
+                IDemoBaseController::WEATHER_WIND_SPEED => [],
+                IDemoBaseController::TRAFFIC_INCIDENTS => [],
+                IDemoBaseController::TRAFFIC_FLOW => [],
+                IDemoBaseController::TWITTER_HASH_TAG => []
             ];
         }
 
-        $fc[$event][] = $eventParams;
+        $fc[$event][] = $this->updateEventParameters($event, Yii::app()->request->getParam('asset_id'));
         $isPut = file_put_contents($filePath, serialize($fc), 0, $ctx);
 
         if ($isPut) {
             syslog(LOG_INFO, "Storage has been successfully saved.");
 
             $response["status"] = $isPut > 0;
-            $response["message"] = "Your event has been successfully queued.";
+            $response["message"] = "Event has been successfully registered.";
             $response["statistic"] = [
-                DemoBaseController::WEATHER_TEMPERATURE => count($fc[DemoBaseController::WEATHER_TEMPERATURE]),
-                DemoBaseController::TRAFFIC_INCIDENTS => count($fc[DemoBaseController::TRAFFIC_INCIDENTS]),
-                DemoBaseController::TRAFFIC_FLOW => count($fc[DemoBaseController::TRAFFIC_FLOW])
+                IDemoBaseController::WEATHER_TEMPERATURE => count($fc[IDemoBaseController::WEATHER_TEMPERATURE]),
+                IDemoBaseController::WEATHER_WIND_SPEED => count($fc[IDemoBaseController::WEATHER_WIND_SPEED]),
+                IDemoBaseController::TRAFFIC_INCIDENTS => count($fc[IDemoBaseController::TRAFFIC_INCIDENTS]),
+                IDemoBaseController::TRAFFIC_FLOW => count($fc[IDemoBaseController::TRAFFIC_FLOW]),
+                IDemoBaseController::TWITTER_HASH_TAG => count($fc[IDemoBaseController::TWITTER_HASH_TAG])
             ];
             $response["content"] = $fc;
             $response["assetId"] = Yii::app()->request->getParam('asset_id');
@@ -221,38 +204,10 @@ class DefaultController extends DemoBaseController
         $event = Yii::app()->request->getParam('eventType');
         $filePath = Yii::app()->params['eventStoragePath'];
         $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
-        $response = [
-            "status" => false
-        ];
-        $eventParams = [
-            'id' => $assetId,
-            'center' => Yii::app()->request->getParam('center'),
-            'radius' => Yii::app()->request->getParam('radius'),
-            'url' => Yii::app()->request->getParam('callbackURL')
-        ];
+        $response = ["status" => false];
         $isFound = false;
         $storageExists = is_file($filePath);
-
-        switch ($event) {
-            case DemoBaseController::WEATHER_TEMPERATURE: {
-                $eventParams['temperature'] = Yii::app()->request->getParam('temperature');
-                $eventParams['threshold'] = Yii::app()->request->getParam('threshold');
-
-                break;
-            }
-
-            case DemoBaseController::TRAFFIC_INCIDENTS: {
-                $eventParams['severity'] = Yii::app()->request->getParam('severity');
-
-                break;
-            }
-
-            case DemoBaseController::TRAFFIC_FLOW: {
-                $eventParams['speedUnder'] = Yii::app()->request->getParam('speedUnder');
-
-                break;
-            }
-        }
+        $eventParams = $this->updateEventParameters($event, $assetId);
 
         if ($storageExists) {
             $fc = unserialize(file_get_contents($filePath, 0, $ctx));
@@ -265,13 +220,13 @@ class DefaultController extends DemoBaseController
                     break;
                 }
             }
-        }
-
-        if (!$isFound || !$storageExists) {
+        } else if (!$isFound || !$storageExists) {
             $fc = [
-                DemoBaseController::WEATHER_TEMPERATURE => [],
-                DemoBaseController::TRAFFIC_INCIDENTS => [],
-                DemoBaseController::TRAFFIC_FLOW => []
+                IDemoBaseController::WEATHER_TEMPERATURE => [],
+                IDemoBaseController::WEATHER_WIND_SPEED => [],
+                IDemoBaseController::TRAFFIC_INCIDENTS => [],
+                IDemoBaseController::TRAFFIC_FLOW => [],
+                IDemoBaseController::TWITTER_HASH_TAG => []
             ];
             $fc[$event][] = $eventParams;
         }
@@ -284,9 +239,11 @@ class DefaultController extends DemoBaseController
                 ? "Your event has been successfully updated."
                 : "Your event has been successfully created.";
             $response["statistic"] = [
-                DemoBaseController::WEATHER_TEMPERATURE => count($fc[DemoBaseController::WEATHER_TEMPERATURE]),
-                DemoBaseController::TRAFFIC_INCIDENTS => count($fc[DemoBaseController::TRAFFIC_INCIDENTS]),
-                DemoBaseController::TRAFFIC_FLOW => count($fc[DemoBaseController::TRAFFIC_FLOW])
+                IDemoBaseController::WEATHER_TEMPERATURE => count($fc[IDemoBaseController::WEATHER_TEMPERATURE]),
+                IDemoBaseController::WEATHER_WIND_SPEED => count($fc[IDemoBaseController::WEATHER_WIND_SPEED]),
+                IDemoBaseController::TRAFFIC_INCIDENTS => count($fc[IDemoBaseController::TRAFFIC_INCIDENTS]),
+                IDemoBaseController::TRAFFIC_FLOW => count($fc[IDemoBaseController::TRAFFIC_FLOW]),
+                IDemoBaseController::TWITTER_HASH_TAG => count($fc[IDemoBaseController::TWITTER_HASH_TAG])
             ];
             $response["content"] = $fc;
         } else {
@@ -311,7 +268,7 @@ class DefaultController extends DemoBaseController
             throw new CHttpException('403', 'Forbidden access.');
         }
 
-        $assetId = Yii::app()->request->getParam('asset_id');
+        $assetId = Yii::app()->request->getParam('assetId');
         $filePath = Yii::app()->params['eventStoragePath'];
         $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
         $response = ["status" => false];
@@ -343,9 +300,11 @@ class DefaultController extends DemoBaseController
                 $response["status"] = $isPut > 0;
                 $response["message"] = "Your asset has been successfully updated.";
                 $response["statistic"] = [
-                    DemoBaseController::WEATHER_TEMPERATURE => count($fc[DemoBaseController::WEATHER_TEMPERATURE]),
-                    DemoBaseController::TRAFFIC_INCIDENTS => count($fc[DemoBaseController::TRAFFIC_INCIDENTS]),
-                    DemoBaseController::TRAFFIC_FLOW => count($fc[DemoBaseController::TRAFFIC_FLOW])
+                    IDemoBaseController::WEATHER_TEMPERATURE => count($fc[IDemoBaseController::WEATHER_TEMPERATURE]),
+                    IDemoBaseController::WEATHER_WIND_SPEED => count($fc[IDemoBaseController::WEATHER_WIND_SPEED]),
+                    IDemoBaseController::TRAFFIC_INCIDENTS => count($fc[IDemoBaseController::TRAFFIC_INCIDENTS]),
+                    IDemoBaseController::TRAFFIC_FLOW => count($fc[IDemoBaseController::TRAFFIC_FLOW]),
+                    IDemoBaseController::TWITTER_HASH_TAG => count($fc[IDemoBaseController::TWITTER_HASH_TAG])
                 ];
                 $response["content"] = $fc;
             } else {
@@ -454,9 +413,10 @@ class DefaultController extends DemoBaseController
                     $response["status"] = $isPut > 0;
                     $response["assetId"] = $assetId;
                     $response["statistic"] = [
-                        DemoBaseController::WEATHER_TEMPERATURE => count($fc[DemoBaseController::WEATHER_TEMPERATURE]),
-                        DemoBaseController::TRAFFIC_INCIDENTS => count($fc[DemoBaseController::TRAFFIC_INCIDENTS]),
-                        DemoBaseController::TRAFFIC_FLOW => count($fc[DemoBaseController::TRAFFIC_FLOW])
+                        IDemoBaseController::WEATHER_TEMPERATURE => count($fc[IDemoBaseController::WEATHER_TEMPERATURE]),
+                        IDemoBaseController::TRAFFIC_INCIDENTS => count($fc[IDemoBaseController::TRAFFIC_INCIDENTS]),
+                        IDemoBaseController::TRAFFIC_FLOW => count($fc[IDemoBaseController::TRAFFIC_FLOW]),
+                        IDemoBaseController::TWITTER_HASH_TAG => count($fc[IDemoBaseController::TWITTER_HASH_TAG])
                     ];
                     $response["content"] = $fc;
                     $response["message"] = $eventType
@@ -475,5 +435,57 @@ class DefaultController extends DemoBaseController
         }
 
         return $response;
+    }
+
+    private function updateEventParameters($event, $assetId) {
+        $params = [
+            "id" => $assetId
+        ];
+
+        switch ($event) {
+            case IDemoBaseController::TRAFFIC_FLOW:
+            case IDemoBaseController::WEATHER_TEMPERATURE: {
+                $params['condition'] = Yii::app()->request->getParam('condition');
+                $params['threshold'] = Yii::app()->request->getParam('threshold');
+
+                break;
+            }
+
+            case IDemoBaseController::WEATHER_WIND_SPEED: {
+                $params['speed'] = Yii::app()->request->getParam('speed');
+
+                break;
+            }
+
+            case IDemoBaseController::TRAFFIC_INCIDENTS: {
+                $params['severity'] = Yii::app()->request->getParam('severity');
+
+                break;
+            }
+
+            case IDemoBaseController::TWITTER_HASH_TAG: {
+                $params['retriggerPeriod'] = Yii::app()->request->getParam('retriggerPeriod');
+                $params['hashtag'] = Yii::app()->request->getParam('hashtag');
+                $params['campaigns'] = json_decode(Yii::app()->request->getParam('campaigns'));
+
+                break;
+            }
+
+            default: {
+                $this->renderJSON([
+                    'status' => false,
+                    'errorMessage' => "This type of event is not supported."
+                ]);
+                $this->endApp();
+            }
+        }
+
+        if ($event != IDemoBaseController::TWITTER_HASH_TAG) {
+            $params['center'] = Yii::app()->request->getParam('center');
+            $params['radius'] = Yii::app()->request->getParam('radius');
+            $params['url'] = Yii::app()->request->getParam('callbackURL');
+        }
+
+        return $params;
     }
 }
