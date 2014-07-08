@@ -486,8 +486,9 @@ function showWeather(data) {
                         }
                     });
                     google.maps.event.addListener(marker, "mouseout", function() {
-                         infoWindow.close();
+                        infoWindow.close();
                     });
+                    google.maps.event.addListener(marker, "click", hideMenu);
                     weatherStations.push(marker);
                 });
             } catch(err) {
@@ -774,7 +775,10 @@ $(function() {
         clearTimeout(updateMap);
         onZoom();
         autoUpdateMap();
+        hideMenu();
     });
+    google.maps.event.addListener(map, "rightclick", hideMenu);
+    google.maps.event.addListener(map, "dragstart", hideMenu);
     $("body").on("click", hideMenu);
     $("body").on("dragstart", hideMenu);
     $("#asset_popup").on("keyup", function(ev) {
@@ -887,9 +891,7 @@ $(function() {
                     }
                 }
             });
-            google.maps.event.addListener(marker, "dragstart", function(ev) {
-                hideMenu();
-            });
+            google.maps.event.addListener(marker, "dragstart", hideMenu);
         } else if (action === "trigger_event") {
             var id = ev.target.parentNode.getAttribute("title"),
                 asset, trigger, url, type;
