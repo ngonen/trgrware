@@ -328,7 +328,7 @@ function validate(popup) {
                     break;
                 case "hashtag":
                     if (!/^#/.test(value)) {
-                        errorMessage = "Incorrect hashtag";
+                        errorMessage = "Incorrect hashtag (hashtag should begin with '#')";
                         return {
                             isValid: false,
                             errorMessage: errorMessage
