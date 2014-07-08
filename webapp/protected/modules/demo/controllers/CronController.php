@@ -21,7 +21,7 @@ class CronController extends IDemoBaseController
                 if (!$securityToken) {
                     syslog(LOG_WARNING, "Cannot get security token.");
                 } else {
-                    syslog(LOG_WARNING, "Start loop subscribers.");
+                    syslog(LOG_INFO, "Start loop subscribers.");
 
                     foreach ($subscribers as $key => $value) {
                         $result = $this->getWeatherInRadius($value['center'], $value['radius'], $securityToken);
@@ -34,7 +34,7 @@ class CronController extends IDemoBaseController
                                     : $actualTemperature < $value['threshold'];
 
                                 syslog(LOG_INFO, "Actual temperature: " . $actualTemperature . ", expected temperature: "
-                                    . $value['threshold'] . ", condition: " . $value['threshold']);
+                                    . $value['threshold'] . ", condition: " . $value['condition']);
 
                                 if ($condition) {
                                     $url = $value["url"];
@@ -81,18 +81,16 @@ class CronController extends IDemoBaseController
                 if (!$securityToken) {
                     syslog(LOG_WARNING, "Cannot get security token.");
                 } else {
-                    syslog(LOG_WARNING, "Start loop 'traffic incident' subscribers.");
+                    syslog(LOG_INFO, "Start loop 'traffic incident' subscribers.");
 
-                    foreach ($subscribers as $key => $value) {
-                        $result = $this->getIncidentInfo($value['center'], $value['radius'], $securityToken);
+                    foreach ($subscribers as $key => $subscriber) {
+                        $result = $this->getIncidentInfo($subscriber['center'], $subscriber['radius'], $securityToken);
 
                         if ($result->Incidents && count($result->Incidents->Incident)) {
-                            $url = $value["url"];
-
-                            file_get_contents($url, false, $streamContext);
+                            file_get_contents($subscriber["url"], false, $streamContext);
 
                             syslog(LOG_INFO, "[TrafficIncidents] Request '" . $key . "' for asset "
-                                . $value['id'] . " has been sent to url " . $url);
+                                . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
                         } else {
                             syslog(LOG_INFO, "Empty result.");
                         }
@@ -127,7 +125,7 @@ class CronController extends IDemoBaseController
                 if (!$securityToken) {
                     syslog(LOG_WARNING, "Cannot get security token.");
                 } else {
-                    syslog(LOG_WARNING, "Start loop 'traffic speed' subscribers.");
+                    syslog(LOG_INFO, "Start loop 'traffic speed' subscribers.");
 
                     foreach ($subscribers as $key => $value) {
                         $result = $this->getSegmentSpeedInRadius($value['center'], $value['radius'], $securityToken);
@@ -178,7 +176,7 @@ class CronController extends IDemoBaseController
             $count = count($subscribers);
 
             if ($count) {
-                syslog(LOG_WARNING, "Count of subscribers for 'Twitter hashtag': " . $count);
+                syslog(LOG_INFO, "Count of subscribers for 'Twitter hashtag': " . $count);
 
                 $streamContext = $this->getStreamContext();
 
@@ -214,7 +212,6 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action TwitterHashTagNotifier finished.");
     }
 
-    // TODO: test
     public function actionWeatherWindSpeedNotifier() {
         syslog(LOG_INFO, "Action WeatherWindNotifier started.");
 
@@ -226,7 +223,7 @@ class CronController extends IDemoBaseController
             $count = count($subscribers);
 
             if ($count) {
-                syslog(LOG_WARNING, "Count of subscribers for 'Weather wind speed': " . $count);
+                syslog(LOG_INFO, "Count of subscribers for 'Weather wind speed': " . $count);
 
                 $streamContext = $this->getStreamContext();
                 $securityToken = $this->getSecurityToken();
@@ -234,7 +231,7 @@ class CronController extends IDemoBaseController
                 if (!$securityToken) {
                     syslog(LOG_WARNING, "Cannot get security token.");
                 } else {
-                    syslog(LOG_WARNING, "Start loop subscribers.");
+                    syslog(LOG_INFO, "Start loop subscribers.");
 
                     foreach ($subscribers as $key => $subscriber) {
                         $result = $this->getWeatherInRadius($subscriber['center'], $subscriber['radius'],
@@ -247,7 +244,7 @@ class CronController extends IDemoBaseController
                                 syslog(LOG_INFO, "Actual speed: " . $actualSpeed . ", expected speed: "
                                     . $subscriber['speed']);
 
-                                if ($actualSpeed >= $subscriber['speed']) {
+                                if ($subscriber['speed'] && $actualSpeed >= $subscriber['speed']) {
                                     file_get_contents($subscriber["url"], false, $streamContext);
 
                                     syslog(LOG_INFO, "[WeatherWind Speed] Request '" . $key . "' for asset "
