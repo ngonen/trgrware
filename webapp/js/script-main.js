@@ -210,18 +210,24 @@ function updateAsset() {
 }
 
 function removeAsset(asset) {
-    var choice = false,
-        marker;
+    var marker;
     hideMenu();
     if (asset.triggers.length) {
         if (confirm("There are events attached to this asset.\nAre you sure you want to remove this asset?")) {
-            sendAJAX("/demo/Default/DeleteAsset", { assetId: asset.id }, onSuccess);
-            choice = true;
+            sendAJAX("/demo/Default/DeleteAsset", { assetId: asset.id }, function(data) {
+                var response = JSON.parse(data);
+                if (response.status) {
+                    marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+                    marker.setMap(null);
+                    markers.splice(markers.indexOf(marker), 1);
+                    assets.splice(assets.indexOf(asset), 1);
+                    console.log(response.message);
+                } else {
+                    console.log(response.errorMessage);
+                }
+            });
         }
     } else if (confirm("Are you sure you want to remove this asset?")) {
-        choice = true;
-    }
-    if (choice) {
         marker = markers.filter(function(m) { return m.title === asset.id; })[0];
         marker.setMap(null);
         markers.splice(markers.indexOf(marker), 1);
