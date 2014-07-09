@@ -141,17 +141,33 @@ function onSuccess(data) {
     }
 }
 
-function sendAssetUpdateRequest(asset) {
+function sendAssetUpdateRequest(asset, updatedSID) {
     var data = {
         assetId: asset.id,
         center: asset.lat + "|" + asset.lng
-    };
+        },
+        events, url, i, length;
+    if (updatedSID) {
+        events = {};
+        asset.triggers.forEach(function(trigger) {
+            if (trigger.type === "twitter_hash_tag") {
+                url = trigger.getURL();
+                events[trigger.type] = {};
+                for (i = 0, length = url.length; i < length; i++) {
+                    events[trigger.type][trigger.count[i]] = url[i];
+                }
+            } else {
+                events[trigger.type] = trigger.getURL();
+            }
+        });
+        data.events = JSON.stringify(events);
+    }
     sendAJAX("/demo/Default/UpdateAsset", data, onSuccess);
 }
 
 function updateAsset() {
     var validateObj = validate(active_popup),
-        marker, id, type, properties, lat, lng;
+        marker, id, type, properties, lat, lng, sid;
         
     if (validateObj.isValid) {
         id = active_asset? active_asset.id : props.id;
@@ -164,9 +180,10 @@ function updateAsset() {
         if (active_asset) {
             lat = active_asset.lat;
             lng = active_asset.lng;
+            sid = active_asset.sid;
             active_asset.setProperties(properties);
-            if ((active_asset.lat !== lat || active_asset.lng !== lng) && active_asset.triggers.length) {
-                sendAssetUpdateRequest(active_asset);
+            if ((active_asset.lat !== lat || active_asset.lng !== lng || active_asset.sid !== sid) && active_asset.triggers.length) {
+                sendAssetUpdateRequest(active_asset, active_asset.sid !== sid);
             }
         } else {
             assets.push(new Asset(properties));
@@ -328,7 +345,7 @@ function validate(popup) {
                     break;
                 case "hashtag":
                     if (!/^#/.test(value)) {
-                        errorMessage = "Incorrect hashtag (hashtag should begin with '#')";
+                        errorMessage = "Incorrect hashtag (hashtag should start with '#')";
                         return {
                             isValid: false,
                             errorMessage: errorMessage
@@ -887,7 +904,7 @@ $(function() {
                     asset.lat = ev.latLng.lat();
                     asset.lng = ev.latLng.lng();
                     if (asset.triggers.length) {
-                        sendAssetUpdateRequest(asset);
+                        sendAssetUpdateRequest(asset, false);
                     }
                 }
             });
