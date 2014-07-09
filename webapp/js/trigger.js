@@ -8,18 +8,17 @@ function Trigger(properties) {
         _self.asset_id = properties.asset_id;
     };
     
-    this.getURL = function() {
-        var asset = assets.filter(function(a) { return a.id === _self.asset_id; })[0];
+    this.getURL = function(sid, cid) {
         return "http://pluto.signage.me/WebService/sendCommand.ashx?i_user=trgralert&i_password=123&i_stationId=" +
-               asset.sid + "&i_command=event&i_param1=" + _self.cid + "&i_param2=&callback=?onSendCommand";
+               sid + "&i_command=event&i_param1=" + cid + "&i_param2=&callback=?onSendCommand";
     };
     
-    this.getData = function() {
+    this.getData = function(properties) {
         var asset = assets.filter(function(a) { return a.id === _self.asset_id; })[0];
         return {
             assetId: _self.asset_id,
             center: asset.lat + "|" + asset.lng,
-            callbackURL: _self.getURL(),
+            callbackURL: _self.getURL(asset.sid, properties.cid),
             eventType: _self.type
         };
     };
@@ -40,10 +39,10 @@ function AccidentTrigger(properties) {
     };
     
     var superclass_getData = this.getData;
-    this.getData = function() {
-        var data = superclass_getData();
-        data.severity = _self.severity;
-        data.radius = _self.radius;
+    this.getData = function(properties) {
+        var data = superclass_getData(properties);
+        data.severity = properties.severity;
+        data.radius = properties.radius;
         return data;
     };
     
@@ -65,11 +64,11 @@ function FlowTrigger(properties) {
     };
     
     var superclass_getData = this.getData;
-    this.getData = function() {
-        var data = superclass_getData();
-        data.condition = _self.condition;
-        data.threshold = _self.threshold;
-        data.radius = _self.radius;
+    this.getData = function(properties) {
+        var data = superclass_getData(properties);
+        data.condition = properties.condition;
+        data.threshold = properties.threshold;
+        data.radius = properties.radius;
         return data;
     };
     
@@ -89,30 +88,29 @@ function TwitterTrigger(properties) {
         _self.count = properties.count;
     };
     
-    this.getURL = function() {
-        var asset = assets.filter(function(a) { return a.id === _self.asset_id; })[0],
-            url = [],
+    this.getURL = function(sid, cid) {
+        var url = [],
             i, length;
-        for (i = 0, length = _self.cid.length; i < length; i ++) {
+        for (i = 0, length = cid.length; i < length; i ++) {
             url.push("http://pluto.signage.me/WebService/sendCommand.ashx?i_user=trgralert&i_password=123&i_stationId=" + 
-                     asset.sid + "&i_command=event&i_param1=" + _self.cid[i] + "&i_param2=&callback=?onSendCommand");
+                     sid + "&i_command=event&i_param1=" + cid[i] + "&i_param2=&callback=?onSendCommand");
         }
         return url;
     };
     
-    this.getData = function() {
+    this.getData = function(properties) {
         var asset = assets.filter(function(a) { return a.id === _self.asset_id; })[0],
-            url = _self.getURL(),
+            url = _self.getURL(asset.sid, properties.cid),
             campaigns = {},
             i, length;
         for (i = 0, length = url.length; i < length; i++) {
-            campaigns[_self.count[i]] = url[i];
+            campaigns[properties.count[i]] = url[i];
         }
         return {
             assetId: _self.asset_id,
             eventType: _self.type,
-            retriggerPeriod: _self.rwp,
-            hashtag: _self.hashtag,
+            retriggerPeriod: properties.rwp,
+            hashtag: properties.hashtag,
             campaigns: JSON.stringify(campaigns)
         };
     };
@@ -135,11 +133,11 @@ function TemperatureTrigger(properties) {
     };
     
     var superclass_getData = this.getData;
-    this.getData = function() {
-        var data = superclass_getData();
-        data.condition = _self.condition;
-        data.threshold = _self.threshold;
-        data.radius = _self.radius;
+    this.getData = function(properties) {
+        var data = superclass_getData(properties);
+        data.condition = properties.condition;
+        data.threshold = properties.threshold;
+        data.radius = properties.radius;
         return data;
     };
     
@@ -169,14 +167,14 @@ function WeatherEventTrigger(properties) {
     };
     
     var superclass_getData = this.getData;
-    this.getData = function() {
-        var data = superclass_getData();
-        data.radius = _self.radius;
-        if (_self.stormSeverity) {
-            data.stormSeverity = _self.stormSeverity;
+    this.getData = function(properties) {
+        var data = superclass_getData(properties);
+        data.radius = properties.radius;
+        if (properties.stormSeverity) {
+            data.stormSeverity = properties.stormSeverity;
         }
-        if (_self.windSpeed) {
-            data.speed = _self.windSpeed;
+        if (properties.windSpeed) {
+            data.speed = properties.windSpeed;
         }
         return data;
     };

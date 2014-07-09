@@ -146,15 +146,6 @@ function sendAJAX(url, data, callback, errorCallback) {
     });
 }
 
-function onSuccess(data) {
-    var response = JSON.parse(data);
-    if (response.status) {
-        console.log(response.message);
-    } else {
-        console.log(response.errorMessage);
-    }
-}
-
 function sendAssetUpdateRequest(asset, properties, updatedSID) {
     var data = {
             assetId: asset.id,
@@ -165,13 +156,13 @@ function sendAssetUpdateRequest(asset, properties, updatedSID) {
         events = {};
         asset.triggers.forEach(function(trigger) {
             if (trigger.type === EVENT_TYPES.TWITTER) {
-                url = trigger.getURL();
+                url = trigger.getURL(properties.sid, trigger.cid);
                 events[trigger.type] = {};
                 for (i = 0, length = url.length; i < length; i++) {
                     events[trigger.type][trigger.count[i]] = url[i];
                 }
             } else {
-                events[trigger.type] = trigger.getURL();
+                events[trigger.type] = trigger.getURL(properties.sid, trigger.cid);
             }
         });
         data.events = JSON.stringify(events);
@@ -248,13 +239,15 @@ function removeAsset(asset) {
     }
 }
 
-function sendTriggerUpdateRequest(asset, trigger, isNewTrigger) {
+function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
     var url = isNewTrigger ? "/demo/Default/RegisterEvent" : "/demo/Default/UpdateEvent";
-    sendAJAX(url, trigger.getData(), function(data) {
+    sendAJAX(url, trigger.getData(properties), function(data) {
         var response = JSON.parse(data);
         if (response.status) {
             if (isNewTrigger) {
                 asset.triggers.push(trigger);
+            } else {
+                trigger.setProperties(properties);
             }
             console.log(response.message);
         } else {
@@ -303,8 +296,7 @@ function updateTrigger() {
                 removeTrigger(active_asset, EVENT_TYPES.WEATHER_EVENT);
             } else {
                 //change trigger properties
-                trigger.setProperties(properties);
-                sendTriggerUpdateRequest(active_asset, trigger, false);
+                sendTriggerUpdateRequest(active_asset, trigger, properties, false);
             }
         } else {
             //create trigger
@@ -325,7 +317,7 @@ function updateTrigger() {
                     trigger = new TwitterTrigger(properties);
                     break;
             }
-            sendTriggerUpdateRequest(active_asset, trigger, true);
+            sendTriggerUpdateRequest(active_asset, trigger, properties, true);
         }   
         hidePopup();
     } else {
@@ -517,10 +509,10 @@ function clearMap(markersArray) {
 function showWeather(data) {
     var response = JSON.parse(data),
         stations;
-    onSuccess(data);
     if (response.refreshKey === refreshKey) {
         clearMap(weatherStations);
         if (response.status) {
+            console.log(response.message);
             try {
                 stations = xmlToJSON.parseString(response.weather).Inrix[0].Weather[0].Conditions[0].Station;
                 stations.forEach(function(station) {
@@ -561,6 +553,8 @@ function showWeather(data) {
             } catch(err) {
                 console.log("Cannot parse responce");
             }
+        } else {
+            console.log(response.errorMessage);
         }
         $(".loading").removeClass("weather");
         if ($(".loading")[0].classList.length < 2) {
@@ -969,7 +963,7 @@ $(function() {
                 if (trigger) {
                     if (trigger.type !== EVENT_TYPES.TWITTER) { //temporary
                         $.ajax({
-                            url: trigger.getURL(),
+                            url: trigger.getURL(asset.sid, trigger.cid),
                             success: function() { console.log("Successfully triggered."); },
                             error: function() { console.log("Error on triggering event."); },
                             complete: function() { alert(type + " Trigger Simulated."); }
