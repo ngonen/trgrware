@@ -155,10 +155,10 @@ function onSuccess(data) {
     }
 }
 
-function sendAssetUpdateRequest(asset, updatedSID) {
+function sendAssetUpdateRequest(asset, properties, updatedSID) {
     var data = {
             assetId: asset.id,
-            center: asset.lat + "|" + asset.lng
+            center: properties.lat + "|" + properties.lng
         },
         events, url, i, length;
     if (updatedSID) {
@@ -176,7 +176,22 @@ function sendAssetUpdateRequest(asset, updatedSID) {
         });
         data.events = JSON.stringify(events);
     }
-    sendAJAX("/demo/Default/UpdateAsset", data, onSuccess);
+    sendAJAX("/demo/Default/UpdateAsset", data, function(data) {
+        var response = JSON.parse(data),
+            marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+        if (response.status) {
+            asset.setProperties(properties);
+            console.log(response.message);
+        } else {
+            marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
+            console.log(response.errorMessage);
+        }
+    },
+    function(error) {
+        var marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+        marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
+        console.log(error.statusText + ": " + error.responseText);
+    });
 }
 
 function updateAsset() {
@@ -192,12 +207,10 @@ function updateAsset() {
         marker = markers.filter(function(m) { return m.title === properties.id; })[0];
         marker.setPosition(new google.maps.LatLng(properties.lat, properties.lng));
         if (active_asset) {
-            lat = active_asset.lat;
-            lng = active_asset.lng;
-            sid = active_asset.sid;
-            active_asset.setProperties(properties);
-            if ((active_asset.lat !== lat || active_asset.lng !== lng || active_asset.sid !== sid) && active_asset.triggers.length) {
-                sendAssetUpdateRequest(active_asset, active_asset.sid !== sid);
+            if ((active_asset.lat !== properties.lat || active_asset.lng !== properties.lng || active_asset.sid !== properties.sid) && active_asset.triggers.length) {
+                sendAssetUpdateRequest(active_asset, properties, active_asset.sid !== properties.sid);
+            } else {
+                active_asset.setProperties(properties);
             }
         } else {
             assets.push(new Asset(properties));
@@ -938,10 +951,10 @@ $(function() {
                     lng = ev.latLng.lng();
                 markerDrag = false;
                 if (asset.lat !== lat || asset.lng !== lng) {
-                    asset.lat = ev.latLng.lat();
-                    asset.lng = ev.latLng.lng();
                     if (asset.triggers.length) {
-                        sendAssetUpdateRequest(asset, false);
+                        sendAssetUpdateRequest(asset, {lat: lat, lng: lng}, false);
+                    } else {
+                        asset.setProperties({lat: lat, lng: lng});
                     }
                 }
             });
