@@ -380,6 +380,7 @@
         <button id="BtnCronTestAccident">Cron Test Accident</button>
         <button id="BtnCronTestFlow">Cron Test Flow</button>
         <button id="BtnCronTestWind">Wind</button>
+        <button id="BtnUpdateAsset">Update Asset</button>
     </div>
 
     <div style="border: 1px solid; margin: 10px 0;">

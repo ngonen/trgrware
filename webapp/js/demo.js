@@ -296,7 +296,11 @@
     $(document).on("click", "#BtnUpdateAsset", function() {
         var data = {
                 id: "asset-" + assetIds['f'][1],
-                center: "35|-100"
+                center: "35|-100",
+                events: JSON.stringify({
+                    'weather': "kuku.com",
+                    'speed': 'blabla.com'
+                })
             },
             url = "/demo/default/UpdateAsset";
 

@@ -132,6 +132,7 @@ class DefaultController extends IDemoBaseController
         }
 
         $response = ["status" => false];
+        $assetId = Yii::app()->request->getParam('assetId');
         $event = Yii::app()->request->getParam('eventType');
 
         if (!$event) {
@@ -160,7 +161,7 @@ class DefaultController extends IDemoBaseController
             ];
         }
 
-        $fc[$event][] = $this->updateEventParameters($event, Yii::app()->request->getParam('asset_id'));
+        $fc[$event][] = $this->updateEventParameters($event, $assetId);
         $isPut = file_put_contents($filePath, serialize($fc), 0, $ctx);
 
         if ($isPut) {
@@ -176,7 +177,7 @@ class DefaultController extends IDemoBaseController
                 IDemoBaseController::TWITTER_HASH_TAG => count($fc[IDemoBaseController::TWITTER_HASH_TAG])
             ];
             $response["content"] = $fc;
-            $response["assetId"] = Yii::app()->request->getParam('asset_id');
+            $response["assetId"] = $assetId;
             $response["eventType"] = $event;
         } else {
             $response["errorMessage"] = "Error when tried to store event.";
@@ -200,10 +201,10 @@ class DefaultController extends IDemoBaseController
             throw new CHttpException('403', 'Forbidden access.');
         }
 
-        $assetId = Yii::app()->request->getParam('asset_id');
+        $assetId = Yii::app()->request->getParam('assetId');
         $event = Yii::app()->request->getParam('eventType');
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
+        $ctx = $this->getStreamContextForPlanText();
         $response = ["status" => false];
         $isFound = false;
         $storageExists = is_file($filePath);
@@ -220,7 +221,9 @@ class DefaultController extends IDemoBaseController
                     break;
                 }
             }
-        } else if (!$isFound || !$storageExists) {
+        }
+
+        if (!$isFound || !$storageExists) {
             $fc = [
                 IDemoBaseController::WEATHER_TEMPERATURE => [],
                 IDemoBaseController::WEATHER_WIND_SPEED => [],
@@ -269,12 +272,13 @@ class DefaultController extends IDemoBaseController
         }
 
         $assetId = Yii::app()->request->getParam('assetId');
-        $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
+        $center = Yii::app()->request->getParam('center');
+        $events = json_decode(Yii::app()->request->getParam('events'));
         $response = ["status" => false];
-        $storageExists = is_file($filePath);
+        $filePath = Yii::app()->params['eventStoragePath'];
+        $ctx = $this->getStreamContextForPlanText();
 
-        if ($storageExists) {
+        if (is_file($filePath)) {
             $fc = unserialize(file_get_contents($filePath, 0, $ctx));
 
             if (!is_array($fc)) {
@@ -289,7 +293,12 @@ class DefaultController extends IDemoBaseController
             foreach ($fc as $key => $value) {
                 foreach ($value as $i => $item) {
                     if ($item['id'] == $assetId) {
-                        $fc[$key][$i]['center'] = Yii::app()->request->getParam('center');
+                        if ($key == $v = IDemoBaseController::TWITTER_HASH_TAG) {
+                            $fc[$key][$i]['campaigns'] = $events->$v;
+                        } else {
+                            $fc[$key][$i]['center'] = $center;
+                            $fc[$key][$i]['url'] = $events->$key;
+                        }
                     }
                 }
             }
