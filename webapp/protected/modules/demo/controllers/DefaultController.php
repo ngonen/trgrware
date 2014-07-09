@@ -297,7 +297,10 @@ class DefaultController extends IDemoBaseController
                             $fc[$key][$i]['campaigns'] = $events->$v;
                         } else {
                             $fc[$key][$i]['center'] = $center;
-                            $fc[$key][$i]['url'] = $events->$key;
+
+                            if (isset($events->$key)) {
+                                $fc[$key][$i]['url'] = $events->$key;
+                            }
                         }
                     }
                 }
