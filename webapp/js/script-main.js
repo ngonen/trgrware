@@ -464,8 +464,9 @@ function showIncidents(incidents) {
                 title: 'incident'
             });
             google.maps.event.addListener(marker, "mouseover", function() {
+                var description = incident.fullDesc ? incident.fullDesc : "No description."
                 if (!contextMenuIsOpen) {
-                    infoWindow.setContent("<div class='infowindow_content'>" + incident.fullDesc + "</div>");
+                    infoWindow.setContent("<div class='infowindow_content'>" + description + "</div>");
                     infoWindow.open(map, this);
                 }
             });
