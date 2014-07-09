@@ -17,7 +17,7 @@ function Trigger(properties) {
     this.getData = function() {
         var asset = assets.filter(function(a) { return a.id === _self.asset_id; })[0];
         return {
-            asset_id: _self.asset_id,
+            assetId: _self.asset_id,
             center: asset.lat + "|" + asset.lng,
             callbackURL: _self.getURL(),
             eventType: _self.type
@@ -109,7 +109,7 @@ function TwitterTrigger(properties) {
             campaigns[_self.count[i]] = url[i];
         }
         return {
-            asset_id: _self.asset_id,
+            assetId: _self.asset_id,
             eventType: _self.type,
             retriggerPeriod: _self.rwp,
             hashtag: _self.hashtag,
