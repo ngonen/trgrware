@@ -19,6 +19,20 @@ var updateMap;
 var contextMenuIsOpen;
 var markerDrag;
 
+var EVENT_TYPES = {
+    INCIDENT: "traffic_accident",
+    FLOW: "traffic_flow",
+    TEMPERATURE: "weather_temperature",
+    WEATHER_EVENT: "weather_event",
+    WIND: "weather_wind",
+    RAIN: "weather_rain",
+    SUN: "weather_sun",
+    SNOW: "weather_snow",
+    THUNDER_STORM: "weather_thunderStorm",
+    STORM: "weather_storm",
+    TWITTER: "twitter_hash_tag"
+};
+
 // Add INRIX Tile layer (see inrix.layer.js for details)
 var traffic = new InrixTileLayer(map);
 
@@ -56,7 +70,7 @@ function showTriggerPopup(event) {
     trigger_type = data.type;
     trigger = active_asset.triggers.filter(function(trigger) { return checkEventType(trigger.type) === trigger_type; })[0];
     if (trigger) {
-        if (trigger.type === "twitter_hash_tag" && trigger.cid.length > 1) {
+        if (trigger.type === EVENT_TYPES.TWITTER && trigger.cid.length > 1) {
             for (i = 0, length = trigger.cid.length; i < length - 1; i++) {
                 addTwitterFields();
             }
@@ -143,14 +157,14 @@ function onSuccess(data) {
 
 function sendAssetUpdateRequest(asset, updatedSID) {
     var data = {
-        assetId: asset.id,
-        center: asset.lat + "|" + asset.lng
+            assetId: asset.id,
+            center: asset.lat + "|" + asset.lng
         },
         events, url, i, length;
     if (updatedSID) {
         events = {};
         asset.triggers.forEach(function(trigger) {
-            if (trigger.type === "twitter_hash_tag") {
+            if (trigger.type === EVENT_TYPES.TWITTER) {
                 url = trigger.getURL();
                 events[trigger.type] = {};
                 for (i = 0, length = url.length; i < length; i++) {
@@ -266,8 +280,8 @@ function updateTrigger() {
         properties.asset_id = active_asset.id;
         trigger = active_asset.triggers.filter(function(trigger) { return checkEventType(trigger.type) === trigger_type; })[0];
         if (trigger) {
-            if (checkEventType(trigger.type) === "weather_event" && properties.type !== "weather_wind") { //temporary
-                removeTrigger(active_asset, "weather_event");
+            if (checkEventType(trigger.type) === EVENT_TYPES.WEATHER_EVENT && properties.type !== EVENT_TYPES.WIND) { //temporary
+                removeTrigger(active_asset, EVENT_TYPES.WEATHER_EVENT);
             } else {
                 //change trigger properties
                 trigger.setProperties(properties);
@@ -276,19 +290,19 @@ function updateTrigger() {
         } else {
             //create trigger
             switch (trigger_type) {
-                case "traffic_accident":
+                case EVENT_TYPES.INCIDENT:
                     trigger = new AccidentTrigger(properties);
                     break;
-                case "traffic_flow":
+                case EVENT_TYPES.FLOW:
                     trigger = new FlowTrigger(properties);
                     break;
-                case "weather_event":
+                case EVENT_TYPES.WEATHER_EVENT:
                     trigger = new WeatherEventTrigger(properties);
                     break;
-                case "weather_temperature":
+                case EVENT_TYPES.TEMPERATURE:
                     trigger = new TemperatureTrigger(properties);
                     break;
-                case "twitter_hash_tag":
+                case EVENT_TYPES.TWITTER:
                     trigger = new TwitterTrigger(properties);
                     break;
             }
@@ -665,24 +679,24 @@ function autoUpdateMap() {
 function getType(trigger_type) {
     var type;
     switch (trigger_type) {
-        case "traffic_accident":
+        case EVENT_TYPES.INCIDENT:
             type = "Traffic Incident";
             break;
-        case "traffic_flow":
+        case EVENT_TYPES.FLOW:
             type = "Traffic Flow";
             break;
-        case "weather_temperature":
+        case EVENT_TYPES.TEMPERATURE:
             type = "Temperature";
             break;
-        case "twitter_hash_tag":
+        case EVENT_TYPES.TWITTER:
             type = "Twitter";
             break;
-        case "weather_rain":
-        case "weather_snow":
-        case "weather_sun":
-        case "weather_thunderStorm":
-        case "weather_wind":
-        case "weather_storm":
+        case EVENT_TYPES.RAIN:
+        case EVENT_TYPES.SNOW:
+        case EVENT_TYPES.SUN:
+        case EVENT_TYPES.THUNDER_STORM:
+        case EVENT_TYPES.WIND:
+        case EVENT_TYPES.STORM:
             type = "Weather Event";
             break;
     }
@@ -691,8 +705,8 @@ function getType(trigger_type) {
 
 function checkEventType(type) {
     var eventType;
-    if (["weather_rain", "weather_sun", "weather_snow", "weather_thunderStorm", "weather_wind", "weather_storm"].indexOf(type) !== -1) {
-        eventType = "weather_event";
+    if ([EVENT_TYPES.RAIN, EVENT_TYPES.SUN, EVENT_TYPES.SNOW, EVENT_TYPES.THUNDER_STORM, EVENT_TYPES.WIND, EVENT_TYPES.STORM].indexOf(type) !== -1) {
+        eventType = EVENT_TYPES.WEATHER_EVENT;
     } else {
         eventType = type;
     }
@@ -917,7 +931,7 @@ $(function() {
                 trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
                 type = getType(ev.dataTransfer.getData("type"));
                 if (trigger) {
-                    if (trigger.type !== "twitter_hash_tag") { //temporary
+                    if (trigger.type !== EVENT_TYPES.TWITTER) { //temporary
                         $.ajax({
                             url: trigger.getURL(),
                             success: function() { console.log("Successfully triggered."); },
