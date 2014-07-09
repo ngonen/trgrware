@@ -251,11 +251,11 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Retrigger Wait Period (min)</span>
-            <input data-property="rwp" class="textinput prop" type="text">
+            <input data-property="rwp" data-type="int" class="textinput prop" type="text">
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" class="textinput prop" type="text" required>
+            <input data-property="radius" data-type="float" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Rain</span>

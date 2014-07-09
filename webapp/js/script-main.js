@@ -390,7 +390,23 @@ function validate(popup) {
         };
     }
     return {isValid: true, errorMessage: null};
-} 
+}
+
+function getValue(input) {
+    var value;
+    switch (input.dataset.type) {
+        case "int":
+            value = parseInt(input.value);
+            break;
+        case "float":
+            value = parseFloat(input.value);
+            break;
+        default:
+            value = input.value;
+            break;
+    }
+    return value;
+}
 
 function getProperties(popup) {  
     var properties = {};
@@ -398,14 +414,14 @@ function getProperties(popup) {
         if (!el.disabled) {
             if ($(el).hasClass("array-element")) {
                 properties[el.dataset.property] = properties[el.dataset.property] || [];
-                properties[el.dataset.property].push(el.value);
+                properties[el.dataset.property].push(getValue(el));
             } else {
                 if (el.type === "radio") {
                     if (el.checked) {
                         properties[el.dataset.property] = el.value;
                     }
                 } else {
-                    properties[el.dataset.property] = el.value;
+                    properties[el.dataset.property] = getValue(el);
                 }
             }
         }
