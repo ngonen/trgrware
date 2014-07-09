@@ -103,13 +103,10 @@ function TwitterTrigger(properties) {
     this.getData = function() {
         var asset = assets.filter(function(a) { return a.id === _self.asset_id; })[0],
             url = _self.getURL(),
-            campaigns = [],
+            campaigns = {},
             i, length;
         for (i = 0, length = url.length; i < length; i++) {
-            campaigns.push({
-                count: _self.count[i],
-                callbackURL: url[i]
-            });
+            campaigns[_self.count[i]] = url[i];
         }
         return {
             asset_id: _self.asset_id,
