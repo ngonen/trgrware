@@ -111,7 +111,8 @@ function TwitterTrigger(properties) {
             assetId: _self.asset_id,
             eventType: _self.type,
             retriggerPeriod: properties.rwp,
-            hashtag: properties.hashtag,
+            hashTag: properties.hashtag,
+            userName: properties.username,
             campaigns: JSON.stringify(campaigns)
         };
     };
