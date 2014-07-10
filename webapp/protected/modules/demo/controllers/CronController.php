@@ -37,12 +37,10 @@ class CronController extends IDemoBaseController
                                     . $value['threshold'] . ", condition: " . $value['condition']);
 
                                 if ($condition) {
-                                    $url = $value["url"];
-
-                                    file_get_contents($url, false, $streamContext);
+                                    file_get_contents($value["url"], false, $streamContext);
 
                                     syslog(LOG_INFO, "[WeatherTemperature] Request '" . $key . "' for asset "
-                                        . $value['id'] . " has been sent to url " . $url);
+                                        . $value['id'] . " has been sent to url " . $value["url"]);
 
                                     break;
                                 }
@@ -138,12 +136,10 @@ class CronController extends IDemoBaseController
                                     : $actualSpeed < $value['threshold'];
 
                                 if ($condition) {
-                                    $url = $value['url'];
-
-                                    file_get_contents($url, false, $streamContext);
+                                    file_get_contents($value['url'], false, $streamContext);
 
                                     syslog(LOG_INFO, "[TrafficSpeed] Request '" . $key . "' for asset "
-                                        . $value['id'] . " has been sent to url " . $url);
+                                        . $value['id'] . " has been sent to url " . $value['url']);
 
                                     break;
                                 }
@@ -163,8 +159,8 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action SpeedNotifier finished.");
     }
 
-    // TODO: finish
-    // TODO: test
+    // TODO: Finish
+    // TODO: Test
     public function actionTwitterHashTagNotifier() {
         syslog(LOG_INFO, "Action TwitterHashTagNotifier started.");
 
@@ -181,19 +177,19 @@ class CronController extends IDemoBaseController
                 $streamContext = $this->getStreamContext();
 
                 foreach ($subscribers as $key => $subscriber) {
-                    // TODO: Get result from Twitter
+                    // TODO: Get result from Twitter [FIX]
                     $result = "";
-                    // TODO: Get count of hashtags
+                    // TODO: Get count of hashtags [FIX]
                     $tagsCount = count($result);
 
                     if ($tagsCount) {
-                        foreach ($subscriber['campaigns'] as $k => $campaign) {
-                            if ($tagsCount >= $campaign['count']) {
+                        foreach ($subscriber['campaigns'] as $c => $campaign) {
+                            if ($tagsCount >= $c) {
                                 file_get_contents($campaign['url'], false, $streamContext);
 
                                 syslog(LOG_INFO, "[Twitter hashtag] Request '" . $key . "' for asset "
-                                    . $subscriber['id'] . ", hashtag " . $subscriber['hashtag']
-                                    . " has been sent to url " . $campaign['url']);
+                                    . $subscriber['id'] . ", hashtag " . $subscriber['hashtag'] . ", count "
+                                    . $c . " has been sent to url " . $campaign['url']);
 
                                 break;
                             }
