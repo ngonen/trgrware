@@ -328,7 +328,7 @@ function updateTrigger() {
 
 function validate(popup) {
     var inputs = $(popup + " .prop").toArray(),
-        value, el, errorMessage, i, length, min, max;
+        value, el, errorMessage, i, length, min, max, ascending = {};
     for (i = 0, length = inputs.length; i < length; i++) {
         el = inputs[i];
         if (!el.disabled) {
@@ -412,7 +412,17 @@ function validate(popup) {
                     };
                 }
             }
-        }
+            if ($(el).hasClass("array-element") && $(el).hasClass("ascending")) {
+                if (ascending[el.dataset.property] && (getValue(el) <= ascending[el.dataset.property])) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + ": each next field should consist a value greater than previous.";
+                    return {
+                        isValid: false,
+                        errorMessage: errorMessage
+                    };
+                }
+                ascending[el.dataset.property] = getValue(el);
+            }
+        }        
     }
     if ($(popup + ' input[type=radio]').size() && !$(popup + ' input[type=radio]:checked').size()) {
         errorMessage = "One of options should be selected";
@@ -775,7 +785,7 @@ function checkEventType(type) {
 function addTwitterFields() {
     var content = "<div class='additional'><div class='popup-field'>" +
                   "<span class='popup-label'>Count</span>" +
-                  "<input data-property='count' data-type='int' class='textinput prop array-element' type='number' min='1' required>" +
+                  "<input data-property='count' data-type='int' class='textinput prop array-element ascending' type='number' min='1' required>" +
                   "</div><div class='remove-fields cross'onclick='removeContainer(event)'></div>" +
                   "<div class='popup-field'>" +
                   "<span class='popup-label'>Campaign ID</span>" +
@@ -990,14 +1000,13 @@ $(function() {
                 trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
                 type = getType(ev.dataTransfer.getData("type"));
                 if (trigger) {
-                    if (trigger.type !== EVENT_TYPES.TWITTER) { //temporary
-                        $.ajax({
-                            url: trigger.getURL(asset.sid, trigger.cid),
-                            success: function() { console.log("Successfully triggered."); },
-                            error: function() { console.log("Error on triggering event."); },
-                            complete: function() { alert(type + " Trigger Simulated."); }
-                        });
-                    }
+                    url = (trigger.type === EVENT_TYPES.TWITTER) ? trigger.getURL(asset.sid, trigger.cid)[0] : trigger.getURL(asset.sid, trigger.cid);
+                    $.ajax({
+                        url: url,
+                        success: function() { console.log("Successfully triggered."); },
+                        error: function() { console.log("Error on triggering event."); },
+                        complete: function() { alert(type + " Trigger Simulated."); }
+                    });
                 } else {
                     alert(type + " Trigger Was Not Set.");
                 }

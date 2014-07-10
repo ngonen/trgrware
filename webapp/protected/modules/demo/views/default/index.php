@@ -207,7 +207,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Count</span>
-            <input data-property="count" data-type="int" class="textinput prop array-element" type="number" min="1" required>
+            <input data-property="count" data-type="int" class="textinput prop array-element ascending" type="number" min="1" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Campaign ID</span>
