@@ -97,11 +97,11 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Lattitude</span>
-            <input data-property="lat" data-type="float" class="textinput prop" type="number" min="-90" max="90" step="0.1" required>
+            <input data-property="lat" data-type="float" class="textinput prop" type="number" min="-90" max="90" step="any" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Longitude</span>
-            <input data-property="lng" data-type="float" class="textinput prop" type="number" min="-90" max="90" step="0.1" required>
+            <input data-property="lng" data-type="float" class="textinput prop" type="number" min="-90" max="90" step="any" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Platform:</span>
@@ -142,7 +142,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" data-type="float" class="textinput prop" type="number" min="0" step="0.25" required>
+            <input data-property="radius" data-type="float" class="textinput prop" type="number" min="0" step="0.1" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Severity</span>
@@ -170,7 +170,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" data-type="float" class="textinput prop" type="number" min="0" step="0.25" required>
+            <input data-property="radius" data-type="float" class="textinput prop" type="number" min="0" step="0.1" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Condition</span>
@@ -198,8 +198,12 @@
             <input data-property="rwp" data-type="int" class="textinput prop" type="number" min="0">
         </div>
         <div class="popup-field">
+            <span class="popup-label">Username</span>
+            <input data-property="username" data-type="username" class="textinput prop" type="text" placeholder="@target_username" required>
+        </div>
+        <div class="popup-field">
             <span class="popup-label">Hashtag</span>
-            <input data-property="hashtag" data-type="hashtag" class="textinput prop" type="text" required>
+            <input data-property="hashtag" data-type="hashtag" class="textinput prop" type="text" placeholder="#target_hashtag" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Count</span>
@@ -230,7 +234,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" data-type="float" class="textinput prop" type="number" min="0" step="0.25" required>
+            <input data-property="radius" data-type="float" class="textinput prop" type="number" min="0" step="0.1" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Condition</span>
@@ -263,7 +267,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" data-type="float" class="textinput prop" type="number" min="0" step="0.25" required>
+            <input data-property="radius" data-type="float" class="textinput prop" type="number" min="0" step="0.1" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Rain</span>

@@ -86,6 +86,7 @@ function TwitterTrigger(properties) {
         superclass_setProperties(properties);
         _self.hashtag = properties.hashtag;
         _self.count = properties.count;
+        _self.username = properties.username;
     };
     
     this.getURL = function(sid, cid) {

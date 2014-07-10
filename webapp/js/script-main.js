@@ -378,6 +378,15 @@ function validate(popup) {
                         };
                     }
                     break;
+                case "username":
+                    if (!/^@/.test(value)) {
+                            errorMessage = "Incorrect username (username should start with '@')";
+                            return {
+                                isValid: false,
+                                errorMessage: errorMessage
+                            };
+                        }
+                    break;
             }
             min = el.getAttribute("min");
             max = el.getAttribute("max");
