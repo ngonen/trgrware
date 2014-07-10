@@ -138,46 +138,34 @@ class DefaultController extends IDemoBaseController
         $event = Yii::app()->request->getParam('eventType');
 
         if (!$event) {
-            $response['errorMessage'] = "Undefined type of event.";
+            $response['errorMessage'] = "Type of event is not defined.";
 
             $this->renderJSON($response);
             $this->endApp();
         }
 
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
+        $ctx = $this->getStreamContextForPlanText();
 
         if (is_file($filePath)) {
             syslog(LOG_INFO, "Storage exists. Start to unserialize.");
 
-            $fc = unserialize(file_get_contents($filePath, 0, $ctx));
+            $fc = $this->readStorage($filePath, $ctx);
         } else {
             syslog(LOG_INFO, "Storage does not exist. Start to create.");
 
-            $fc = [
-                IDemoBaseController::WEATHER_TEMPERATURE => [],
-                IDemoBaseController::WEATHER_WIND_SPEED => [],
-                IDemoBaseController::TRAFFIC_INCIDENTS => [],
-                IDemoBaseController::TRAFFIC_FLOW => [],
-                IDemoBaseController::TWITTER_HASH_TAG => []
-            ];
+            $fc = $this->createStorageArray();
         }
 
         $fc[$event][] = $this->updateEventParameters($event, $assetId);
-        $isPut = file_put_contents($filePath, serialize($fc), 0, $ctx);
+        $isPut = $this->saveToStorage($filePath, $ctx, $fc);
 
         if ($isPut) {
             syslog(LOG_INFO, "Storage has been successfully saved.");
 
             $response["status"] = $isPut > 0;
             $response["message"] = "Event has been successfully registered.";
-            $response["statistic"] = [
-                IDemoBaseController::WEATHER_TEMPERATURE => count($fc[IDemoBaseController::WEATHER_TEMPERATURE]),
-                IDemoBaseController::WEATHER_WIND_SPEED => count($fc[IDemoBaseController::WEATHER_WIND_SPEED]),
-                IDemoBaseController::TRAFFIC_INCIDENTS => count($fc[IDemoBaseController::TRAFFIC_INCIDENTS]),
-                IDemoBaseController::TRAFFIC_FLOW => count($fc[IDemoBaseController::TRAFFIC_FLOW]),
-                IDemoBaseController::TWITTER_HASH_TAG => count($fc[IDemoBaseController::TWITTER_HASH_TAG])
-            ];
+            $response["statistic"] = $this->getStatistic($fc);
             $response["content"] = $fc;
             $response["assetId"] = $assetId;
             $response["eventType"] = $event;
@@ -205,15 +193,28 @@ class DefaultController extends IDemoBaseController
 
         $assetId = Yii::app()->request->getParam('assetId');
         $event = Yii::app()->request->getParam('eventType');
+        $deleteEventType = Yii::app()->request->getParam('delete');
         $filePath = Yii::app()->params['eventStoragePath'];
         $ctx = $this->getStreamContextForPlanText();
         $response = ["status" => false];
         $isFound = false;
+
+        if ($deleteEventType) {
+            $res = $this->deleteAssetInfo($assetId, $deleteEventType);
+
+            if (!$res['status']) {
+                $this->renderJSON($res);
+                $this->endApp();
+            }
+        }
+
         $storageExists = is_file($filePath);
         $eventParams = $this->updateEventParameters($event, $assetId);
 
         if ($storageExists) {
-            $fc = unserialize(file_get_contents($filePath, 0, $ctx));
+            syslog(LOG_INFO, "Storage exists. Start to unserialize.");
+
+            $fc = $this->readStorage($filePath, $ctx);
 
             foreach ($fc[$event] as $key => $value) {
                 if ($value['id'] == $assetId) {
@@ -223,33 +224,27 @@ class DefaultController extends IDemoBaseController
                     break;
                 }
             }
-        }
+        } else {
+            syslog(LOG_INFO, "Storage does not exist. Start to create.");
 
-        if (!$isFound || !$storageExists) {
-            $fc = [
-                IDemoBaseController::WEATHER_TEMPERATURE => [],
-                IDemoBaseController::WEATHER_WIND_SPEED => [],
-                IDemoBaseController::TRAFFIC_INCIDENTS => [],
-                IDemoBaseController::TRAFFIC_FLOW => [],
-                IDemoBaseController::TWITTER_HASH_TAG => []
-            ];
+            $fc = $this->createStorageArray();
             $fc[$event][] = $eventParams;
         }
 
-        $isPut = file_put_contents($filePath, serialize($fc), 0, $ctx);
+        if (!$isFound && $storageExists) {
+            syslog(LOG_INFO, "Event was not found in existing storage. Add event.");
+
+            $fc[$event][] = $eventParams;
+        }
+
+        $isPut = $this->saveToStorage($filePath, $ctx, $fc);
 
         if ($isPut) {
             $response["status"] = $isPut > 0;
             $response["message"] = $isFound
                 ? "Your event has been successfully updated."
                 : "Your event has been successfully created.";
-            $response["statistic"] = [
-                IDemoBaseController::WEATHER_TEMPERATURE => count($fc[IDemoBaseController::WEATHER_TEMPERATURE]),
-                IDemoBaseController::WEATHER_WIND_SPEED => count($fc[IDemoBaseController::WEATHER_WIND_SPEED]),
-                IDemoBaseController::TRAFFIC_INCIDENTS => count($fc[IDemoBaseController::TRAFFIC_INCIDENTS]),
-                IDemoBaseController::TRAFFIC_FLOW => count($fc[IDemoBaseController::TRAFFIC_FLOW]),
-                IDemoBaseController::TWITTER_HASH_TAG => count($fc[IDemoBaseController::TWITTER_HASH_TAG])
-            ];
+            $response["statistic"] = $this->getStatistic($fc);
             $response["content"] = $fc;
         } else {
             $response["errorMessage"] = "Error when tried to store event.";
@@ -281,10 +276,10 @@ class DefaultController extends IDemoBaseController
         $ctx = $this->getStreamContextForPlanText();
 
         if (is_file($filePath)) {
-            $fc = unserialize(file_get_contents($filePath, 0, $ctx));
+            $fc = $this->readStorage($filePath, $ctx);
 
             if (!is_array($fc)) {
-                file_put_contents($filePath, "", 0, $ctx);
+                $this->saveToStorage($filePath, $ctx);
 
                 $response["errorMessage"] = "Data in storage is not correct. Reload the page.";
 
@@ -310,18 +305,12 @@ class DefaultController extends IDemoBaseController
                 }
             }
 
-            $isPut = file_put_contents($filePath, serialize($fc), 0, $ctx);
+            $isPut = $this->saveToStorage($filePath, $ctx, $fc);
 
             if ($isPut) {
                 $response["status"] = $isPut > 0;
                 $response["message"] = "Your asset has been successfully updated.";
-                $response["statistic"] = [
-                    IDemoBaseController::WEATHER_TEMPERATURE => count($fc[IDemoBaseController::WEATHER_TEMPERATURE]),
-                    IDemoBaseController::WEATHER_WIND_SPEED => count($fc[IDemoBaseController::WEATHER_WIND_SPEED]),
-                    IDemoBaseController::TRAFFIC_INCIDENTS => count($fc[IDemoBaseController::TRAFFIC_INCIDENTS]),
-                    IDemoBaseController::TRAFFIC_FLOW => count($fc[IDemoBaseController::TRAFFIC_FLOW]),
-                    IDemoBaseController::TWITTER_HASH_TAG => count($fc[IDemoBaseController::TWITTER_HASH_TAG])
-                ];
+                $response["statistic"] = $this->getStatistic($fc);
                 $response["content"] = $fc;
             } else {
                 $response["errorMessage"] = "Error when tried to store event.";
@@ -386,7 +375,7 @@ class DefaultController extends IDemoBaseController
         $isFound = false;
 
         if (is_file($filePath)) {
-            $fc = unserialize(file_get_contents($filePath, 0, $ctx));
+            $fc = $this->readStorage($filePath, $ctx);
 
             if (is_array($fc)) {
                 if ($eventType) {
@@ -423,17 +412,12 @@ class DefaultController extends IDemoBaseController
                     return $response;
                 }
 
-                $isPut = file_put_contents($filePath, serialize($fc), 0, $ctx);
+                $isPut = $this->saveToStorage($filePath, $ctx, $fc);
 
                 if ($isPut) {
                     $response["status"] = $isPut > 0;
                     $response["assetId"] = $assetId;
-                    $response["statistic"] = [
-                        IDemoBaseController::WEATHER_TEMPERATURE => count($fc[IDemoBaseController::WEATHER_TEMPERATURE]),
-                        IDemoBaseController::TRAFFIC_INCIDENTS => count($fc[IDemoBaseController::TRAFFIC_INCIDENTS]),
-                        IDemoBaseController::TRAFFIC_FLOW => count($fc[IDemoBaseController::TRAFFIC_FLOW]),
-                        IDemoBaseController::TWITTER_HASH_TAG => count($fc[IDemoBaseController::TWITTER_HASH_TAG])
-                    ];
+                    $response["statistic"] = $this->getStatistic($fc);
                     $response["content"] = $fc;
                     $response["message"] = $eventType
                         ? "Event has been successfully deleted."
@@ -442,7 +426,7 @@ class DefaultController extends IDemoBaseController
                     $response["errorMessage"] = "Error when tried to store event.";
                 }
             } else {
-                file_put_contents($filePath, "", 0, $ctx);
+                $this->saveToStorage($filePath, $ctx);
 
                 $response["errorMessage"] = "Data in storage is not correct. Reload the page.";
             }
@@ -488,6 +472,15 @@ class DefaultController extends IDemoBaseController
                 break;
             }
 
+            case IDemoBaseController::WEATHER_WIND_SPEED:
+            case IDemoBaseController::WEATHER_RAIN:
+            case IDemoBaseController::WEATHER_SNOW:
+            case IDemoBaseController::WEATHER_STORM:
+            case IDemoBaseController::WEATHER_SUN:
+            case IDemoBaseController::WEATHER_THUNDER_STORM: {
+                break;
+            }
+
             default: {
                 $this->renderJSON([
                     'status' => false,
@@ -504,5 +497,49 @@ class DefaultController extends IDemoBaseController
         }
 
         return $params;
+    }
+
+    private function createStorageArray() {
+        return [
+            IDemoBaseController::WEATHER_TEMPERATURE => [],
+            IDemoBaseController::WEATHER_WIND_SPEED => [],
+            IDemoBaseController::WEATHER_RAIN => [],
+            IDemoBaseController::WEATHER_SNOW => [],
+            IDemoBaseController::WEATHER_STORM => [],
+            IDemoBaseController::WEATHER_SUN => [],
+            IDemoBaseController::WEATHER_THUNDER_STORM => [],
+            IDemoBaseController::TRAFFIC_INCIDENTS => [],
+            IDemoBaseController::TRAFFIC_FLOW => [],
+            IDemoBaseController::TWITTER_HASH_TAG => []
+        ];
+    }
+
+    private function readStorage($filePath, $ctx) {
+        return unserialize(file_get_contents($filePath, 0, $ctx));
+    }
+
+    private function saveToStorage($filePath, $ctx, $fc = "") {
+        $data = "";
+
+        if ($fc) {
+            $data = serialize($fc);
+        }
+
+        return file_put_contents($filePath, $data, 0, $ctx);
+    }
+
+    private function getStatistic($fc) {
+        return [
+            IDemoBaseController::WEATHER_TEMPERATURE => count($fc[IDemoBaseController::WEATHER_TEMPERATURE]),
+            IDemoBaseController::WEATHER_WIND_SPEED => count($fc[IDemoBaseController::WEATHER_WIND_SPEED]),
+            IDemoBaseController::WEATHER_RAIN => count($fc[IDemoBaseController::WEATHER_RAIN]),
+            IDemoBaseController::WEATHER_SNOW => count($fc[IDemoBaseController::WEATHER_SNOW]),
+            IDemoBaseController::WEATHER_STORM => count($fc[IDemoBaseController::WEATHER_STORM]),
+            IDemoBaseController::WEATHER_SUN => count($fc[IDemoBaseController::WEATHER_SUN]),
+            IDemoBaseController::WEATHER_THUNDER_STORM => count($fc[IDemoBaseController::WEATHER_THUNDER_STORM]),
+            IDemoBaseController::TRAFFIC_INCIDENTS => count($fc[IDemoBaseController::TRAFFIC_INCIDENTS]),
+            IDemoBaseController::TRAFFIC_FLOW => count($fc[IDemoBaseController::TRAFFIC_FLOW]),
+            IDemoBaseController::TWITTER_HASH_TAG => count($fc[IDemoBaseController::TWITTER_HASH_TAG])
+        ];
     }
 }
