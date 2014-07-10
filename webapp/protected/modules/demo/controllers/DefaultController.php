@@ -91,27 +91,28 @@ class DefaultController extends IDemoBaseController
             throw new CHttpException('403', 'Forbidden access.');
         }
 
-        $response = [
-            "status" => false
-        ];
-
+        $response = ["status" => false];
         $center = Yii::app()->request->getParam('center');
         $radius = Yii::app()->request->getParam('radius');
         $refreshKey = Yii::app()->request->getParam('refreshKey');
 
         if (!$center || !$radius || !$refreshKey) {
-            $response["errorMessage"] = "Check your parameters".
+            $response["errorMessage"] = "Check your parameters";
 
-                $this->renderJSON($response);
+            $this->renderJSON($response);
             $this->endApp();
         }
 
         $resultXML = $this->getWeatherInRadius($center, $radius);
-        $response = array(
-            "status" => $resultXML->Weather->Conditions && count($resultXML->Weather->Conditions->Station) > 0,
-            "refreshKey" => $refreshKey,
-            "weather" => $resultXML->asXML()
-        );
+        $status = $resultXML->Weather->Conditions && count($resultXML->Weather->Conditions->Station) > 0;
+
+        if ($status) {
+            $response["status"] = $status;
+            $response["refreshKey"] = $refreshKey;
+            $response["weather"] = $resultXML->asXML();
+        } else {
+            $response['errorMessage'] = "Stations were not found.";
+        }
 
         $this->renderJSON($response);
 
@@ -273,7 +274,7 @@ class DefaultController extends IDemoBaseController
 
         $assetId = Yii::app()->request->getParam('assetId');
         $center = Yii::app()->request->getParam('center');
-        $events = json_decode(Yii::app()->request->getParam('events'));
+        $events = json_decode(Yii::app()->request->getParam('events'), true);
         $response = ["status" => false];
         $filePath = Yii::app()->params['eventStoragePath'];
         $ctx = $this->getStreamContextForPlanText();
@@ -293,13 +294,15 @@ class DefaultController extends IDemoBaseController
             foreach ($fc as $key => $value) {
                 foreach ($value as $i => $item) {
                     if ($item['id'] == $assetId) {
-                        if ($key == $v = IDemoBaseController::TWITTER_HASH_TAG) {
-                            $fc[$key][$i]['campaigns'] = $events->$v;
+                        if ($key == IDemoBaseController::TWITTER_HASH_TAG) {
+                            krsort($events[IDemoBaseController::TWITTER_HASH_TAG]);
+
+                            $fc[$key][$i]['campaigns'] = $events[IDemoBaseController::TWITTER_HASH_TAG];
                         } else {
                             $fc[$key][$i]['center'] = $center;
 
-                            if (isset($events->$key)) {
-                                $fc[$key][$i]['url'] = $events->$key;
+                            if (isset($events[$key])) {
+                                $fc[$key][$i]['url'] = $events[$key];
                             }
                         }
                     }
@@ -450,9 +453,7 @@ class DefaultController extends IDemoBaseController
     }
 
     private function updateEventParameters($event, $assetId) {
-        $params = [
-            "id" => $assetId
-        ];
+        $params = ["id" => $assetId];
 
         switch ($event) {
             case IDemoBaseController::TRAFFIC_FLOW:
@@ -476,9 +477,12 @@ class DefaultController extends IDemoBaseController
             }
 
             case IDemoBaseController::TWITTER_HASH_TAG: {
-                $params['retriggerPeriod'] = Yii::app()->request->getParam('retriggerPeriod');
+                $campaigns = json_decode(Yii::app()->request->getParam('campaigns'), true);
+                krsort($campaigns);
+
+//                $params['retriggerPeriod'] = Yii::app()->request->getParam('retriggerPeriod');
                 $params['hashtag'] = Yii::app()->request->getParam('hashtag');
-                $params['campaigns'] = json_decode(Yii::app()->request->getParam('campaigns'));
+                $params['campaigns'] = $campaigns;
 
                 break;
             }
