@@ -84,16 +84,24 @@
             <input class="textinput" type="text" value="N/A" disabled>
         </div>
         <div class="popup-field">
+            <span class="popup-label">Per</span>
+            <select data-property="per" class="drop-down prop">
+                <option value="Hour">Hour</option>
+                <option value="Day">Day</option>
+                <option value="Week">Week</option>
+            </select>
+        </div>
+        <div class="popup-field">
             <span class="popup-label">Max Triggers</span>
-            <input data-property="maxTriggers" data-type="int" class="textinput prop" type="text">
+            <input data-property="maxTriggers" data-type="int" class="textinput prop" type="number" min="0">
         </div>
         <div class="popup-field">
             <span class="popup-label">Lattitude</span>
-            <input data-property="lat" data-type="float" data-min="-90" data-max="90" class="textinput prop" type="text" required>
+            <input data-property="lat" data-type="float" class="textinput prop" type="number" min="-90" max="90" step="0.1" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Longitude</span>
-            <input data-property="lng" data-type="float" data-min="-90" data-max="90" class="textinput prop" type="text" required>
+            <input data-property="lng" data-type="float" class="textinput prop" type="number" min="-90" max="90" step="0.1" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Platform:</span>
@@ -122,7 +130,7 @@
     </form>
 </div>
 <div id="trigger_accident_popup" class="popup trigger_popup" tabindex="0">
-    <div class="popup_title">Traffic Incident - Trigger properties</div>
+    <div class="popup_title">Traffic Incident - Trigger Properties</div>
     <form>
         <div class="popup-field">
             <span class="popup-label">Campaign ID</span>
@@ -130,11 +138,11 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Retrigger Wait Period (min)</span>
-            <input data-property="rwp" data-type="int" class="textinput prop" type="text">
+            <input data-property="rwp" data-type="int" class="textinput prop" type="number" min="0">
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" data-type="float" class="textinput prop" type="text" required>
+            <input data-property="radius" data-type="float" class="textinput prop" type="number" min="0" step="0.25" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Severity</span>
@@ -150,7 +158,7 @@
     </form>
 </div>
 <div id="trigger_flow_popup" class="popup trigger_popup" tabindex="0">
-    <div class="popup_title">Traffic Flow - Trigger properties</div>
+    <div class="popup_title">Traffic Flow - Trigger Properties</div>
     <form>
         <div class="popup-field">
             <span class="popup-label">Campaign ID</span>
@@ -158,11 +166,11 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Retrigger Wait Period (min)</span>
-            <input data-property="rwp" data-type="int" class="textinput prop" type="text">
+            <input data-property="rwp" data-type="int" class="textinput prop" type="number" min="0">
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" data-type="float" class="textinput prop" type="text" required>
+            <input data-property="radius" data-type="float" class="textinput prop" type="number" min="0" step="0.25" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Condition</span>
@@ -173,7 +181,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Threshold (mph)</span>
-            <input data-property="threshold" data-type="int" data-min="0" data-max="200" data-default="25" class="textinput prop" type="text" required>
+            <input data-property="threshold" data-type="int" data-default="25" class="textinput prop" type="number" min="0" max="200" required>
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
@@ -183,11 +191,11 @@
     </form>
 </div>
 <div id="trigger_twitter_popup" class="popup trigger_popup" tabindex="0">
-    <div class="popup_title">Twitter - Trigger properties</div>
+    <div class="popup_title">Twitter - Trigger Properties</div>
     <form>
         <div class="popup-field">
             <span class="popup-label">Retrigger Wait Period (min)</span>
-            <input data-property="rwp" data-type="int" class="textinput prop" type="text">
+            <input data-property="rwp" data-type="int" class="textinput prop" type="number" min="0">
         </div>
         <div class="popup-field">
             <span class="popup-label">Hashtag</span>
@@ -195,7 +203,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Count</span>
-            <input data-property="count" data-type="int" class="textinput prop array-element" type="text" required>
+            <input data-property="count" data-type="int" class="textinput prop array-element" type="number" min="1" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Campaign ID</span>
@@ -210,7 +218,7 @@
     </form>
 </div>
 <div id="trigger_temperature_popup" class="popup trigger_popup" tabindex="0">
-    <div class="popup_title">Temperature - Trigger properties</div>
+    <div class="popup_title">Temperature - Trigger Properties</div>
     <form>
         <div class="popup-field">
             <span class="popup-label">Campaign ID</span>
@@ -218,11 +226,11 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Retrigger Wait Period (min)</span>
-            <input data-property="rwp" data-type="int" class="textinput prop" type="text">
+            <input data-property="rwp" data-type="int" class="textinput prop" type="number" min="0">
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" data-type="float" class="textinput prop" type="text" required>
+            <input data-property="radius" data-type="float" class="textinput prop" type="number" min="0" step="0.25" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Condition</span>
@@ -233,7 +241,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Threshold (fahrenheit)</span>
-            <input data-property="threshold" data-type="int" data-min="-50" data-max="150" data-default="0" class="textinput prop" type="text" required>
+            <input data-property="threshold" data-type="int" data-default="0" class="textinput prop" type="number" min="-50" max="150" required>
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
@@ -243,7 +251,7 @@
     </form>
 </div>
 <div id="trigger_weather_popup" class="popup trigger_popup" tabindex="0">
-    <div class="popup_title">Weather Event - Trigger properties</div>
+    <div class="popup_title">Weather Event - Trigger Properties</div>
     <form>
         <div class="popup-field">
             <span class="popup-label">Campaign ID</span>
@@ -251,11 +259,11 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Retrigger Wait Period (min)</span>
-            <input data-property="rwp" data-type="int" class="textinput prop" type="text">
+            <input data-property="rwp" data-type="int" class="textinput prop" type="number" min="0">
         </div>
         <div class="popup-field">
             <span class="popup-label">Radius</span>
-            <input data-property="radius" data-type="float" class="textinput prop" type="text" required>
+            <input data-property="radius" data-type="float" class="textinput prop" type="number" min="0" step="0.25" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Rain</span>
@@ -278,7 +286,7 @@
             <input name="weather_event" value="weather_wind" data-property="type" type="radio" class="prop">
             <div class="popup-field subitem">
                 <span class="popup-label">Wind Speed Over</span>
-                <input data-property="windSpeed" data-type="int" data-min="0" data-max="200" data-default="25" class="textinput prop" type="text">
+                <input data-property="windSpeed" data-type="int" data-default="25" class="textinput prop" type="number" min="0" max="200">
             </div>
         </div>
         <div class="popup-field">

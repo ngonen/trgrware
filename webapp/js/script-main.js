@@ -113,6 +113,7 @@ function clearPopupFields() {
     $('.popup .additional').remove();
     $('.popup .prop').toArray().forEach(function(el) {
         switch (el.type) {
+            case "number":
             case "text":
                 if (el.dataset.default) {
                     el.value = el.dataset.default;
@@ -217,7 +218,7 @@ function removeAsset(asset) {
     var marker;
     hideMenu();
     if (asset.triggers.length) {
-        if (confirm("There are events attached to this asset.\nAre you sure you want to remove this asset?")) {
+        if (confirm("There Are Events Attached To This Asset.\nAre You Sure You Want To Remove This Asset?")) {
             sendAJAX("/demo/Default/DeleteAsset", { assetId: asset.id }, function(data) {
                 var response = JSON.parse(data);
                 if (response.status) {
@@ -231,7 +232,7 @@ function removeAsset(asset) {
                 }
             });
         }
-    } else if (confirm("Are you sure you want to remove this asset?")) {
+    } else if (confirm("Are You Sure You Want To Remove This Asset?")) {
         marker = markers.filter(function(m) { return m.title === asset.id; })[0];
         marker.setMap(null);
         markers.splice(markers.indexOf(marker), 1);
@@ -259,7 +260,7 @@ function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
 function onTriggerRemove(event) {
     var type = event.target.parentNode.dataset.type;
     hideMenu();
-    if (confirm("Are you sure you want to remove this trigger?")) {
+    if (confirm("Are You Sure You Want To Remove This Trigger?")) {
         removeTrigger(active_asset, type);
     }
     event.stopPropagation();
@@ -328,7 +329,7 @@ function updateTrigger() {
 
 function validate(popup) {
     var inputs = $(popup + " .prop").toArray(),
-        value, el, errorMessage, i, length;
+        value, el, errorMessage, i, length, min, max;
     for (i = 0, length = inputs.length; i < length; i++) {
         el = inputs[i];
         if (!el.disabled) {
@@ -378,12 +379,30 @@ function validate(popup) {
                     }
                     break;
             }
-            if (el.dataset.min && el.dataset.max && (value < parseInt(el.dataset.min) || value > parseInt(el.dataset.max))) {
-                errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number between " + el.dataset.min + " and " + el.dataset.max;
-                return {
-                    isValid: false,
-                    errorMessage: errorMessage
-                };
+            min = el.getAttribute("min");
+            max = el.getAttribute("max");
+            if (min || max) {
+                if (min && max && (value < parseInt(min) || value > parseInt(max))) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number between " + min + " and " + max;
+                    return {
+                        isValid: false,
+                        errorMessage: errorMessage
+                    };
+                }
+                if (min && (value < parseInt(min))) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number bigger than " + min;
+                    return {
+                        isValid: false,
+                        errorMessage: errorMessage
+                    };
+                }
+                if (max && (value > parseInt(max))) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number smaller than " + max;
+                    return {
+                        isValid: false,
+                        errorMessage: errorMessage
+                    };
+                }
             }
         }
     }
@@ -401,10 +420,10 @@ function getValue(input) {
     var value;
     switch (input.dataset.type) {
         case "int":
-            value = parseInt(input.value);
+            value = parseInt(input.value) || "";
             break;
         case "float":
-            value = parseFloat(input.value);
+            value = parseFloat(input.value) || "";
             break;
         default:
             value = input.value;
@@ -551,7 +570,7 @@ function showWeather(data) {
                     weatherStations.push(marker);
                 });
             } catch(err) {
-                console.log("Cannot parse responce");
+                console.log("Cannot parse responce.");
             }
         } else {
             console.log(response.errorMessage);
@@ -746,7 +765,7 @@ function checkEventType(type) {
 function addTwitterFields() {
     var content = "<div class='additional'><div class='popup-field'>" +
                   "<span class='popup-label'>Count</span>" +
-                  "<input data-property='count' data-type='int' class='textinput prop array-element' type='text' required>" +
+                  "<input data-property='count' data-type='int' class='textinput prop array-element' type='number' min='1' required>" +
                   "</div><div class='remove-fields cross'onclick='removeContainer(event)'></div>" +
                   "<div class='popup-field'>" +
                   "<span class='popup-label'>Campaign ID</span>" +
@@ -774,7 +793,7 @@ $(function() {
     // Make sure the device is registered
     if (!Inrix.hasConsumerId()) {
         Inrix.deviceRegister({registerError: function() {
-            alert('Error device registering');
+            alert('Error Device Registering');
         }});
     }
     google.maps.event.addListener(map, "bounds_changed", function() {
