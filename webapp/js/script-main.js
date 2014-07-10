@@ -143,7 +143,10 @@ function sendAJAX(url, data, callback, errorCallback) {
         type: "POST",
         data: data,
         success: callback,
-        error: errorCallback || function(error) { console.log(error.statusText + ": " + error.responseText); }
+        error: errorCallback || function(error) {
+            console.log(error.statusText + ": " + error.responseText);
+            alert(error.statusText);
+        }
     });
 }
 
@@ -177,12 +180,14 @@ function sendAssetUpdateRequest(asset, properties, updatedSID) {
         } else {
             marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
             console.log(response.errorMessage);
+            alert(response.errorMessage);
         }
     },
     function(error) {
         var marker = markers.filter(function(m) { return m.title === asset.id; })[0];
         marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
         console.log(error.statusText + ": " + error.responseText);
+        alert(error.statusText);
     });
 }
 
@@ -229,6 +234,7 @@ function removeAsset(asset) {
                     console.log(response.message);
                 } else {
                     console.log(response.errorMessage);
+                    alert(response.errorMessage);
                 }
             });
         }
@@ -253,6 +259,7 @@ function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
             console.log(response.message);
         } else {
             console.log(response.errorMessage);
+            alert(response.errorMessage);
         }
     });
 }
@@ -279,6 +286,7 @@ function removeTrigger(asset, eventType) {
             console.log(response.message);
         } else {
             console.log(response.errorMessage);
+            alert(response.errorMessage);
         }
     });
 }
@@ -590,10 +598,11 @@ function showWeather(data) {
                     weatherStations.push(marker);
                 });
             } catch(err) {
-                console.log("Cannot parse responce.");
+                console.log("Cannot parse response.");
             }
         } else {
             console.log(response.errorMessage);
+            alert(response.errorMessage);
         }
         $(".loading").removeClass("weather");
         if ($(".loading")[0].classList.length < 2) {
@@ -659,6 +668,7 @@ function getWeather() {
         if ($(".loading")[0].classList.length < 2) {
             $(".loading").hide();
         }
+        alert(error.statusText);
     });
 }
 
