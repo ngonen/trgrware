@@ -329,7 +329,7 @@ function updateTrigger() {
 
 function validate(popup) {
     var inputs = $(popup + " .prop").toArray(),
-        value, el, errorMessage, i, length;
+        value, el, errorMessage, i, length, min, max;
     for (i = 0, length = inputs.length; i < length; i++) {
         el = inputs[i];
         if (!el.disabled) {
@@ -379,12 +379,30 @@ function validate(popup) {
                     }
                     break;
             }
-            if (el.dataset.min && el.dataset.max && (value < parseInt(el.dataset.min) || value > parseInt(el.dataset.max))) {
-                errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number between " + el.dataset.min + " and " + el.dataset.max;
-                return {
-                    isValid: false,
-                    errorMessage: errorMessage
-                };
+            min = el.getAttribute("min");
+            max = el.getAttribute("max");
+            if (min || max) {
+                if (min && max && (value < parseInt(min) || value > parseInt(max))) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number between " + min + " and " + max;
+                    return {
+                        isValid: false,
+                        errorMessage: errorMessage
+                    };
+                }
+                if (min && (value < parseInt(min))) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number bigger than " + min;
+                    return {
+                        isValid: false,
+                        errorMessage: errorMessage
+                    };
+                }
+                if (max && (value > parseInt(max))) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number smaller than " + max;
+                    return {
+                        isValid: false,
+                        errorMessage: errorMessage
+                    };
+                }
             }
         }
     }

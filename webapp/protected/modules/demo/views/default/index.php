@@ -97,11 +97,11 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Lattitude</span>
-            <input data-property="lat" data-type="float" data-min="-90" data-max="90" class="textinput prop" type="number" min="-90" max="90" step="0.1" required>
+            <input data-property="lat" data-type="float" class="textinput prop" type="number" min="-90" max="90" step="0.1" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Longitude</span>
-            <input data-property="lng" data-type="float" data-min="-90" data-max="90" class="textinput prop" type="number" min="-90" max="90" step="0.1" required>
+            <input data-property="lng" data-type="float" class="textinput prop" type="number" min="-90" max="90" step="0.1" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Platform:</span>
@@ -181,7 +181,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Threshold (mph)</span>
-            <input data-property="threshold" data-type="int" data-min="0" data-max="200" data-default="25" class="textinput prop" type="number" min="0" max="200" required>
+            <input data-property="threshold" data-type="int" data-default="25" class="textinput prop" type="number" min="0" max="200" required>
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
@@ -241,7 +241,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Threshold (fahrenheit)</span>
-            <input data-property="threshold" data-type="int" data-min="-50" data-max="150" data-default="0" class="textinput prop" type="number" min="-50" max="150" required>
+            <input data-property="threshold" data-type="int" data-default="0" class="textinput prop" type="number" min="-50" max="150" required>
         </div>
         <div class="popup-field error"></div>
         <div class="buttons-block">
@@ -286,7 +286,7 @@
             <input name="weather_event" value="weather_wind" data-property="type" type="radio" class="prop">
             <div class="popup-field subitem">
                 <span class="popup-label">Wind Speed Over</span>
-                <input data-property="windSpeed" data-type="int" data-min="0" data-max="200" data-default="25" class="textinput prop" type="number" min="0" max="200">
+                <input data-property="windSpeed" data-type="int" data-default="25" class="textinput prop" type="number" min="0" max="200">
             </div>
         </div>
         <div class="popup-field">
