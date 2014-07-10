@@ -6,10 +6,9 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action WeatherNotifier started.");
 
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = $this->getStreamContextForPlanText();
 
         if (is_file($filePath)) {
-            $subscribers = unserialize(file_get_contents($filePath, 0, $ctx))[IDemoBaseController::WEATHER_TEMPERATURE];
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::WEATHER_TEMPERATURE);
             $count = count($subscribers);
 
             if ($count) {
@@ -64,10 +63,9 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action IncidentsNotifier started.");
 
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = $this->getStreamContextForPlanText();
 
         if (is_file($filePath)) {
-            $subscribers = unserialize(file_get_contents($filePath, 0, $ctx))[IDemoBaseController::TRAFFIC_INCIDENTS];
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::TRAFFIC_INCIDENTS);
             $count = count($subscribers);
 
             if ($count) {
@@ -108,10 +106,9 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action SpeedNotifier started.");
 
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = $this->getStreamContextForPlanText();
 
         if (is_file($filePath)) {
-            $subscribers =  unserialize(file_get_contents($filePath, 0, $ctx))[IDemoBaseController::TRAFFIC_FLOW];
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::TRAFFIC_FLOW);
             $count = count($subscribers);
 
             if ($count) {
@@ -165,10 +162,9 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action TwitterHashTagNotifier started.");
 
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = $this->getStreamContextForPlanText();
 
         if (is_file($filePath)) {
-            $subscribers =  unserialize(file_get_contents($filePath, 0, $ctx))[IDemoBaseController::TWITTER_HASH_TAG];
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::TWITTER_HASH_TAG);
             $count = count($subscribers);
 
             if ($count) {
@@ -212,10 +208,9 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action WeatherWindNotifier started.");
 
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = $this->getStreamContextForPlanText();
 
         if (is_file($filePath)) {
-            $subscribers = unserialize(file_get_contents($filePath, 0, $ctx))[IDemoBaseController::WEATHER_WIND_SPEED];
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::WEATHER_WIND_SPEED);
             $count = count($subscribers);
 
             if ($count) {
@@ -262,5 +257,15 @@ class CronController extends IDemoBaseController
         }
 
         syslog(LOG_INFO, "Action WeatherWindNotifier finished.");
+    }
+
+
+
+
+
+    private function getSubscribers($filePath, $type) {
+        $ctx = $this->getStreamContextForPlanText();
+
+        return unserialize(file_get_contents($filePath, 0, $ctx))[$type];
     }
 }

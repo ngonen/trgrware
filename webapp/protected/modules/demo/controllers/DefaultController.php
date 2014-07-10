@@ -290,10 +290,12 @@ class DefaultController extends IDemoBaseController
             foreach ($fc as $key => $value) {
                 foreach ($value as $i => $item) {
                     if ($item['id'] == $assetId) {
-                        if ($events && $key == IDemoBaseController::TWITTER_HASH_TAG) {
-                            krsort($events[IDemoBaseController::TWITTER_HASH_TAG]);
+                        if ($key == IDemoBaseController::TWITTER_HASH_TAG) {
+                            if ($events) {
+                                krsort($events[IDemoBaseController::TWITTER_HASH_TAG]);
 
-                            $fc[$key][$i]['campaigns'] = $events[IDemoBaseController::TWITTER_HASH_TAG];
+                                $fc[$key][$i]['campaigns'] = $events[IDemoBaseController::TWITTER_HASH_TAG];
+                            }
                         } else {
                             $fc[$key][$i]['center'] = $center;
 
@@ -312,6 +314,7 @@ class DefaultController extends IDemoBaseController
                 $response["message"] = "Your asset has been successfully updated.";
                 $response["statistic"] = $this->getStatistic($fc);
                 $response["content"] = $fc;
+                $response["assetId"] = $assetId;
             } else {
                 $response["errorMessage"] = "Error when tried to store event.";
             }
