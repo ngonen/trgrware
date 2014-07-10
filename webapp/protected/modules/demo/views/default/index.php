@@ -101,7 +101,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Longitude</span>
-            <input data-property="lng" data-type="float" class="textinput prop" type="number" min="-90" max="90" step="any" required>
+            <input data-property="lng" data-type="float" class="textinput prop" type="number" min="-180" max="180" step="any" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Platform:</span>
