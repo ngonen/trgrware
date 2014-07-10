@@ -417,13 +417,15 @@ function validate(popup) {
 }
 
 function getValue(input) {
-    var value;
+    var value, result;
     switch (input.dataset.type) {
         case "int":
-            value = parseInt(input.value) || "";
+            result = parseInt(input.value);
+            value = (result !== NaN) ? result : "";
             break;
         case "float":
-            value = parseFloat(input.value) || "";
+            result = parseFloat(input.value);
+            value = (result !== NaN) ? result : "";
             break;
         default:
             value = input.value;
