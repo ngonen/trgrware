@@ -19,7 +19,7 @@ function Trigger(properties) {
             assetId: _self.asset_id,
             center: asset.lat + "|" + asset.lng,
             callbackURL: _self.getURL(asset.sid, properties.cid),
-            eventType: _self.type
+            eventType: properties.type
         };
     };
     
@@ -176,6 +176,9 @@ function WeatherEventTrigger(properties) {
         }
         if (properties.windSpeed) {
             data.speed = properties.windSpeed;
+        }
+        if (properties.removePrevious) {
+            data.delete = _self.type;
         }
         return data;
     };

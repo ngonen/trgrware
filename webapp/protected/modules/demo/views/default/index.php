@@ -283,7 +283,7 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Thunder Storm</span>
-            <input name="weather_event" value="weather_thunderStorm" data-property="type" type="radio" class="prop">
+            <input name="weather_event" value="weather_thunder_storm" data-property="type" type="radio" class="prop">
         </div>
         <div class="popup-field">
             <span class="popup-label">Windy</span>
@@ -295,10 +295,10 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Storm (Generic)</span>
-            <input name="weather_event" value="weather_storm" data-property="type" type="radio" class="prop">
+            <input name="weather_event" value="weather_storm" data-property="type" type="radio" class="prop" disabled>
             <div class="popup-field subitem">
                 <span class="popup-label">Severity</span>
-                <select data-property="stormSeverity" class="drop-down prop">
+                <select data-property="stormSeverity" class="drop-down prop" disabled>
                     <option value="All">All</option>
                 </select>
             </div>

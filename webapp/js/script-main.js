@@ -28,7 +28,7 @@ var EVENT_TYPES = {
     RAIN: "weather_rain",
     SUN: "weather_sun",
     SNOW: "weather_snow",
-    THUNDER_STORM: "weather_thunderStorm",
+    THUNDER_STORM: "weather_thunder_storm",
     STORM: "weather_storm",
     TWITTER: "twitter_hash_tag"
 };
@@ -293,12 +293,11 @@ function updateTrigger() {
         properties.asset_id = active_asset.id;
         trigger = active_asset.triggers.filter(function(trigger) { return checkEventType(trigger.type) === trigger_type; })[0];
         if (trigger) {
-            if (checkEventType(trigger.type) === EVENT_TYPES.WEATHER_EVENT && properties.type !== EVENT_TYPES.WIND) { //temporary
-                removeTrigger(active_asset, EVENT_TYPES.WEATHER_EVENT);
-            } else {
-                //change trigger properties
-                sendTriggerUpdateRequest(active_asset, trigger, properties, false);
+            if (checkEventType(trigger.type) === EVENT_TYPES.WEATHER_EVENT && properties.type !== trigger.type) {
+                properties.removePrevious = true;
             }
+            //change trigger properties
+            sendTriggerUpdateRequest(active_asset, trigger, properties, false);
         } else {
             //create trigger
             switch (trigger_type) {
