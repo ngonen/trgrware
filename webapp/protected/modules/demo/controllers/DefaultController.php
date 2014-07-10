@@ -290,7 +290,7 @@ class DefaultController extends IDemoBaseController
             foreach ($fc as $key => $value) {
                 foreach ($value as $i => $item) {
                     if ($item['id'] == $assetId) {
-                        if ($key == IDemoBaseController::TWITTER_HASH_TAG) {
+                        if ($events && $key == IDemoBaseController::TWITTER_HASH_TAG) {
                             krsort($events[IDemoBaseController::TWITTER_HASH_TAG]);
 
                             $fc[$key][$i]['campaigns'] = $events[IDemoBaseController::TWITTER_HASH_TAG];
@@ -466,7 +466,8 @@ class DefaultController extends IDemoBaseController
                 krsort($campaigns);
 
 //                $params['retriggerPeriod'] = Yii::app()->request->getParam('retriggerPeriod');
-                $params['hashtag'] = Yii::app()->request->getParam('hashtag');
+                $params['hashTag'] = Yii::app()->request->getParam('hashTag');
+                $params['userName'] = Yii::app()->request->getParam('userName');
                 $params['campaigns'] = $campaigns;
 
                 break;

@@ -188,7 +188,7 @@ class CronController extends IDemoBaseController
                                 file_get_contents($campaign['url'], false, $streamContext);
 
                                 syslog(LOG_INFO, "[Twitter hashtag] Request '" . $key . "' for asset "
-                                    . $subscriber['id'] . ", hashtag " . $subscriber['hashtag'] . ", count "
+                                    . $subscriber['id'] . ", hashtag " . $subscriber['hashTag'] . ", count "
                                     . $c . " has been sent to url " . $campaign['url']);
 
                                 break;
