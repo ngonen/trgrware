@@ -399,14 +399,14 @@ function validate(popup) {
                     };
                 }
                 if (min && (value < parseInt(min))) {
-                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number bigger than " + min;
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number equals or greater than " + min;
                     return {
                         isValid: false,
                         errorMessage: errorMessage
                     };
                 }
                 if (max && (value > parseInt(max))) {
-                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number smaller than " + max;
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number equals or less than " + max;
                     return {
                         isValid: false,
                         errorMessage: errorMessage
