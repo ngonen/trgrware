@@ -108,6 +108,7 @@ class DefaultController extends IDemoBaseController
 
         if ($status) {
             $response["status"] = $status;
+            $response['message'] = "Weather stations were successfully returned.";
             $response["refreshKey"] = $refreshKey;
             $response["weather"] = $resultXML->asXML();
         } else {
