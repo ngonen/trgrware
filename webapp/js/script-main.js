@@ -447,11 +447,11 @@ function getValue(input) {
     switch (input.dataset.type) {
         case "int":
             result = parseInt(input.value);
-            value = (result !== NaN) ? result : "";
+            value = isNaN(result) ? "" : result;
             break;
         case "float":
             result = parseFloat(input.value);
-            value = (result !== NaN) ? result : "";
+            value = isNaN(result) ? "" : result;
             break;
         default:
             value = input.value;
@@ -532,7 +532,7 @@ function showIncidents(incidents) {
                 title: 'incident'
             });
             google.maps.event.addListener(marker, "mouseover", function() {
-                var description = incident.fullDesc ? incident.fullDesc : "No description."
+                var description = incident.fullDesc ? incident.fullDesc : "No description.";
                 if (!contextMenuIsOpen) {
                     infoWindow.setContent("<div class='infowindow_content'>" + description + "</div>");
                     infoWindow.open(map, this);
@@ -586,7 +586,8 @@ function showWeather(data) {
                                                   "<p>Humidity:    " + station.Current[0].Humidity[0]._attr.relative._value + "%</p>" +
                                                   "<p>Temperature: " + temperature + "\u00B0F</p>" +
                                                   "<p>Pressure:    " + station.Current[0].Pressure[0]._attr.actual._value + " mbar</p>" +
-                                                  "<p>Wind speed:  " + station.Current[0].Wind[0]._attr.speed._value + " mph</p>"
+                                                  "<p>Wind speed:  " + station.Current[0].Wind[0]._attr.speed._value + " mph</p>" +
+                                                  "<p>Sky:         " + station.Current[0].Sky[0]._attr.description._value + "</p>"
                                                   );
                              infoWindow.open(map, this);
                         }
