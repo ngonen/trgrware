@@ -31,10 +31,16 @@
             <img src="img/temp@2x.png" width="18" height="18" class="item" data-type="weather_temperature" draggable="true"/>Temperature
         </div>
         <div class="list_item">
+            <img src="img/sun.png" width="18" height="18" class="item" data-type="weather_sun" draggable="true"/>Sun
+        </div>
+        <div class="list_item">
+            <img src="img/cloud.png" width="18" height="18" class="item" data-type="weather_cloud" draggable="true"/>Clouds
+        </div>
+        <div class="list_item">
             <img src="img/rain.png" width="18" height="18" class="item" data-type="weather_rain" draggable="true"/>Rain
         </div>
         <div class="list_item">
-            <img src="img/storm.jpg" width="18" height="18" class="item" data-type="weather_storm" draggable="true"/>Storm
+            <img src="img/storm.jpg" width="18" height="18" class="item" data-type="weather_thunder_storm" draggable="true"/>Thunderstorm
         </div>
         <div class="list_item">
             <img src="img/snowflake.jpg" width="18" height="18" class="item" data-type="weather_snow" draggable="true"/>Snow
