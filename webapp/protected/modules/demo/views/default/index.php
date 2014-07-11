@@ -31,10 +31,10 @@
             <img src="img/temp@2x.png" width="18" height="18" class="item" data-type="weather_temperature" draggable="true"/>Temperature
         </div>
         <div class="list_item">
-            <img src="img/sun.png" width="18" height="18" class="item" data-type="weather_sun" draggable="true"/>Sun
+            <img src="img/sun.png" width="18" height="18" class="item" data-type="weather_sun" draggable="true"/>Sunny
         </div>
         <div class="list_item">
-            <img src="img/cloud.png" width="18" height="18" class="item" data-type="weather_cloud" draggable="true"/>Clouds
+            <img src="img/cloud.png" width="18" height="18" class="item" data-type="weather_cloud" draggable="true"/>Cloudy
         </div>
         <div class="list_item">
             <img src="img/rain.png" width="18" height="18" class="item" data-type="weather_rain" draggable="true"/>Rain
@@ -46,7 +46,7 @@
             <img src="img/snowflake.jpg" width="18" height="18" class="item" data-type="weather_snow" draggable="true"/>Snow
         </div>
         <div class="list_item">
-            <img src="img/cloud-wind.png" width="18" height="18" class="item" data-type="weather_wind" draggable="true"/>Wind
+            <img src="img/cloud-wind.png" width="18" height="18" class="item" data-type="weather_wind" draggable="true"/>Windy
         </div>
         <div class="list_item">
             <img src="img/twitter.jpg" width="18" height="18" class="item" data-type="twitter_hash_tag" draggable="true"/>Twitter

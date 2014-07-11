@@ -249,9 +249,14 @@ function removeAsset(asset) {
 function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
     var url = isNewTrigger ? "/demo/Default/RegisterEvent" : "/demo/Default/UpdateEvent";
     sendAJAX(url, trigger.getData(properties), function(data) {
-        var response = JSON.parse(data);
+        var response = JSON.parse(data),
+            marker;
         if (response.status) {
             if (isNewTrigger) {
+                if (!asset.triggers.length) {
+                    marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+                    marker.setIcon("img/trgrware_screen_pin.png");
+                }
                 asset.triggers.push(trigger);
             } else {
                 trigger.setProperties(properties);
@@ -280,9 +285,14 @@ function removeTrigger(asset, eventType) {
         eventType: trigger.type
     };
     sendAJAX("/demo/Default/DeleteEvent", data, function(data) {
-        var response = JSON.parse(data);
+        var response = JSON.parse(data),
+            marker;
         if (response.status) {
             asset.triggers.splice(asset.triggers.indexOf(trigger), 1);
+            if (!asset.triggers.length) {
+                marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+                marker.setIcon("img/screen_pin.png");
+            }
             console.log(response.message);
         } else {
             console.log(response.errorMessage);
