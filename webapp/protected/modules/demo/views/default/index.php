@@ -282,6 +282,10 @@
             <input name="weather_event" value="weather_sun" data-property="type" type="radio" class="prop">
         </div>
         <div class="popup-field">
+            <span class="popup-label">Cloudly</span>
+            <input name="weather_event" value="weather_cloud" data-property="type" type="radio" class="prop">
+        </div>
+        <div class="popup-field">
             <span class="popup-label">Thunder Storm</span>
             <input name="weather_event" value="weather_thunder_storm" data-property="type" type="radio" class="prop">
         </div>

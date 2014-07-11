@@ -26,6 +26,7 @@ var EVENT_TYPES = {
     WIND: "weather_wind",
     RAIN: "weather_rain",
     SUN: "weather_sun",
+    CLOUD: "weather_cloud",
     SNOW: "weather_snow",
     THUNDER_STORM: "weather_thunder_storm",
     STORM: "weather_storm",
@@ -770,6 +771,7 @@ function getType(trigger_type) {
         case EVENT_TYPES.THUNDER_STORM:
         case EVENT_TYPES.WIND:
         case EVENT_TYPES.STORM:
+        case EVENT_TYPES.CLOUD:
             type = "Weather Event";
             break;
     }
@@ -778,7 +780,7 @@ function getType(trigger_type) {
 
 function checkEventType(type) {
     var eventType;
-    if ([EVENT_TYPES.RAIN, EVENT_TYPES.SUN, EVENT_TYPES.SNOW, EVENT_TYPES.THUNDER_STORM, EVENT_TYPES.WIND, EVENT_TYPES.STORM].indexOf(type) !== -1) {
+    if ([EVENT_TYPES.RAIN, EVENT_TYPES.SUN, EVENT_TYPES.CLOUD, EVENT_TYPES.SNOW, EVENT_TYPES.THUNDER_STORM, EVENT_TYPES.WIND, EVENT_TYPES.STORM].indexOf(type) !== -1) {
         eventType = EVENT_TYPES.WEATHER_EVENT;
     } else {
         eventType = type;
