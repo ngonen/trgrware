@@ -576,14 +576,16 @@ function showWeather(data) {
                         title: "weather station"
                     });
                     google.maps.event.addListener(marker, "click", function() {
+                        var sky_desc;
                         if (!contextMenuIsOpen) {
-                            infoWindow.setContent("<p>Station:     " + station._attr.name._value + "</p>" +
-                                                  "<p>Elevation:   " + station._attr.elevation._value + " yd</p>" +
-                                                  "<p>Humidity:    " + station.Current[0].Humidity[0]._attr.relative._value + "%</p>" +
+                            sky_desc = station.Current[0].Sky[0]._attr.description._value;
+                            infoWindow.setContent("<p class='infowindow_title'>" + station._attr.name._value + "</p>" +
+                                                  "<p>Elevation: " + station._attr.elevation._value + " yd</p>" +
+                                                  "<p>Humidity: " + station.Current[0].Humidity[0]._attr.relative._value + "%</p>" +
                                                   "<p>Temperature: " + temperature + "\u00B0F</p>" +
-                                                  "<p>Pressure:    " + station.Current[0].Pressure[0]._attr.actual._value + " mbar</p>" +
-                                                  "<p>Wind speed:  " + station.Current[0].Wind[0]._attr.speed._value + " mph</p>" +
-                                                  "<p>Sky:         " + station.Current[0].Sky[0]._attr.description._value + "</p>"
+                                                  "<p>Pressure: " + station.Current[0].Pressure[0]._attr.actual._value + " mbar</p>" +
+                                                  "<p>Wind speed: " + station.Current[0].Wind[0]._attr.speed._value + " mph</p>" +
+                                                  "<p class='weather_info " + sky_desc.replace(" ", "_").toLowerCase() + "'>" + sky_desc + "</p>"
                                                   );
                              infoWindow.open(map, this);
                         }
@@ -744,7 +746,7 @@ function autoUpdateMap() {
         getMapInfo();
         autoUpdateMap();
     }   
-    updateMap = setTimeout(update, 60000);
+    updateMap = setTimeout(update, 120000);
 }
 
 function getType(trigger_type) {
