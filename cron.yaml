@@ -1,36 +1,40 @@
 cron:
-#- description: Notifier for weather subscribers
-#  url: /demo/Cron/WeatherTemperatureNotifier
-#  schedule: every 1 mins
-#
-#- description: Notifier for Speed subscribers
-#  url: /demo/Cron/TrafficSpeedNotifier
-#  schedule: every 2 mins
-#
-#- description: Notifier for Wind subscribers
-#  url: /demo/Cron/WeatherWindSpeedNotifier
-#  schedule: every 3 mins
-#
-#- description: Notifier for Sun subscribers
-#  url: /demo/Cron/WeatherSunNotifier
-#  schedule: every 3 mins
-#
-#- description: Notifier for Rain subscribers
-#  url: /demo/Cron/WeatherRainNotifier
-#  schedule: every 3 mins
-#
-#- description: Notifier for Snow subscribers
-#  url: /demo/Cron/WeatherSnowNotifier
-#  schedule: every 3 mins
-#
-#- description: Notifier for Thunderstorms subscribers
-#  url: /demo/Cron/WeatherThunderstormsNotifier
-#  schedule: every 3 mins
-#
-#- description: Notifier for Twitter tag subscribers
-#  url: /demo/Cron/TwitterHashTagNotifier
-#  schedule: every 4 mins
-#
-#- description: Notifier for incident subscribers
-#  url: /demo/Cron/TrafficIncidentsNotifier
-#  schedule: every 5 mins
+- description: Notifier for weather subscribers
+  url: /demo/Cron/WeatherTemperatureNotifier
+  schedule: every 1 mins
+
+- description: Notifier for Speed subscribers
+  url: /demo/Cron/TrafficSpeedNotifier
+  schedule: every 2 mins
+
+- description: Notifier for Wind subscribers
+  url: /demo/Cron/WeatherWindSpeedNotifier
+  schedule: every 3 mins
+
+- description: Notifier for Sun subscribers
+  url: /demo/Cron/WeatherSunNotifier
+  schedule: every 3 mins
+
+- description: Notifier for Cloudy subscribers
+  url: /demo/Cron/WeatherCloudyNotifier
+  schedule: every 3 mins
+
+- description: Notifier for Rain subscribers
+  url: /demo/Cron/WeatherRainNotifier
+  schedule: every 3 mins
+
+- description: Notifier for Snow subscribers
+  url: /demo/Cron/WeatherSnowNotifier
+  schedule: every 3 mins
+
+- description: Notifier for Thunderstorms subscribers
+  url: /demo/Cron/WeatherThunderstormsNotifier
+  schedule: every 3 mins
+
+- description: Notifier for Twitter tag subscribers
+  url: /demo/Cron/TwitterHashTagNotifier
+  schedule: every 4 mins
+
+- description: Notifier for incident subscribers
+  url: /demo/Cron/TrafficIncidentsNotifier
+  schedule: every 5 mins

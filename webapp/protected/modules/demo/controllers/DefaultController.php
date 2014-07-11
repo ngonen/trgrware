@@ -480,7 +480,8 @@ class DefaultController extends IDemoBaseController
             case IDemoBaseController::WEATHER_RAIN:
             case IDemoBaseController::WEATHER_SNOW:
             case IDemoBaseController::WEATHER_STORM:
-            case IDemoBaseController::WEATHER_SUN:
+            case IDemoBaseController::WEATHER_SUNNY:
+            case IDemoBaseController::WEATHER_CLOUDY:
             case IDemoBaseController::WEATHER_THUNDER_STORM: {
                 break;
             }
@@ -510,7 +511,8 @@ class DefaultController extends IDemoBaseController
             IDemoBaseController::WEATHER_RAIN => [],
             IDemoBaseController::WEATHER_SNOW => [],
             IDemoBaseController::WEATHER_STORM => [],
-            IDemoBaseController::WEATHER_SUN => [],
+            IDemoBaseController::WEATHER_SUNNY => [],
+            IDemoBaseController::WEATHER_CLOUDY => [],
             IDemoBaseController::WEATHER_THUNDER_STORM => [],
             IDemoBaseController::TRAFFIC_INCIDENTS => [],
             IDemoBaseController::TRAFFIC_FLOW => [],
@@ -539,7 +541,8 @@ class DefaultController extends IDemoBaseController
             IDemoBaseController::WEATHER_RAIN => count($fc[IDemoBaseController::WEATHER_RAIN]),
             IDemoBaseController::WEATHER_SNOW => count($fc[IDemoBaseController::WEATHER_SNOW]),
             IDemoBaseController::WEATHER_STORM => count($fc[IDemoBaseController::WEATHER_STORM]),
-            IDemoBaseController::WEATHER_SUN => count($fc[IDemoBaseController::WEATHER_SUN]),
+            IDemoBaseController::WEATHER_SUNNY => count($fc[IDemoBaseController::WEATHER_SUNNY]),
+            IDemoBaseController::WEATHER_CLOUDY => count($fc[IDemoBaseController::WEATHER_CLOUDY]),
             IDemoBaseController::WEATHER_THUNDER_STORM => count($fc[IDemoBaseController::WEATHER_THUNDER_STORM]),
             IDemoBaseController::TRAFFIC_INCIDENTS => count($fc[IDemoBaseController::TRAFFIC_INCIDENTS]),
             IDemoBaseController::TRAFFIC_FLOW => count($fc[IDemoBaseController::TRAFFIC_FLOW]),

@@ -266,7 +266,7 @@ class CronController extends IDemoBaseController
         $filePath = Yii::app()->params['eventStoragePath'];
 
         if (is_file($filePath)) {
-            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::WEATHER_SUN);
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::WEATHER_SUNNY);
             $count = count($subscribers);
 
             if ($count) {
@@ -286,11 +286,12 @@ class CronController extends IDemoBaseController
 
                         if ($result->Weather && $result->Weather->Conditions) {
                             foreach ($result->Weather->Conditions->Station as $k => $station) {
-                                $actualSunValue = $station->Current->Sun->attributes()['uvIndex'];
+                                $sky = $station->Current->Sky->attributes()['description'];
+                                $contain = strpos($sky, IDemoBaseController::SKY_SUNNY);
 
-                                syslog(LOG_INFO, "Sun value: " . $actualSunValue);
+                                syslog(LOG_INFO, "Sun value: " . $sky);
 
-                                if ($actualSunValue > 0) {
+                                if ($contain !== false && $contain >= 0) {
                                     file_get_contents($subscriber["url"], false, $streamContext);
 
                                     syslog(LOG_INFO, "[Weather Sun] Request '" . $key . "' for asset "
@@ -455,10 +456,11 @@ class CronController extends IDemoBaseController
                             foreach ($result->Weather->Conditions->Station as $k => $station) {
                                 $sky = $station->Current->Sky->attributes()['description'];
                                 $contain = strpos($sky, IDemoBaseController::SKY_THUNDERSTORMS);
+                                $contain_t = strpos($sky, IDemoBaseController::SKY_T_STORM);
 
                                 syslog(LOG_INFO, "Sky value: " . $sky);
 
-                                if ($contain !== false && $contain >= 0) {
+                                if (($contain !== false && $contain >= 0) || ($contain_t !== false && $contain_t >= 0)) {
                                     file_get_contents($subscriber["url"], false, $streamContext);
 
                                     syslog(LOG_INFO, "[Weather Thunderstorms] Request '" . $key . "' for asset "
@@ -480,6 +482,62 @@ class CronController extends IDemoBaseController
         }
 
         syslog(LOG_INFO, "Action WeatherThunderstormsNotifier finished.");
+    }
+
+    // TODO: Test
+    public function actionWeatherCloudyNotifier() {
+        syslog(LOG_INFO, "Action WeatherCloudyNotifier started.");
+
+        $filePath = Yii::app()->params['eventStoragePath'];
+
+        if (is_file($filePath)) {
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::WEATHER_CLOUDY);
+            $count = count($subscribers);
+
+            if ($count) {
+                syslog(LOG_INFO, "Count of subscribers for 'Weather Cloudy': " . $count);
+
+                $streamContext = $this->getStreamContext();
+                $securityToken = $this->getSecurityToken();
+
+                if (!$securityToken) {
+                    syslog(LOG_WARNING, "Cannot get security token.");
+                } else {
+                    syslog(LOG_INFO, "Start loop subscribers.");
+
+                    foreach ($subscribers as $key => $subscriber) {
+                        $result = $this->getWeatherInRadius($subscriber['center'], $subscriber['radius'],
+                            $securityToken);
+
+                        if ($result->Weather && $result->Weather->Conditions) {
+                            foreach ($result->Weather->Conditions->Station as $k => $station) {
+                                $sky = $station->Current->Sky->attributes()['description'];
+                                $contain = strpos($sky, IDemoBaseController::SKY_CLOUDY);
+
+                                syslog(LOG_INFO, "Sun value: " . $sky);
+
+                                if ($contain !== false && $contain >= 0) {
+                                    file_get_contents($subscriber["url"], false, $streamContext);
+
+                                    syslog(LOG_INFO, "[Weather Cloudy] Request '" . $key . "' for asset "
+                                        . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+
+                                    break;
+                                }
+                            }
+                        } else {
+                            syslog(LOG_INFO, "Result is empty.");
+                        }
+                    }
+                }
+            } else {
+                syslog(LOG_INFO, "Subscribers for 'Weather Cloudy' event were not found.");
+            }
+        } else {
+            syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
+        }
+
+        syslog(LOG_INFO, "Action WeatherCloudyNotifier finished.");
     }
 
 

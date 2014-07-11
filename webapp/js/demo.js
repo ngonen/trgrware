@@ -431,5 +431,9 @@
     $(document).on("click", "#BtnCronTestThunderstorms", function() {
         runCronJob('/demo/Cron/WeatherThunderstormsNotifier');
     });
+
+    $(document).on("click", "#BtnCronTestCloudy", function() {
+        runCronJob('/demo/Cron/WeatherCloudyNotifier');
+    });
 })();
 

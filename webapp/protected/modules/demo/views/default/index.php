@@ -406,6 +406,7 @@
         <button id="BtnCronTestSnow">Snow</button>
         <button id="BtnCronTestRain">Rain</button>
         <button id="BtnCronTestWind">Wind</button>
+        <button id="BtnCronTestCloudy">Cloudy</button>
     </div>
 
     <div style="border: 1px solid; margin: 10px 0;">
