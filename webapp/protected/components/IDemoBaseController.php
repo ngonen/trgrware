@@ -13,6 +13,9 @@ abstract class IDemoBaseController extends Controller {
     const TWITTER_HASH_TAG = "twitter_hash_tag";
     const OVER = "Over";
     const UNDER = "Under";
+    const SKY_RAIN = "Rain";
+    const SKY_SNOW = "Snow";
+    const SKY_THUNDERSTORMS = "storm"; // "Thunderstorms";
 
     /**
      * Get Security Token for vendor

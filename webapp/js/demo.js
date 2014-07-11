@@ -101,6 +101,24 @@
         });
     }
 
+    function runCronJob(url) {
+        $.ajax({
+            url: url,
+            beforeSend: function() {
+                $("#Loader").css({ 'display': 'block' });
+            },
+            complete: function() {
+                $("#Loader").hide();
+            },
+            error: function(error) {
+                alert(error.msg || error.message || "Unexpected error.");
+            },
+            success: function(data) {
+//                var response = JSON.parse(data);
+            }
+        });
+    }
+
     $(document).on("click", "#GetIncidentInfo", function() {
         var data = {
             center: "34.014|-118.2869",
@@ -396,6 +414,22 @@
             };
 
         deleteAssetInfo(url, data);
+    });
+
+    $(document).on("click", "#BtnCronTestSun", function() {
+        runCronJob('/demo/Cron/WeatherSunNotifier');
+    });
+
+    $(document).on("click", "#BtnCronTestRain", function() {
+        runCronJob('/demo/Cron/WeatherRainNotifier');
+    });
+
+    $(document).on("click", "#BtnCronTestSnow", function() {
+        runCronJob('/demo/Cron/WeatherSnowNotifier');
+    });
+
+    $(document).on("click", "#BtnCronTestThunderstorms", function() {
+        runCronJob('/demo/Cron/WeatherThunderstormsNotifier');
     });
 })();
 

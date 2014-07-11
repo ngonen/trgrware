@@ -12,7 +12,7 @@ class CronController extends IDemoBaseController
             $count = count($subscribers);
 
             if ($count) {
-                syslog(LOG_WARNING, "Count of subscribers for 'weather temperature': " . $count);
+                syslog(LOG_WARNING, "Count of subscribers for 'Weather Temperature': " . $count);
 
                 $streamContext = $this->getStreamContext();
                 $securityToken = $this->getSecurityToken();
@@ -50,7 +50,7 @@ class CronController extends IDemoBaseController
                     }
                 }
             } else {
-                syslog(LOG_INFO, "Subscribers for weather temperature were not found.");
+                syslog(LOG_INFO, "Subscribers for 'Weather temperature' were not found.");
             }
         } else {
             syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
@@ -69,7 +69,7 @@ class CronController extends IDemoBaseController
             $count = count($subscribers);
 
             if ($count) {
-                syslog(LOG_WARNING, "Count of subscribers for 'traffic incident': " . $count);
+                syslog(LOG_WARNING, "Count of subscribers for 'Traffic Incident': " . $count);
 
                 $streamContext = $this->getStreamContext();
                 $securityToken = $this->getSecurityToken();
@@ -93,7 +93,7 @@ class CronController extends IDemoBaseController
                     }
                 }
             } else {
-                syslog(LOG_INFO, "Subscribers for traffic incidents were not found.");
+                syslog(LOG_INFO, "Subscribers for 'Traffic Incidents' were not found.");
             }
         } else {
             syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
@@ -112,7 +112,7 @@ class CronController extends IDemoBaseController
             $count = count($subscribers);
 
             if ($count) {
-                syslog(LOG_WARNING, "Count of subscribers for 'traffic speed': " . $count);
+                syslog(LOG_WARNING, "Count of subscribers for 'Traffic Speed': " . $count);
 
                 $streamContext = $this->getStreamContext();
                 $securityToken = $this->getSecurityToken();
@@ -147,7 +147,7 @@ class CronController extends IDemoBaseController
                     }
                 }
             } else {
-                syslog(LOG_INFO, "Subscribers for 'traffic speed' were not found.");
+                syslog(LOG_INFO, "Subscribers for 'Traffic Speed' were not found.");
             }
         } else {
             syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
@@ -214,7 +214,7 @@ class CronController extends IDemoBaseController
             $count = count($subscribers);
 
             if ($count) {
-                syslog(LOG_INFO, "Count of subscribers for 'Weather wind speed': " . $count);
+                syslog(LOG_INFO, "Count of subscribers for 'Weather Wind Speed': " . $count);
 
                 $streamContext = $this->getStreamContext();
                 $securityToken = $this->getSecurityToken();
@@ -232,8 +232,8 @@ class CronController extends IDemoBaseController
                             foreach ($result->Weather->Conditions->Station as $k => $station) {
                                 $actualSpeed = $station->Current->Wind->attributes()['speed'];
 
-                                syslog(LOG_INFO, "Actual speed: " . $actualSpeed . ", expected speed: "
-                                    . $subscriber['speed']);
+                                syslog(LOG_INFO, "Actual speed: " . $actualSpeed . "mph, expected speed: "
+                                    . $subscriber['speed'] . "mph");
 
                                 if ($subscriber['speed'] && $actualSpeed >= $subscriber['speed']) {
                                     file_get_contents($subscriber["url"], false, $streamContext);
@@ -250,13 +250,236 @@ class CronController extends IDemoBaseController
                     }
                 }
             } else {
-                syslog(LOG_INFO, "Subscribers for weather temperature were not found.");
+                syslog(LOG_INFO, "Subscribers for 'Weather wind speed' were not found.");
             }
         } else {
             syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
         }
 
         syslog(LOG_INFO, "Action WeatherWindNotifier finished.");
+    }
+
+    // TODO: Test
+    public function actionWeatherSunNotifier() {
+        syslog(LOG_INFO, "Action WeatherSunNotifier started.");
+
+        $filePath = Yii::app()->params['eventStoragePath'];
+
+        if (is_file($filePath)) {
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::WEATHER_SUN);
+            $count = count($subscribers);
+
+            if ($count) {
+                syslog(LOG_INFO, "Count of subscribers for 'Weather Sun': " . $count);
+
+                $streamContext = $this->getStreamContext();
+                $securityToken = $this->getSecurityToken();
+
+                if (!$securityToken) {
+                    syslog(LOG_WARNING, "Cannot get security token.");
+                } else {
+                    syslog(LOG_INFO, "Start loop subscribers.");
+
+                    foreach ($subscribers as $key => $subscriber) {
+                        $result = $this->getWeatherInRadius($subscriber['center'], $subscriber['radius'],
+                            $securityToken);
+
+                        if ($result->Weather && $result->Weather->Conditions) {
+                            foreach ($result->Weather->Conditions->Station as $k => $station) {
+                                $actualSunValue = $station->Current->Sun->attributes()['uvIndex'];
+
+                                syslog(LOG_INFO, "Sun value: " . $actualSunValue);
+
+                                if ($actualSunValue > 0) {
+                                    file_get_contents($subscriber["url"], false, $streamContext);
+
+                                    syslog(LOG_INFO, "[Weather Sun] Request '" . $key . "' for asset "
+                                        . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+
+                                    break;
+                                }
+                            }
+                        } else {
+                            syslog(LOG_INFO, "Result is empty.");
+                        }
+                    }
+                }
+            } else {
+                syslog(LOG_INFO, "Subscribers for 'Weather Sun' event were not found.");
+            }
+        } else {
+            syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
+        }
+
+        syslog(LOG_INFO, "Action WeatherSunNotifier finished.");
+    }
+
+    // TODO: Test
+    public function actionWeatherRainNotifier() {
+        syslog(LOG_INFO, "Action WeatherRainNotifier started.");
+
+        $filePath = Yii::app()->params['eventStoragePath'];
+
+        if (is_file($filePath)) {
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::WEATHER_RAIN);
+            $count = count($subscribers);
+
+            if ($count) {
+                syslog(LOG_INFO, "Count of subscribers for 'Weather Rain': " . $count);
+
+                $streamContext = $this->getStreamContext();
+                $securityToken = $this->getSecurityToken();
+
+                if (!$securityToken) {
+                    syslog(LOG_WARNING, "Cannot get security token.");
+                } else {
+                    syslog(LOG_INFO, "Start loop subscribers.");
+
+                    foreach ($subscribers as $key => $subscriber) {
+                        $result = $this->getWeatherInRadius($subscriber['center'], $subscriber['radius'],
+                            $securityToken);
+
+                        if ($result->Weather && $result->Weather->Conditions) {
+                            foreach ($result->Weather->Conditions->Station as $k => $station) {
+                                $sky = $station->Current->Sky->attributes()['description'];
+                                $contain = strpos($sky, IDemoBaseController::SKY_RAIN);
+
+                                syslog(LOG_INFO, "Sky value: " . $sky);
+
+                                if ($contain !== false && $contain >= 0) {
+                                    file_get_contents($subscriber["url"], false, $streamContext);
+
+                                    syslog(LOG_INFO, "[Weather Rain] Request '" . $key . "' for asset "
+                                        . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+
+                                    break;
+                                }
+                            }
+                        } else {
+                            syslog(LOG_INFO, "Result is empty.");
+                        }
+                    }
+                }
+            } else {
+                syslog(LOG_INFO, "Subscribers for 'Weather Rain' event were not found.");
+            }
+        } else {
+            syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
+        }
+
+        syslog(LOG_INFO, "Action WeatherRainNotifier finished.");
+    }
+
+    // TODO: Test
+    public function actionWeatherSnowNotifier() {
+        syslog(LOG_INFO, "Action WeatherSnowNotifier started.");
+
+        $filePath = Yii::app()->params['eventStoragePath'];
+
+        if (is_file($filePath)) {
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::WEATHER_SNOW);
+            $count = count($subscribers);
+
+            if ($count) {
+                syslog(LOG_INFO, "Count of subscribers for 'Weather Snow': " . $count);
+
+                $streamContext = $this->getStreamContext();
+                $securityToken = $this->getSecurityToken();
+
+                if (!$securityToken) {
+                    syslog(LOG_WARNING, "Cannot get security token.");
+                } else {
+                    syslog(LOG_INFO, "Start loop subscribers.");
+
+                    foreach ($subscribers as $key => $subscriber) {
+                        $result = $this->getWeatherInRadius($subscriber['center'], $subscriber['radius'],
+                            $securityToken);
+
+                        if ($result->Weather && $result->Weather->Conditions) {
+                            foreach ($result->Weather->Conditions->Station as $k => $station) {
+                                $sky = $station->Current->Sky->attributes()['description'];
+                                $contain = strpos($sky, IDemoBaseController::SKY_SNOW);
+
+                                syslog(LOG_INFO, "Sky value: " . $sky);
+
+                                if ($contain !== false && $contain >= 0) {
+                                    file_get_contents($subscriber["url"], false, $streamContext);
+
+                                    syslog(LOG_INFO, "[Weather Snow] Request '" . $key . "' for asset "
+                                        . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+
+                                    break;
+                                }
+                            }
+                        } else {
+                            syslog(LOG_INFO, "Result is empty.");
+                        }
+                    }
+                }
+            } else {
+                syslog(LOG_INFO, "Subscribers for 'Weather Snow' event were not found.");
+            }
+        } else {
+            syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
+        }
+
+        syslog(LOG_INFO, "Action WeatherSnowNotifier finished.");
+    }
+
+    // TODO: Test
+    public function actionWeatherThunderstormsNotifier() {
+        syslog(LOG_INFO, "Action WeatherThunderstormsNotifier started.");
+
+        $filePath = Yii::app()->params['eventStoragePath'];
+
+        if (is_file($filePath)) {
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::WEATHER_THUNDER_STORM);
+            $count = count($subscribers);
+
+            if ($count) {
+                syslog(LOG_INFO, "Count of subscribers for 'Weather Thunderstorms': " . $count);
+
+                $streamContext = $this->getStreamContext();
+                $securityToken = $this->getSecurityToken();
+
+                if (!$securityToken) {
+                    syslog(LOG_WARNING, "Cannot get security token.");
+                } else {
+                    syslog(LOG_INFO, "Start loop subscribers.");
+
+                    foreach ($subscribers as $key => $subscriber) {
+                        $result = $this->getWeatherInRadius($subscriber['center'], $subscriber['radius'],
+                            $securityToken);
+
+                        if ($result->Weather && $result->Weather->Conditions) {
+                            foreach ($result->Weather->Conditions->Station as $k => $station) {
+                                $sky = $station->Current->Sky->attributes()['description'];
+                                $contain = strpos($sky, IDemoBaseController::SKY_THUNDERSTORMS);
+
+                                syslog(LOG_INFO, "Sky value: " . $sky);
+
+                                if ($contain !== false && $contain >= 0) {
+                                    file_get_contents($subscriber["url"], false, $streamContext);
+
+                                    syslog(LOG_INFO, "[Weather Thunderstorms] Request '" . $key . "' for asset "
+                                        . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+
+                                    break;
+                                }
+                            }
+                        } else {
+                            syslog(LOG_INFO, "Result is empty.");
+                        }
+                    }
+                }
+            } else {
+                syslog(LOG_INFO, "Subscribers for 'Weather Thunderstorms' event were not found.");
+            }
+        } else {
+            syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
+        }
+
+        syslog(LOG_INFO, "Action WeatherThunderstormsNotifier finished.");
     }
 
 

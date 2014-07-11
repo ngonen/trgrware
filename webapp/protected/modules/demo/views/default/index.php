@@ -387,12 +387,15 @@
     <button id="SimulateCallback">Simulate Galaxy Request</button>
 
     <div style="border: 1px solid; margin: 10px 0;">
-        <label style="display: block; text-align: center; font-weight: bold;">Test Cron</label>
+        <label style="display: block; text-align: center; font-weight: bold; text-decoration: underline;">Test Cron jobs</label>
         <button id="BtnCronTest">Cron Test Weather</button>
         <button id="BtnCronTestAccident">Cron Test Accident</button>
         <button id="BtnCronTestFlow">Cron Test Flow</button>
+        <button id="BtnCronTestSun">Sun</button>
+        <button id="BtnCronTestThunderstorms">Thunderstorms</button>
+        <button id="BtnCronTestSnow">Snow</button>
+        <button id="BtnCronTestRain">Rain</button>
         <button id="BtnCronTestWind">Wind</button>
-        <button id="BtnUpdateAsset">Update Asset</button>
     </div>
 
     <div style="border: 1px solid; margin: 10px 0;">
@@ -400,6 +403,7 @@
         EventType:<input type="test" id="eventType" value="" />
         <button id="BtnDeleteAsset">Delete Asset</button>
         <button id="BtnDeleteEvent">Delete Event</button>
+        <button id="BtnUpdateAsset">Update Asset</button>
     </div>
 
     <div style="border: 1px solid; margin: 10px 0;">
