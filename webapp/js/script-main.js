@@ -17,7 +17,6 @@ var trigger_type;
 var refreshKey;
 var updateMap;
 var contextMenuIsOpen;
-var markerDrag;
 
 var EVENT_TYPES = {
     INCIDENT: "traffic_accident",
@@ -531,15 +530,12 @@ function showIncidents(incidents) {
                 icon: 'img/incidentPin@2x-small.png',
                 title: 'incident'
             });
-            google.maps.event.addListener(marker, "mouseover", function() {
+            google.maps.event.addListener(marker, "click", function() {
                 var description = incident.fullDesc ? incident.fullDesc : "No description.";
                 if (!contextMenuIsOpen) {
                     infoWindow.setContent("<div class='infowindow_content'>" + description + "</div>");
                     infoWindow.open(map, this);
                 }
-            });
-            google.maps.event.addListener(marker, "mouseout", function() {
-                infoWindow.close();
             });
             incidentMarkers.push(marker);
         });
@@ -579,7 +575,7 @@ function showWeather(data) {
                         labelClass: "weather_station " + degreeClass,
                         title: "weather station"
                     });
-                    google.maps.event.addListener(marker, "mouseover", function() {
+                    google.maps.event.addListener(marker, "click", function() {
                         if (!contextMenuIsOpen) {
                             infoWindow.setContent("<p>Station:     " + station._attr.name._value + "</p>" +
                                                   "<p>Elevation:   " + station._attr.elevation._value + " yd</p>" +
@@ -592,9 +588,6 @@ function showWeather(data) {
                              infoWindow.open(map, this);
                         }
                     });
-                    google.maps.event.addListener(marker, "mouseout", function() {
-                        infoWindow.close();
-                    });
                     google.maps.event.addListener(marker, "click", hideMenu);
                     weatherStations.push(marker);
                 });
@@ -603,7 +596,6 @@ function showWeather(data) {
             }
         } else {
             console.log(response.errorMessage);
-            alert(response.errorMessage);
         }
         $(".loading").removeClass("weather");
         if ($(".loading")[0].classList.length < 2) {
@@ -669,7 +661,6 @@ function getWeather() {
         if ($(".loading")[0].classList.length < 2) {
             $(".loading").hide();
         }
-        alert(error.statusText);
     });
 }
 
@@ -887,9 +878,13 @@ $(function() {
         onZoom();
         autoUpdateMap();
         hideMenu();
+        infoWindow.close();
     });
     google.maps.event.addListener(map, "rightclick", hideMenu);
-    google.maps.event.addListener(map, "dragstart", hideMenu);
+    google.maps.event.addListener(map, "dragstart", function() {
+        infoWindow.close();
+        hideMenu();
+    });
     $("body").on("click", hideMenu);
     $("body").on("dragstart", hideMenu);
     $("#asset_popup").on("keyup", function(ev) {
@@ -965,9 +960,9 @@ $(function() {
                 });
                 displayMenu(ev.Ra);
             });
-            google.maps.event.addListener(marker, "mouseover", function(ev) {
+            google.maps.event.addListener(marker, "click", function(ev) {
                 var asset, content;
-                if (!contextMenuIsOpen && !markerDrag) {
+                if (!contextMenuIsOpen) {
                     asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
                     if (asset.triggers.length) {
                         content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><ul>";
@@ -982,18 +977,14 @@ $(function() {
                     infoWindow.open(map, this);
                 }
             });
-            google.maps.event.addListener(marker, "mouseout", function(ev) {
-                infoWindow.close();
-            });
             google.maps.event.addListener(marker, "dragstart", function(ev) {
-                markerDrag = true;
                 infoWindow.close();
+                hideMenu();
             });
             google.maps.event.addListener(marker, "dragend", function(ev) {
                 var asset = assets.filter(function(asset) { return asset.id === marker.title; })[0],
                     lat = ev.latLng.lat(),
                     lng = ev.latLng.lng();
-                markerDrag = false;
                 if (asset.lat !== lat || asset.lng !== lng) {
                     if (asset.triggers.length) {
                         sendAssetUpdateRequest(asset, {lat: lat, lng: lng}, false);
@@ -1002,7 +993,6 @@ $(function() {
                     }
                 }
             });
-            google.maps.event.addListener(marker, "dragstart", hideMenu);
         } else if (action === "trigger_event") {
             var id = ev.target.parentNode.getAttribute("title"),
                 asset, trigger, url, type;
