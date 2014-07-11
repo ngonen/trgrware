@@ -670,6 +670,58 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	background-image: url("/img/Mist.png");
 }
 
+.ShowersClear, .Sprinkles {
+	background-image: url("/img/Shower1.png");
+}
+
+.Showers {
+	background-image: url("/img/Shower2.png");
+}
+
+.PMRain {
+	background-image: url("/img/Shower2_night.png");
+}
+
 .Rain, .RainWindy {
 	background-image: url("/img/Shower3.png");
+}
+
+.RainSnow, .RaintoSnow, .SnowtoRain, .Sleet, .AMIceSnow, .FreezingRain, .FreezingDrizzle {
+	background-image: url("/img/Sleet.png");
+}
+
+.CloudyPMSun {
+	background-image: url("/img/Cloudy2.png");
+}
+
+.ScatteredFlurries, .SnowShowersSun, .Flurries {
+	background-image: url("/img/Snow1.png");
+}
+
+.SnowShowers {
+	background-image: url("/img/Snow2.png");
+}
+
+.Snow, .AMSnow, .PMSnow {
+	background-image: url("/img/Snow3.png");
+}
+
+.IceSnow, .Blizzard, .PMIceSnow {
+	background-image: url("/img/Snow4.png");
+}
+
+.BlowingSnow, .SnowWindy {
+	background-image: url("/img/Snow5.png");
+}
+
+.IsolatedThunderstorms, .ScatteredThunderstorms, .AMThunderstorms {
+	background-image: url("/img/Tstorm1.png");
+}
+
+.PMThunderstorms {
+	background-image: url("/img/Tstorm1_night.png");
+}
+
+.Tstorms {
+	background-image: url("/img/Tstorm2.png");
 }
