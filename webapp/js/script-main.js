@@ -586,7 +586,7 @@ function showWeather(data) {
                                                   "<p>Temperature: " + temperature + "\u00B0F</p>" +
                                                   "<p>Pressure: " + station.Current[0].Pressure[0]._attr.actual._value + " mbar</p>" +
                                                   "<p>Wind speed: " + station.Current[0].Wind[0]._attr.speed._value + " mph</p>" +
-                                                  "<p class='weather_info " + sky_desc.replace(" ", "_").toLowerCase() + "'>" + sky_desc + "</p>"
+                                                  "<p class='weather_info " + sky_desc.replace(/[\s\/\-\(\)]*/g,'') + "'>" + sky_desc + "</p>"
                                                   );
                              infoWindow.open(map, this);
                         }

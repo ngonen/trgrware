@@ -646,26 +646,30 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	text-indent: 40px;
 }
 
-.cloudy {
-	background-image: url("/img/cloudy.png");
+.Cloudy {
+	background-image: url("/img/Cloudy5.png");
 }
 
-.mostly_cloudy {
-	background-image: url("/img/mostly_cloudy.png");
+.MostlyCloudy, .AMFogCloudy {
+	background-image: url("/img/Cloudy4.png");
 }
 
-.partly_cloudy, .mostly_sunny {
-	background-image: url("/img/partly_cloudy.png");
+.PartlyCloudy, .MostlySunny {
+	background-image: url("/img/Cloudy1.png");
 }
 
-.clear {
-	background-image: url("/img/sunny.png");
+.Clear, .Fair, .SunnyClear, .Frigid, .HotandHumid {
+	background-image: url("/img/Sunny.png");
 }
 
-.fog {
-	background-image: url("/img/fog.png");
+.Fog, .Smoke, .Windy {
+	background-image: url("/img/Fog.png");
 }
 
-.rain {
-	background-image: url("/img/rain_2.png");
+.Dust, .AMFogPMSun, .Haze, .SunnyWindy {
+	background-image: url("/img/Mist.png");
+}
+
+.Rain, .RainWindy {
+	background-image: url("/img/Shower3.png");
 }
