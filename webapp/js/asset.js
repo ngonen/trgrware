@@ -1,16 +1,12 @@
 function Asset(properties) {
+    var _self = this;
+    
     this.setProperties = function(properties) {
-        this.id = properties.id;
-        this.type = properties.type;
-        this.name = properties.name;
-        this.description = properties.description;
-        this.capPeriod = properties.capPeriod;
-        this.capUnit = properties.capUnit;
-        this.sid = properties.sid;
-        this.lat = properties.lat;
-        this.lng = properties.lng;
+        Object.keys(properties).forEach(function(prop) {
+           _self[prop] = properties[prop]; 
+        });
     };
     
     this.triggers = [];
     this.setProperties(properties);
-};
+}

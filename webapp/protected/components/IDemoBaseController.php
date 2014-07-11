@@ -1,9 +1,21 @@
 <?php
 
-abstract class DemoBaseController extends Controller {
+abstract class IDemoBaseController extends Controller {
     const WEATHER_TEMPERATURE = "weather_temperature";
+    const WEATHER_WIND_SPEED = "weather_wind";
+    const WEATHER_RAIN = "weather_rain";
+    const WEATHER_SUN = "weather_sun";
+    const WEATHER_SNOW = "weather_snow";
+    const WEATHER_THUNDER_STORM = "weather_thunder_storm";
+    const WEATHER_STORM = "weather_storm";
     const TRAFFIC_FLOW = "traffic_flow";
     const TRAFFIC_INCIDENTS = "traffic_accident";
+    const TWITTER_HASH_TAG = "twitter_hash_tag";
+    const OVER = "Over";
+    const UNDER = "Under";
+    const SKY_RAIN = "Rain";
+    const SKY_SNOW = "Snow";
+    const SKY_THUNDERSTORMS = "storm"; // "Thunderstorms";
 
     /**
      * Get Security Token for vendor
@@ -86,11 +98,19 @@ abstract class DemoBaseController extends Controller {
     }
 
     protected function getStreamContext() {
-        return stream_context_create(array(
-            'http' => array(
+        return stream_context_create([
+            'http' => [
                 'method' => 'GET',
                 'header' => "cache-control: private, max-age=0, no-cache"
-            )
-        ));
+            ]
+        ]);
     }
-} 
+
+    protected function getStreamContextForPlanText() {
+        return stream_context_create([
+            "gs" => [
+                "Content-Type" => "text/plain"
+            ]
+        ]);
+    }
+}

@@ -12,9 +12,26 @@ var weatherStations = [];
 var assets = [];
 var props;
 var active_asset;
+var active_popup;
 var trigger_type;
 var refreshKey;
 var updateMap;
+var contextMenuIsOpen;
+var markerDrag;
+
+var EVENT_TYPES = {
+    INCIDENT: "traffic_accident",
+    FLOW: "traffic_flow",
+    TEMPERATURE: "weather_temperature",
+    WEATHER_EVENT: "weather_event",
+    WIND: "weather_wind",
+    RAIN: "weather_rain",
+    SUN: "weather_sun",
+    SNOW: "weather_snow",
+    THUNDER_STORM: "weather_thunder_storm",
+    STORM: "weather_storm",
+    TWITTER: "twitter_hash_tag"
+};
 
 // Add INRIX Tile layer (see inrix.layer.js for details)
 var traffic = new InrixTileLayer(map);
@@ -48,15 +65,32 @@ var getUnigueID = (function () {
 
 function showTriggerPopup(event) {
     var data = event.target.dataset,
-        trigger;
+        count = {},
+        i, length, trigger, property;
     trigger_type = data.type;
-    trigger = active_asset.triggers.filter(function(trigger) { return trigger.type === trigger_type; })[0];
+    trigger = active_asset.triggers.filter(function(trigger) { return checkEventType(trigger.type) === trigger_type; })[0];
     if (trigger) {
+        if (trigger.type === EVENT_TYPES.TWITTER && trigger.cid.length > 1) {
+            for (i = 0, length = trigger.cid.length; i < length - 1; i++) {
+                addTwitterFields();
+            }
+        }
         $(data.popup + " .prop").toArray().forEach(function(el) {
-            if (el.type === "checkbox") {
-                el.checked = trigger[el.dataset.property];
-            } else {
-                el.value = trigger[el.dataset.property];
+            if (!el.disabled) {
+                property = el.dataset.property;
+                if ($(el).hasClass("array-element")) {
+                    if (!count[property]) {
+                        count[property] = 0;
+                    }
+                    el.value = trigger[property][count[property]];
+                    count[property]++;
+                } else {
+                    if (el.type === "radio") {
+                        el.checked = (el.value === trigger[el.dataset.property]);
+                    } else {
+                        el.value = trigger[property];
+                    }
+                }
             }
         });
     }
@@ -64,16 +98,22 @@ function showTriggerPopup(event) {
 }
 
 function showPropertiesPopup() {
-    showPopup("#asset_popup");
     $("#asset_popup .prop").toArray().forEach(function(el) {
-       el.value =  active_asset[el.dataset.property];
+        if (el.type === "radio") {
+            el.checked = (el.value === active_asset[el.dataset.property]);
+        } else {
+            el.value =  active_asset[el.dataset.property];
+        }
     });
+    showPopup("#asset_popup");
 }
 
 function clearPopupFields() {
     $('.popup .error').hide();
+    $('.popup .additional').remove();
     $('.popup .prop').toArray().forEach(function(el) {
         switch (el.type) {
+            case "number":
             case "text":
                 if (el.dataset.default) {
                     el.value = el.dataset.default;
@@ -90,6 +130,9 @@ function clearPopupFields() {
             case "select-one":
                 el.options.selectedIndex = 0;
                 break;
+            case "radio":
+                el.checked = el.dataset.default ? true : false;
+                break;
         }
     });
 }
@@ -100,208 +143,339 @@ function sendAJAX(url, data, callback, errorCallback) {
         type: "POST",
         data: data,
         success: callback,
-        error: errorCallback || function(error) { console.log(error.statusText + ": " + error.responseText); }
+        error: errorCallback || function(error) {
+            console.log(error.statusText + ": " + error.responseText);
+            alert(error.statusText);
+        }
     });
 }
 
-function onSuccess(data) {
-    var response = JSON.parse(data);
-    if (response.status) {
-        console.log(response.message);
-    } else {
-        console.log(response.errorMessage);
-    }
-}
-
-function sendAssetUpdateRequest(asset) {
+function sendAssetUpdateRequest(asset, properties, updatedSID) {
     var data = {
-        assetId: asset.id,
-        center: asset.lat + "|" + asset.lng
-    };
-    sendAJAX("/demo/Default/UpdateAsset", data, onSuccess);
+            assetId: asset.id,
+            center: properties.lat + "|" + properties.lng
+        },
+        events, url, i, length;
+    if (updatedSID) {
+        events = {};
+        asset.triggers.forEach(function(trigger) {
+            if (trigger.type === EVENT_TYPES.TWITTER) {
+                url = trigger.getURL(properties.sid, trigger.cid);
+                events[trigger.type] = {};
+                for (i = 0, length = url.length; i < length; i++) {
+                    events[trigger.type][trigger.count[i]] = url[i];
+                }
+            } else {
+                events[trigger.type] = trigger.getURL(properties.sid, trigger.cid);
+            }
+        });
+        data.events = JSON.stringify(events);
+    }
+    sendAJAX("/demo/Default/UpdateAsset", data, function(data) {
+        var response = JSON.parse(data),
+            marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+        if (response.status) {
+            asset.setProperties(properties);
+            console.log(response.message);
+        } else {
+            marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
+            console.log(response.errorMessage);
+            alert(response.errorMessage);
+        }
+    },
+    function(error) {
+        var marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+        marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
+        console.log(error.statusText + ": " + error.responseText);
+        alert(error.statusText);
+    });
 }
 
-function updateAsset(event) {
-    var validateObj = validate(event.target.dataset.popup),
-        marker, id, type, properties, lat, lng;
+function updateAsset() {
+    var validateObj = validate(active_popup),
+        marker, id, type, properties, lat, lng, sid;
         
     if (validateObj.isValid) {
         id = active_asset? active_asset.id : props.id;
         type = active_asset? active_asset.type : props.type;
-        properties = getProperties(event.target.dataset.popup);
+        properties = getProperties("#asset_popup");
         properties.id = id;
         properties.type = type;
         marker = markers.filter(function(m) { return m.title === properties.id; })[0];
         marker.setPosition(new google.maps.LatLng(properties.lat, properties.lng));
         if (active_asset) {
-            lat = active_asset.lat;
-            lng = active_asset.lng;
-            active_asset.setProperties(properties);
-            if ((active_asset.lat !== lat || active_asset.lng !== lng) && active_asset.triggers.length) {
-                sendAssetUpdateRequest(active_asset);
+            if ((active_asset.lat !== properties.lat || active_asset.lng !== properties.lng || active_asset.sid !== properties.sid) && active_asset.triggers.length) {
+                sendAssetUpdateRequest(active_asset, properties, active_asset.sid !== properties.sid);
+            } else {
+                active_asset.setProperties(properties);
             }
         } else {
             assets.push(new Asset(properties));
         }
         hidePopup();
     } else {
-        $(event.target.dataset.popup + " .error").text(validateObj.errorMessage);
-        $(event.target.dataset.popup + " .error").show();
+        $(active_popup + " .error").text(validateObj.errorMessage);
+        $(active_popup + " .error").show();
     }
 }
 
-function removeAsset() {
-    var choice = false,
-        marker;
+function removeAsset(asset) {
+    var marker;
     hideMenu();
-    if (active_asset.triggers.length) {
-        if (confirm("There are events attached to this asset. Are you sure you want to remove it?")) {
-            sendAJAX("/demo/Default/DeleteAsset", { assetId: active_asset.id }, onSuccess);
-            choice = true;
+    if (asset.triggers.length) {
+        if (confirm("There Are Events Attached To This Asset.\nAre You Sure You Want To Remove This Asset?")) {
+            sendAJAX("/demo/Default/DeleteAsset", { assetId: asset.id }, function(data) {
+                var response = JSON.parse(data);
+                if (response.status) {
+                    marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+                    marker.setMap(null);
+                    markers.splice(markers.indexOf(marker), 1);
+                    assets.splice(assets.indexOf(asset), 1);
+                    console.log(response.message);
+                } else {
+                    console.log(response.errorMessage);
+                    alert(response.errorMessage);
+                }
+            });
         }
-    } else if (confirm("Are you sure you want to remove this asset?")) {
-        choice = true;
-    }
-    if (choice) {
-        marker = markers.filter(function(m) { return m.title === active_asset.id; })[0];
+    } else if (confirm("Are You Sure You Want To Remove This Asset?")) {
+        marker = markers.filter(function(m) { return m.title === asset.id; })[0];
         marker.setMap(null);
         markers.splice(markers.indexOf(marker), 1);
-        assets.splice(assets.indexOf(active_asset), 1);
+        assets.splice(assets.indexOf(asset), 1);
     }
 }
 
-function sendTriggerUpdateRequest(trigger, isNewTrigger) {
+function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
     var url = isNewTrigger ? "/demo/Default/RegisterEvent" : "/demo/Default/UpdateEvent";
-    sendAJAX(url, trigger.getData(), onSuccess);
+    sendAJAX(url, trigger.getData(properties), function(data) {
+        var response = JSON.parse(data);
+        if (response.status) {
+            if (isNewTrigger) {
+                asset.triggers.push(trigger);
+            } else {
+                trigger.setProperties(properties);
+            }
+            console.log(response.message);
+        } else {
+            console.log(response.errorMessage);
+            alert(response.errorMessage);
+        }
+    });
 }
 
-function removeTrigger(event) {
-    var type = event.target.parentNode.dataset.type,
-        trigger, data;
+function onTriggerRemove(event) {
+    var type = event.target.parentNode.dataset.type;
     hideMenu();
-    if (confirm("Are you sure you want to remove this trigger?")) {
-        trigger = active_asset.triggers.filter(function(tr) { return tr.type === type; })[0];
-        data = {
-            assetId: active_asset.id,
-            eventType: type
-        };
-        active_asset.triggers.splice(active_asset.triggers.indexOf(trigger), 1);
-        sendAJAX("/demo/Default/DeleteEvent", data, onSuccess);
+    if (confirm("Are You Sure You Want To Remove This Trigger?")) {
+        removeTrigger(active_asset, type);
     }
     event.stopPropagation();
 }
 
-function updateTrigger(event) {
-    var validateObj = validate(event.target.dataset.popup),
+function removeTrigger(asset, eventType) {
+    var trigger = asset.triggers.filter(function(tr) { return checkEventType(tr.type) === eventType; })[0];
+    data = {
+        assetId: asset.id,
+        eventType: trigger.type
+    };
+    sendAJAX("/demo/Default/DeleteEvent", data, function(data) {
+        var response = JSON.parse(data);
+        if (response.status) {
+            asset.triggers.splice(asset.triggers.indexOf(trigger), 1);
+            console.log(response.message);
+        } else {
+            console.log(response.errorMessage);
+            alert(response.errorMessage);
+        }
+    });
+}
+
+function updateTrigger() {
+    var validateObj = validate(active_popup),
         properties,
         trigger;
     if (validateObj.isValid) {
-        properties = getProperties(event.target.dataset.popup);
-        properties.type = trigger_type;
+        properties = getProperties(active_popup);
+        properties.type = properties.type || trigger_type;
         properties.asset_id = active_asset.id;
-        trigger = active_asset.triggers.filter(function(trigger) { return trigger.type === trigger_type; })[0];
+        trigger = active_asset.triggers.filter(function(trigger) { return checkEventType(trigger.type) === trigger_type; })[0];
         if (trigger) {
+            if (checkEventType(trigger.type) === EVENT_TYPES.WEATHER_EVENT && properties.type !== trigger.type) {
+                properties.removePrevious = true;
+            }
             //change trigger properties
-            trigger.setProperties(properties);
-            sendTriggerUpdateRequest(trigger, false);
+            sendTriggerUpdateRequest(active_asset, trigger, properties, false);
         } else {
             //create trigger
             switch (trigger_type) {
-                case "traffic_accident":
+                case EVENT_TYPES.INCIDENT:
                     trigger = new AccidentTrigger(properties);
                     break;
-                case "traffic_flow":
+                case EVENT_TYPES.FLOW:
                     trigger = new FlowTrigger(properties);
                     break;
-                case "weather_event":
+                case EVENT_TYPES.WEATHER_EVENT:
                     trigger = new WeatherEventTrigger(properties);
                     break;
-                case "weather_temperature":
+                case EVENT_TYPES.TEMPERATURE:
                     trigger = new TemperatureTrigger(properties);
                     break;
-                case "social_twitter":
+                case EVENT_TYPES.TWITTER:
                     trigger = new TwitterTrigger(properties);
                     break;
             }
-            active_asset.triggers.push(trigger);
-            sendTriggerUpdateRequest(trigger, true);
+            sendTriggerUpdateRequest(active_asset, trigger, properties, true);
         }   
         hidePopup();
     } else {
-        $(event.target.dataset.popup + " .error").text(validateObj.errorMessage);
-        $(event.target.dataset.popup + " .error").show();
+        $(active_popup + " .error").text(validateObj.errorMessage);
+        $(active_popup + " .error").show();
     }
 }
 
 function validate(popup) {
     var inputs = $(popup + " .prop").toArray(),
-        value, el, errorMessage, i, length;
+        value, el, errorMessage, i, length, min, max, ascending = {};
     for (i = 0, length = inputs.length; i < length; i++) {
         el = inputs[i];
-        value = el.value;
-        if (el.required && /^\s*$/.test(value)) {
-            errorMessage = el.parentNode.firstElementChild.textContent + " field is required"; 
-            return {
-                isValid: false,
-                errorMessage: errorMessage
-            };
-        }
-        switch (el.dataset.type) {
-            case "int":
-                if (!/^\s*$/.test(value) && !/^-?\d+$/.test(value)) {
-                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain an integer number";
+        if (!el.disabled) {
+            value = el.value;
+            if (el.required && /^\s*$/.test(value)) {
+                errorMessage = el.parentNode.firstElementChild.textContent + " field is required"; 
+                return {
+                    isValid: false,
+                    errorMessage: errorMessage
+                };
+            }
+            switch (el.dataset.type) {
+                case "int":
+                    if (!/^\s*$/.test(value) && !/^-?\d+$/.test(value)) {
+                        errorMessage = el.parentNode.firstElementChild.textContent + " field should contain an integer number";
+                        return {
+                            isValid: false,
+                            errorMessage: errorMessage
+                        };
+                    }
+                    break;
+                case "float":
+                    if (!/^\s*$/.test(value) && !/^-?\d+(\.\d+)?$/.test(value)) {
+                        errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number";
+                        return {
+                            isValid: false,
+                            errorMessage: errorMessage
+                        };
+                    }
+                    break;
+                case "url":
+                    if (!/^\s*$/.test(value) && !el.validity.valid) {
+                        errorMessage = "Incorrect URL";
+                        return {
+                            isValid: false,
+                            errorMessage: errorMessage
+                        };
+                    }
+                    break;
+                case "hashtag":
+                    if (!/^#/.test(value)) {
+                        errorMessage = "Incorrect hashtag (hashtag should start with '#')";
+                        return {
+                            isValid: false,
+                            errorMessage: errorMessage
+                        };
+                    }
+                    break;
+                case "username":
+                    if (!/^@/.test(value)) {
+                            errorMessage = "Incorrect username (username should start with '@')";
+                            return {
+                                isValid: false,
+                                errorMessage: errorMessage
+                            };
+                        }
+                    break;
+            }
+            min = el.getAttribute("min");
+            max = el.getAttribute("max");
+            if (min || max) {
+                if (min && max && (value < parseInt(min) || value > parseInt(max))) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number between " + min + " and " + max;
                     return {
                         isValid: false,
                         errorMessage: errorMessage
                     };
                 }
-                break;
-            case "float":
-                if (!/^\s*$/.test(value) && !/^-?\d+(\.\d+)?$/.test(value)) {
-                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number";
+                if (min && (value < parseInt(min))) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number equals or greater than " + min;
                     return {
                         isValid: false,
                         errorMessage: errorMessage
                     };
                 }
-                break;
-            case "url":
-                if (!/^\s*$/.test(value) && !el.validity.valid) {
-                    errorMessage = "Incorrect URL";
+                if (max && (value > parseInt(max))) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number equals or less than " + max;
                     return {
                         isValid: false,
                         errorMessage: errorMessage
                     };
                 }
-                break;
-            case "hashtag":
-                if (!/^#/.test(value)) {
-                    errorMessage = "Incorrect hashtag";
+            }
+            if ($(el).hasClass("array-element") && $(el).hasClass("ascending")) {
+                if (ascending[el.dataset.property] && (getValue(el) <= ascending[el.dataset.property])) {
+                    errorMessage = el.parentNode.firstElementChild.textContent + ": each next field should consist a value greater than previous.";
                     return {
                         isValid: false,
                         errorMessage: errorMessage
                     };
                 }
-                break;
-        }
-        if (el.dataset.min && el.dataset.max && (value < parseInt(el.dataset.min) || value > parseInt(el.dataset.max))) {
-            errorMessage = el.parentNode.firstElementChild.textContent + " field should contain a number between " + el.dataset.min + " and " + el.dataset.max;
-            return {
-                isValid: false,
-                errorMessage: errorMessage
-            };
-        }
+                ascending[el.dataset.property] = getValue(el);
+            }
+        }        
+    }
+    if ($(popup + ' input[type=radio]').size() && !$(popup + ' input[type=radio]:checked').size()) {
+        errorMessage = "One of options should be selected";
+        return {
+            isValid: false,
+            errorMessage: errorMessage
+        };
     }
     return {isValid: true, errorMessage: null};
-} 
+}
+
+function getValue(input) {
+    var value, result;
+    switch (input.dataset.type) {
+        case "int":
+            result = parseInt(input.value);
+            value = isNaN(result) ? "" : result;
+            break;
+        case "float":
+            result = parseFloat(input.value);
+            value = isNaN(result) ? "" : result;
+            break;
+        default:
+            value = input.value;
+            break;
+    }
+    return value;
+}
 
 function getProperties(popup) {  
     var properties = {};
     $(popup + " .prop").toArray().forEach(function(el) {
-        if (el.type === "checkbox") {
-            properties[el.dataset.property] = el.checked;
-        } else {
-            properties[el.dataset.property] = el.value;
+        if (!el.disabled) {
+            if ($(el).hasClass("array-element")) {
+                properties[el.dataset.property] = properties[el.dataset.property] || [];
+                properties[el.dataset.property].push(getValue(el));
+            } else {
+                if (el.type === "radio") {
+                    if (el.checked) {
+                        properties[el.dataset.property] = el.value;
+                    }
+                } else {
+                    properties[el.dataset.property] = getValue(el);
+                }
+            }
         }
     });
     return properties;
@@ -319,6 +493,8 @@ function onCancel() {
 
 function displayMenu(ev){
     var menu = $("#context_menu")[0];
+    contextMenuIsOpen = true;
+    infoWindow.close();
     if (ev.clientY + menu.clientHeight > innerHeight) {
         menu.style.top =  pageYOffset - menu.clientHeight + ev.clientY + "px";
     } else {
@@ -340,7 +516,8 @@ function displayMenu(ev){
 
 function hideMenu() {
     $("#context_menu").css("visibility", "hidden");
-    $(".cross").hide();
+    $("#context_menu .cross").hide();
+    contextMenuIsOpen = false;
 }
 
 function showIncidents(incidents) {
@@ -355,8 +532,11 @@ function showIncidents(incidents) {
                 title: 'incident'
             });
             google.maps.event.addListener(marker, "mouseover", function() {
-                infoWindow.setContent("<div class='infowindow_content'>" + incident.fullDesc + "</div>");
-                infoWindow.open(map, this);
+                var description = incident.fullDesc ? incident.fullDesc : "No description.";
+                if (!contextMenuIsOpen) {
+                    infoWindow.setContent("<div class='infowindow_content'>" + description + "</div>");
+                    infoWindow.open(map, this);
+                }
             });
             google.maps.event.addListener(marker, "mouseout", function() {
                 infoWindow.close();
@@ -376,10 +556,10 @@ function clearMap(markersArray) {
 function showWeather(data) {
     var response = JSON.parse(data),
         stations;
-    onSuccess(data);
     if (response.refreshKey === refreshKey) {
         clearMap(weatherStations);
         if (response.status) {
+            console.log(response.message);
             try {
                 stations = xmlToJSON.parseString(response.weather).Inrix[0].Weather[0].Conditions[0].Station;
                 stations.forEach(function(station) {
@@ -400,23 +580,30 @@ function showWeather(data) {
                         title: "weather station"
                     });
                     google.maps.event.addListener(marker, "mouseover", function() {
-                        infoWindow.setContent("<p>Station:     " + station._attr.name._value + "</p>" +
-                                              "<p>Elevation:   " + station._attr.elevation._value + " yd</p>" +
-                                              "<p>Humidity:    " + station.Current[0].Humidity[0]._attr.relative._value + "%</p>" +
-                                              "<p>Temperature: " + temperature + "\u00B0F</p>" +
-                                              "<p>Pressure:    " + station.Current[0].Pressure[0]._attr.actual._value + " mbar</p>" +
-                                              "<p>Wind speed:  " + station.Current[0].Wind[0]._attr.speed._value + " mph</p>"
-                                              );
-                         infoWindow.open(map, this);
+                        if (!contextMenuIsOpen) {
+                            infoWindow.setContent("<p>Station:     " + station._attr.name._value + "</p>" +
+                                                  "<p>Elevation:   " + station._attr.elevation._value + " yd</p>" +
+                                                  "<p>Humidity:    " + station.Current[0].Humidity[0]._attr.relative._value + "%</p>" +
+                                                  "<p>Temperature: " + temperature + "\u00B0F</p>" +
+                                                  "<p>Pressure:    " + station.Current[0].Pressure[0]._attr.actual._value + " mbar</p>" +
+                                                  "<p>Wind speed:  " + station.Current[0].Wind[0]._attr.speed._value + " mph</p>" +
+                                                  "<p>Sky:         " + station.Current[0].Sky[0]._attr.description._value + "</p>"
+                                                  );
+                             infoWindow.open(map, this);
+                        }
                     });
                     google.maps.event.addListener(marker, "mouseout", function() {
-                         infoWindow.close();
+                        infoWindow.close();
                     });
+                    google.maps.event.addListener(marker, "click", hideMenu);
                     weatherStations.push(marker);
                 });
             } catch(err) {
-                console.log("Cannot parse responce");
+                console.log("Cannot parse response.");
             }
+        } else {
+            console.log(response.errorMessage);
+            alert(response.errorMessage);
         }
         $(".loading").removeClass("weather");
         if ($(".loading")[0].classList.length < 2) {
@@ -482,6 +669,7 @@ function getWeather() {
         if ($(".loading")[0].classList.length < 2) {
             $(".loading").hide();
         }
+        alert(error.statusText);
     });
 }
 
@@ -523,8 +711,10 @@ function turnOfInfo(markersArray) {
     refreshKey = null;
 }
 
-function showPopup(selector, ev) {
+function showPopup(selector) {
+    active_popup = selector;
     $(selector).show();
+    $(selector).focus();
     $(".popup_bg").show();
 }
 
@@ -566,6 +756,58 @@ function autoUpdateMap() {
     updateMap = setTimeout(update, 60000);
 }
 
+function getType(trigger_type) {
+    var type;
+    switch (trigger_type) {
+        case EVENT_TYPES.INCIDENT:
+            type = "Traffic Incident";
+            break;
+        case EVENT_TYPES.FLOW:
+            type = "Traffic Flow";
+            break;
+        case EVENT_TYPES.TEMPERATURE:
+            type = "Temperature";
+            break;
+        case EVENT_TYPES.TWITTER:
+            type = "Twitter";
+            break;
+        case EVENT_TYPES.RAIN:
+        case EVENT_TYPES.SNOW:
+        case EVENT_TYPES.SUN:
+        case EVENT_TYPES.THUNDER_STORM:
+        case EVENT_TYPES.WIND:
+        case EVENT_TYPES.STORM:
+            type = "Weather Event";
+            break;
+    }
+    return type;
+}
+
+function checkEventType(type) {
+    var eventType;
+    if ([EVENT_TYPES.RAIN, EVENT_TYPES.SUN, EVENT_TYPES.SNOW, EVENT_TYPES.THUNDER_STORM, EVENT_TYPES.WIND, EVENT_TYPES.STORM].indexOf(type) !== -1) {
+        eventType = EVENT_TYPES.WEATHER_EVENT;
+    } else {
+        eventType = type;
+    }
+    return eventType;
+}
+
+function addTwitterFields() {
+    var content = "<div class='additional'><div class='popup-field'>" +
+                  "<span class='popup-label'>Count</span>" +
+                  "<input data-property='count' data-type='int' class='textinput prop array-element ascending' type='number' min='1' required>" +
+                  "</div><div class='remove-fields cross'onclick='removeContainer(event)'></div>" +
+                  "<div class='popup-field'>" +
+                  "<span class='popup-label'>Campaign ID</span>" +
+                  "<input data-property='cid' class='textinput prop array-element' type='text' required></div></div>";
+    $(".add-fields").before(content);
+}
+
+function removeContainer(event) {
+    $(event.target.parentNode).remove();
+}
+
 $(function() {
     // Setup INRIX configuration with the right set of credentials (vendorID, vendorToken)
     var configuration = {
@@ -582,7 +824,7 @@ $(function() {
     // Make sure the device is registered
     if (!Inrix.hasConsumerId()) {
         Inrix.deviceRegister({registerError: function() {
-            alert('Error device registering');
+            alert('Error Device Registering');
         }});
     }
     google.maps.event.addListener(map, "bounds_changed", function() {
@@ -623,27 +865,17 @@ $(function() {
             }
         }
     });
-    $(".exclusive").on("change", function(ev) {
-        //debugger;
+    $("input[type='radio']").on("change", function(ev) {
         var inputs = Array.prototype.slice.call(ev.target.form.elements),
-            checkboxes = inputs.filter(function(el) { return (el.type === "checkbox" && el !== ev.target); });
-        if (ev.target.checked) {      
-            checkboxes.forEach(function(el) {
-               el.checked = false;
-               el.disabled = true;
-               $(el.parentNode).find(".subitem input").toArray().forEach(function(input) {
-                  input.disabled = true;
-                  input.value = "";
-               });
+            radiobuttons = inputs.filter(function(el) { return (el.type === "radio" && el !== ev.target); }); 
+        radiobuttons.forEach(function(el) {
+            $(el.parentNode).find(".subitem input, .subitem select").toArray().forEach(function(input) {
+                input.disabled = true;
             });
-        } else {
-            checkboxes.forEach(function(el) {
-               el.disabled = false;
-               $(el.parentNode).find(".subitem input").toArray().forEach(function(input) {
-                  input.disabled = false; 
-               });
-            });
-        }
+        });
+        $(ev.target.parentNode).find(".subitem input, .subitem select").toArray().forEach(function(input) {
+            input.disabled = false;
+        });
     });
     google.maps.event.addListener(map, "dragend", function() {
         clearTimeout(updateMap);
@@ -654,8 +886,28 @@ $(function() {
         clearTimeout(updateMap);
         onZoom();
         autoUpdateMap();
+        hideMenu();
     });
+    google.maps.event.addListener(map, "rightclick", hideMenu);
+    google.maps.event.addListener(map, "dragstart", hideMenu);
     $("body").on("click", hideMenu);
+    $("body").on("dragstart", hideMenu);
+    $("#asset_popup").on("keyup", function(ev) {
+        if (ev.keyCode === 13) {
+            updateAsset();
+        }
+        if (ev.keyCode === 27) {
+            onCancel();
+        }
+    });
+    $(".trigger_popup").on("keyup", function(ev) {
+        if (ev.keyCode === 13) {
+            updateTrigger();
+        }
+        if (ev.keyCode === 27) {
+            hidePopup();
+        }
+    });
     $(".assets_list").on("dragstart", function(ev) {
         ev.originalEvent.dataTransfer.setData("action", "create_asset");
         ev.originalEvent.dataTransfer.setData("type", ev.originalEvent.target.dataset.type);
@@ -693,7 +945,8 @@ $(function() {
                 map: map,
                 draggable: true,
                 icon: "img/screen_pin.png",
-                title: 'asset' + getUnigueID()
+                title: 'asset' + getUnigueID(),
+                zIndex: 1000
             });
             props = { 
                 id: marker.title,
@@ -705,40 +958,68 @@ $(function() {
             showPopup("#asset_popup");
             markers.push(marker);
             google.maps.event.addListener(marker, "rightclick", function(ev) {
-               hideMenu();
-               active_asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
-               active_asset.triggers.map(function(tr) { return  tr.type; }).forEach(function(type) {
-                   $("#context_menu [data-type='" + type + "'] .cross").show(); 
-               });
-               displayMenu(ev.Ra);
+                hideMenu();
+                active_asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
+                active_asset.triggers.map(function(tr) { return  checkEventType(tr.type); }).forEach(function(type) {
+                    $("#context_menu [data-type='" + type + "'] .cross").show(); 
+                });
+                displayMenu(ev.Ra);
+            });
+            google.maps.event.addListener(marker, "mouseover", function(ev) {
+                var asset, content;
+                if (!contextMenuIsOpen && !markerDrag) {
+                    asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
+                    if (asset.triggers.length) {
+                        content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><ul>";
+                        asset.triggers.forEach(function(tr) {
+                           content += "<li>" + getType(tr.type) + "</li>"; 
+                        });
+                        content += "</ul></div>";
+                        infoWindow.setContent(content);
+                    } else {
+                        infoWindow.setContent("No events attached to this asset.");
+                    }
+                    infoWindow.open(map, this);
+                }
+            });
+            google.maps.event.addListener(marker, "mouseout", function(ev) {
+                infoWindow.close();
+            });
+            google.maps.event.addListener(marker, "dragstart", function(ev) {
+                markerDrag = true;
+                infoWindow.close();
             });
             google.maps.event.addListener(marker, "dragend", function(ev) {
                 var asset = assets.filter(function(asset) { return asset.id === marker.title; })[0],
                     lat = ev.latLng.lat(),
                     lng = ev.latLng.lng();
+                markerDrag = false;
                 if (asset.lat !== lat || asset.lng !== lng) {
-                    asset.lat = ev.latLng.lat();
-                    asset.lng = ev.latLng.lng();
                     if (asset.triggers.length) {
-                        sendAssetUpdateRequest(asset);
+                        sendAssetUpdateRequest(asset, {lat: lat, lng: lng}, false);
+                    } else {
+                        asset.setProperties({lat: lat, lng: lng});
                     }
                 }
             });
+            google.maps.event.addListener(marker, "dragstart", hideMenu);
         } else if (action === "trigger_event") {
             var id = ev.target.parentNode.getAttribute("title"),
-                asset;
+                asset, trigger, url, type;
             if (id && id.indexOf("asset") !== -1) {
                 asset = assets.filter(function(a) { return a.id === id; })[0];
-                var trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
+                trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
+                type = getType(ev.dataTransfer.getData("type"));
                 if (trigger) {
-                    alert("Triggering event!");
+                    url = (trigger.type === EVENT_TYPES.TWITTER) ? trigger.getURL(asset.sid, trigger.cid)[0] : trigger.getURL(asset.sid, trigger.cid);
                     $.ajax({
-                        url: trigger.url,
+                        url: url,
                         success: function() { console.log("Successfully triggered."); },
-                        error: function() { console.log("Error on triggering event."); }
+                        error: function() { console.log("Error on triggering event."); },
+                        complete: function() { alert(type + " Trigger Simulated."); }
                     });
                 } else {
-                    alert("Selected event was not found!");
+                    alert(type + " Trigger Was Not Set.");
                 }
             }
         }

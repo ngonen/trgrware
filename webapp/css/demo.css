@@ -88,7 +88,6 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .hcfe a {
     color: #245dc1;
-    text-decoration: none;
 }
 
 .appbar-nav .product-icon img {
@@ -179,12 +178,12 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .appbar-nav .nav-title {	
     color: white;
-    width: 315px;
+    width: 318px;
     font-size: 39px;
     font-weight: bold;
     position: absolute;
     left: 50%;
-    margin-left: -158px;
+    margin-left: -159px;
 }
 
 #map_canvas { 
@@ -249,7 +248,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 #asset_popup {
-    margin-top: -216px;	
+    margin-top: -298px;	
     margin-left: -185px;
 }
 
@@ -258,23 +257,28 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 #trigger_weather_popup {
-	margin-top: -295px;
-	margin-left: -215px;
+	margin-top: -276px;
+	margin-left: -220px;
 }
 
 #trigger_temperature_popup {
-	margin-top: -196px;
-	margin-left: -215px;
+	margin-top: -177px;
+	margin-left: -220px;
 }
 
-#trigger_accident_popup, #trigger_flow_popup {
-	margin-top: -172px;
-	margin-left: -215px;
+#trigger_accident_popup {
+	margin-top: -157px;
+	margin-left: -220px;
+}
+
+#trigger_flow_popup {
+	margin-top: -177px;
+	margin-left: -220px;
 }
 
 #trigger_twitter_popup {
-	margin-top: -157px;
-	margin-left: -215px;
+	margin-top: -188px;
+	margin-left: -220px;
 }
 
 .popup-field {
@@ -293,7 +297,11 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .trigger_popup .popup-label {
-	min-width: 150px;
+	min-width: 160px;
+}
+
+.trigger_popup .additional .popup-label {
+	min-width: 164px;
 }
 
 .button {
@@ -327,7 +335,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     top: 0;
 	opacity: 0.75;
 	z-index: 999;
-}	
+}
 
 .button_action {
 	background-color: #4d90fe;
@@ -397,6 +405,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 	border: 1px solid lightgray;
 	border-radius: 5px;
+	z-index: 1000;
 }
 
 .menu_item {
@@ -596,10 +605,6 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	display: none;
 }
 
-.gm-style-iw + div {
-	display: none;
-}
-
 .gm-style-iw {
 	left: 10px !important;
 	top: 8px !important;
@@ -607,4 +612,22 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .infowindow_content {
 	text-align: justify;
+}
+
+.infowindow_content > ul {
+	margin-left: 20px;
+}
+
+.infowindow_title {
+	font-weight: bold !important;
+}
+
+.popup .add-fields {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+.popup .cross {
+	top: -26px;
+	left: 364px;
 }

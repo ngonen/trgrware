@@ -101,6 +101,24 @@
         });
     }
 
+    function runCronJob(url) {
+        $.ajax({
+            url: url,
+            beforeSend: function() {
+                $("#Loader").css({ 'display': 'block' });
+            },
+            complete: function() {
+                $("#Loader").hide();
+            },
+            error: function(error) {
+                alert(error.msg || error.message || "Unexpected error.");
+            },
+            success: function(data) {
+//                var response = JSON.parse(data);
+            }
+        });
+    }
+
     $(document).on("click", "#GetIncidentInfo", function() {
         var data = {
             center: "34.014|-118.2869",
@@ -190,14 +208,62 @@
     $(document).on("click", "#BtnWeather", function() {
         var id = Math.random(0, 10000),
             data = {
-                id: "asset-" + id,
-                event: "weather",
+                asset_id: "asset-" + id,
+                eventType: "weather_temperature",
                 center: "34.014|-118.2869",
                 radius: "4",
-                url: "http://gae-gh.appspot.com/"
+                condition: "Over",
+                threshold: 30,
+                callbackURL: "http://gae-gh.appspot.com/"
             };
 
         assetIds['w'].push(id);
+        registerEvent(data);
+    });
+
+    $(document).on("click", "#BtnWeatherSpeed", function() {
+        var id = Math.random(0, 10000),
+            data = {
+                asset_id: "asset-" + id,
+                eventType: "weather_wind",
+                center: "34.014|-118.2869",
+                radius: "2",
+                speed: 30,
+                callbackURL: "http://gae-gh.appspot.com/"
+            };
+
+        assetIds['w'].push(id);
+        registerEvent(data);
+    });
+
+    $(document).on("click", "#BtnWrongEventType", function() {
+        var id = Math.random(0, 10000),
+            data = {
+                asset_id: "asset-" + id,
+                eventType: "safdaf",
+                center: "34.014|-118.2869",
+                radius: "2",
+                speed: 30,
+                callbackURL: "http://gae-gh.appspot.com/"
+            };
+
+        assetIds['w'].push(id);
+        registerEvent(data);
+    });
+
+    $(document).on("click", "#BtnRegTwitter", function() {
+        var id = Math.random(0, 10000),
+            data = {
+                asset_id: "asset-" + id,
+                eventType: "twitter_hash_tag",
+                retriggerPeriod: 4,
+                hashtag: "someTag",
+                campaigns: JSON.stringify([
+                    { count: 7, callbackURL: "http://some.url.com" },
+                    { count: 4, callbackURL: "http://some.url.com" }
+                ])
+            };
+
         registerEvent(data);
     });
 
@@ -223,7 +289,8 @@
                 center: "34.014|-118.2869",
                 radius: "4",
                 url: "http://football.ua/",
-                mpx: Math.random(0, 10) * 10
+                condition: "Over",
+                threshold: Math.random(0, 10) * 10
             };
 
         assetIds['f'].push(id);
@@ -247,7 +314,11 @@
     $(document).on("click", "#BtnUpdateAsset", function() {
         var data = {
                 id: "asset-" + assetIds['f'][1],
-                center: "35|-100"
+                center: "35|-100",
+                events: JSON.stringify({
+                    'weather': "kuku.com",
+                    'speed': 'blabla.com'
+                })
             },
             url = "/demo/default/UpdateAsset";
 
@@ -308,6 +379,24 @@
         });
     });
 
+    $(document).on("click", "#BtnCronTestWind", function() {
+        $.ajax({
+            url: '/demo/Cron/WeatherWindSpeedNotifier',
+            beforeSend: function() {
+                $("#Loader").css({ 'display': 'block' });
+            },
+            complete: function() {
+                $("#Loader").hide();
+            },
+            error: function(error) {
+                alert(error.msg || error.message || "Unexpected error.");
+            },
+            success: function(data) {
+//                var response = JSON.parse(data);
+            }
+        });
+    });
+
     $(document).on("click", "#BtnDeleteEvent", function() {
         var url = '/demo/Default/DeleteEvent',
             data = {
@@ -325,6 +414,22 @@
             };
 
         deleteAssetInfo(url, data);
+    });
+
+    $(document).on("click", "#BtnCronTestSun", function() {
+        runCronJob('/demo/Cron/WeatherSunNotifier');
+    });
+
+    $(document).on("click", "#BtnCronTestRain", function() {
+        runCronJob('/demo/Cron/WeatherRainNotifier');
+    });
+
+    $(document).on("click", "#BtnCronTestSnow", function() {
+        runCronJob('/demo/Cron/WeatherSnowNotifier');
+    });
+
+    $(document).on("click", "#BtnCronTestThunderstorms", function() {
+        runCronJob('/demo/Cron/WeatherThunderstormsNotifier');
     });
 })();
 
