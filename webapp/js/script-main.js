@@ -985,7 +985,7 @@ $(function() {
                 displayMenu(ev.Ra);
             });
             google.maps.event.addListener(marker, "click", function(ev) {
-                var asset, marker;
+                var asset;
                 if (!contextMenuIsOpen) {
                     asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
                     marker = this;
@@ -996,7 +996,7 @@ $(function() {
                             var response = JSON.parse(data);
                             if (response.status) {
                                 asset.triggers.forEach(function (tr) {
-                                    tr.triggeringCount = response[tr.type];
+                                    tr.triggeringCount = response.statistic[tr.type];
                                 });
                                 updateAssetInfowindow(asset);
                             }
