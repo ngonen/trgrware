@@ -23,6 +23,9 @@ function Trigger(properties) {
         };
     };
     
+    this.injectionsCount = 0;
+    this.triggeringCount = 0;
+    
     this.setProperties(properties);
 }
 

@@ -137,7 +137,7 @@ function clearPopupFields() {
     });
 }
 
-function sendAJAX(url, data, callback, errorCallback) {
+function sendAJAX(url, data, callback, errorCallback, oncompleteCallback) {
     $.ajax({
         url: url,
         type: "POST",
@@ -146,7 +146,8 @@ function sendAJAX(url, data, callback, errorCallback) {
         error: errorCallback || function(error) {
             console.log(error.statusText + ": " + error.responseText);
             alert(error.statusText);
-        }
+        },
+        complete: oncompleteCallback || null
     });
 }
 
@@ -813,6 +814,15 @@ function removeContainer(event) {
     $(event.target.parentNode).remove();
 }
 
+function updateAssetInfowindow(asset) {
+    var content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><img class='infowindow_update' src='/img/loading.gif' width='13px' height='13px'><ul>";
+    asset.triggers.forEach(function(tr) {
+        content += "<li>" + getType(tr.type) + " (" + (tr.triggeringCount + tr.injectionsCount) + " times triggered)</li>"; 
+    });
+    content += "</ul></div>";
+    infoWindow.setContent(content);
+}
+
 $(function() {
     // Setup INRIX configuration with the right set of credentials (vendorID, vendorToken)
     var configuration = {
@@ -975,20 +985,31 @@ $(function() {
                 displayMenu(ev.Ra);
             });
             google.maps.event.addListener(marker, "click", function(ev) {
-                var asset, content;
+                var asset, marker;
                 if (!contextMenuIsOpen) {
                     asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
+                    marker = this;
                     if (asset.triggers.length) {
-                        content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><ul>";
-                        asset.triggers.forEach(function(tr) {
-                           content += "<li>" + getType(tr.type) + "</li>"; 
+                        updateAssetInfowindow(asset);
+                        infoWindow.open(map, marker);
+                        sendAJAX("/demo/Default/AjaxGetEventStatistic", { assetId: asset.id }, function(data) { 
+                            var response = JSON.parse(data);
+                            if (response.status) {
+                                asset.triggers.forEach(function (tr) {
+                                    tr.triggeringCount = response[tr.type];
+                                });
+                                updateAssetInfowindow(asset);
+                            }
+                        }, function(error) {
+                            console.log(error.statusText + ": " + error.responseText);
+                        },
+                        function() {
+                            $(".infowindow_update").hide();
                         });
-                        content += "</ul></div>";
-                        infoWindow.setContent(content);
                     } else {
                         infoWindow.setContent("No events attached to this asset.");
+                        infoWindow.open(map, this);
                     }
-                    infoWindow.open(map, this);
                 }
             });
             google.maps.event.addListener(marker, "dragstart", function(ev) {
@@ -1018,7 +1039,10 @@ $(function() {
                     url = (trigger.type === EVENT_TYPES.TWITTER) ? trigger.getURL(asset.sid, trigger.cid)[0] : trigger.getURL(asset.sid, trigger.cid);
                     $.ajax({
                         url: url,
-                        success: function() { console.log("Successfully triggered."); },
+                        success: function() {
+                            trigger.injectionsCount += 1;
+                            console.log("Successfully triggered.");
+                        },
                         error: function() { console.log("Error on triggering event."); },
                         complete: function() { alert(type + " Trigger Simulated."); }
                     });

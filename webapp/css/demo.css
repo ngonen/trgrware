@@ -622,6 +622,11 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	font-weight: bold !important;
 }
 
+.infowindow_update {
+	float: right;
+	margin-top: 4px;
+}
+
 .popup .add-fields {
 	cursor: pointer;
 	text-decoration: underline;
