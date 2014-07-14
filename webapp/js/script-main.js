@@ -347,7 +347,9 @@ function updateTrigger() {
 
 function validate(popup) {
     var inputs = $(popup + " .prop").toArray(),
-        value, el, errorMessage, i, length, min, max, ascending = {};
+        ascending = {},
+        conditionallyRequired = {},
+        value, el, errorMessage, i, length, min, max;
     for (i = 0, length = inputs.length; i < length; i++) {
         el = inputs[i];
         if (!el.disabled) {
@@ -388,7 +390,7 @@ function validate(popup) {
                     }
                     break;
                 case "hashtag":
-                    if (!/^#/.test(value)) {
+                    if (!/^\s*$/.test(value) && !/^#/.test(value)) {
                         errorMessage = "Incorrect hashtag (hashtag should start with '#')";
                         return {
                             isValid: false,
@@ -397,7 +399,7 @@ function validate(popup) {
                     }
                     break;
                 case "username":
-                    if (!/^@/.test(value)) {
+                    if (!/^\s*$/.test(value) && !/^@/.test(value)) {
                             errorMessage = "Incorrect username (username should start with '@')";
                             return {
                                 isValid: false,
@@ -441,10 +443,29 @@ function validate(popup) {
                 }
                 ascending[el.dataset.property] = getValue(el);
             }
+            if ($(el).hasClass("conditionally-required")) {
+                if (!(/^\s*$/.test(value))) {
+                    conditionallyRequired[el.dataset.group] = true;
+                } else {
+                    conditionallyRequired[el.dataset.group] = conditionallyRequired[el.dataset.group] || false;
+                }
+            }
         }        
     }
     if ($(popup + ' input[type=radio]').size() && !$(popup + ' input[type=radio]:checked').size()) {
         errorMessage = "One of options should be selected";
+        return {
+            isValid: false,
+            errorMessage: errorMessage
+        };
+    }
+    Object.keys(conditionallyRequired).forEach(function(key) {
+       if (!conditionallyRequired[key]) {
+           errorMessage = key + " - one of these fields should not be empty";
+           return;
+       } 
+    });
+    if (errorMessage) {
         return {
             isValid: false,
             errorMessage: errorMessage
@@ -465,7 +486,7 @@ function getValue(input) {
             value = isNaN(result) ? "" : result;
             break;
         default:
-            value = input.value;
+            value = input.value.trim();
             break;
     }
     return value;

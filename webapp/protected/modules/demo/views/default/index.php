@@ -205,11 +205,11 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Username</span>
-            <input data-property="username" data-type="username" class="textinput prop" type="text" placeholder="@target_username" required>
+            <input data-property="username" data-type="username" data-group="Username, Hashtag" class="textinput prop conditionally-required" type="text" placeholder="@target_username">
         </div>
         <div class="popup-field">
             <span class="popup-label">Hashtag</span>
-            <input data-property="hashtag" data-type="hashtag" class="textinput prop" type="text" placeholder="#target_hashtag" required>
+            <input data-property="hashtag" data-type="hashtag" data-group="Username, Hashtag" class="textinput prop conditionally-required" type="text" placeholder="#target_hashtag">
         </div>
         <div class="popup-field">
             <span class="popup-label">Count</span>
