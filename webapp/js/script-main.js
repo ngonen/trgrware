@@ -255,7 +255,7 @@ function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
             if (isNewTrigger) {
                 if (!asset.triggers.length) {
                     marker = markers.filter(function(m) { return m.title === asset.id; })[0];
-                    marker.setIcon("img/trgrware_screen_pin.png");
+                    marker.setIcon("img/trgrware_screen_pin_2.png");
                 }
                 asset.triggers.push(trigger);
             } else {
