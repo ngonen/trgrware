@@ -815,9 +815,15 @@ function removeContainer(event) {
 }
 
 function updateAssetInfowindow(asset) {
-    var content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><img class='infowindow_update' src='/img/loading.gif' width='13px' height='13px'><ul>";
+    var content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><img class='infowindow_update' src='/img/loading.gif' width='13px' height='13px'><ul>",
+        count;
     asset.triggers.forEach(function(tr) {
-        content += "<li>" + getType(tr.type) + " (" + (tr.triggeringCount + tr.injectionsCount) + " times triggered)</li>"; 
+        count = tr.triggeringCount + tr.injectionsCount;
+        if (count > 0) {
+            content += "<li>" + getType(tr.type) + " (triggered " + count + ((count === 1) ? " time" : " times") + ")</li>";
+        } else {
+            content += "<li>" + getType(tr.type) + "</li>";
+        }
     });
     content += "</ul></div>";
     infoWindow.setContent(content);
