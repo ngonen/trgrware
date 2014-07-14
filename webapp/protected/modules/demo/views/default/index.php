@@ -22,7 +22,7 @@
     <div class="title">Simulate Trigger</div>
     <div class="triggers_list">
         <div class="list_item">
-            <img src="img/incident@2x.png" width="18" height="18" class="item" data-type="traffic_accident" draggable="true"/>Accident
+            <img src="img/incident@2x.png" width="18" height="18" class="item" data-type="traffic_accident" draggable="true"/>Incident
         </div>
         <div class="list_item">
             <img src="img/congestion@2x.png" width="18" height="18" class="item" data-type="traffic_flow" draggable="true"/>Flow
@@ -60,7 +60,7 @@
         </div>
         <div class="list_item">
             <input class="item_checkbox" type="checkbox" id="accidents" checked>
-            <label for="accidents">Accidents</label>
+            <label for="accidents">Incidents</label>
         </div>
         <div class="list_item">
             <input class="item_checkbox" type="checkbox" id="temperature" checked>
