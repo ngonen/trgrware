@@ -702,8 +702,12 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	background-image: url("/img/Snow2.png");
 }
 
-.Snow, .AMSnow, .PMSnow {
+.Snow, .AMSnow {
 	background-image: url("/img/Snow3.png");
+}
+
+.PMSnow {
+	background-image: url("/img/Snow3_night.png");
 }
 
 .IceSnow, .Blizzard, .PMIceSnow {
@@ -724,4 +728,16 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .Tstorms {
 	background-image: url("/img/Tstorm2.png");
+}
+
+.Drizzle {
+	background-image: url("/img/Light_rain.png");
+}
+
+.CloudyWindy {
+	background-image: url("/img/Overcast.png");
+}
+
+.PMClouds {
+	background-image: url("/img/Cloudy3_night.png");
 }
