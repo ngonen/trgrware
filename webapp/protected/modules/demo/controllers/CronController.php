@@ -14,7 +14,6 @@ class CronController extends IDemoBaseController
             if ($count) {
                 syslog(LOG_WARNING, "Count of subscribers for 'Weather Temperature': " . $count);
 
-                $streamContext = $this->getStreamContext();
                 $securityToken = $this->getSecurityToken();
 
                 if (!$securityToken) {
@@ -22,26 +21,35 @@ class CronController extends IDemoBaseController
                 } else {
                     syslog(LOG_INFO, "Start loop subscribers.");
 
-                    foreach ($subscribers as $key => $value) {
-                        $result = $this->getWeatherInRadius($value['center'], $value['radius'], $securityToken);
+                    $streamContext = $this->getStreamContext();
+
+                    foreach ($subscribers as $key => $subscriber) {
+                        $result = $this->getWeatherInRadius($subscriber['center'], $subscriber['radius'], $securityToken);
 
                         if ($result->Weather && $result->Weather->Conditions) {
                             foreach ($result->Weather->Conditions->Station as $k => $station) {
                                 $actualTemperature = $station->Current->Temperature->attributes()['actual'];
-                                $condition = $value['condition'] == IDemoBaseController::OVER
-                                    ? $actualTemperature >= $value['threshold']
-                                    : $actualTemperature < $value['threshold'];
+                                $condition = $subscriber['condition'] == IDemoBaseController::OVER
+                                    ? $actualTemperature >= $subscriber['threshold']
+                                    : $actualTemperature < $subscriber['threshold'];
 
                                 syslog(LOG_INFO, "Actual temperature: " . $actualTemperature . ", expected temperature: "
-                                    . $value['threshold'] . ", condition: " . $value['condition']);
+                                    . $subscriber['threshold'] . ", condition: " . $subscriber['condition']);
 
                                 if ($condition) {
-                                    file_get_contents($value["url"], false, $streamContext);
+                                    $response = file_get_contents($subscriber["url"], false, $streamContext);
+                                    $status = strpos($response, '"ret": "success"');
 
-                                    syslog(LOG_INFO, "[WeatherTemperature] Request '" . $key . "' for asset "
-                                        . $value['id'] . " has been sent to url " . $value["url"]);
+                                    if ($response && $status && $status >= 0) {
+                                        syslog(LOG_INFO, "[WeatherTemperature] Request for asset " . $subscriber['id']
+                                            . " has been sent to url " . $subscriber["url"]);
 
-                                    break;
+                                        $this->updateEventStatistic($subscriber['id'], IDemoBaseController::WEATHER_TEMPERATURE);
+
+                                        break;
+                                    } else {
+                                        syslog(LOG_ERR, "Response message from " . $subscriber["url"] . " is not valid.");
+                                    }
                                 }
                             }
                         } else {
@@ -83,10 +91,19 @@ class CronController extends IDemoBaseController
                         $result = $this->getIncidentInfo($subscriber['center'], $subscriber['radius'], $securityToken);
 
                         if ($result->Incidents && count($result->Incidents->Incident)) {
-                            file_get_contents($subscriber["url"], false, $streamContext);
+                            $response = file_get_contents($subscriber["url"], false, $streamContext);
+                            $status = strpos($response, '"ret": "success"');
 
-                            syslog(LOG_INFO, "[TrafficIncidents] Request '" . $key . "' for asset "
-                                . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+                            if ($response && $status && $status >= 0) {
+                                syslog(LOG_INFO, "[TrafficIncidents] Request for asset " . $subscriber['id']
+                                    . " has been sent to url " . $subscriber["url"]);
+
+                                $this->updateEventStatistic($subscriber['id'], IDemoBaseController::TRAFFIC_INCIDENTS);
+
+                                break;
+                            } else {
+                                syslog(LOG_ERR, "Response message from " . $subscriber["url"] . " is not valid.");
+                            }
                         } else {
                             syslog(LOG_INFO, "Empty result.");
                         }
@@ -122,21 +139,30 @@ class CronController extends IDemoBaseController
                 } else {
                     syslog(LOG_INFO, "Start loop 'traffic speed' subscribers.");
 
-                    foreach ($subscribers as $key => $value) {
-                        $result = $this->getSegmentSpeedInRadius($value['center'], $value['radius'], $securityToken);
+                    foreach ($subscribers as $key => $subscriber) {
+                        $result = $this->getSegmentSpeedInRadius($subscriber['center'], $subscriber['radius'], $securityToken);
 
                         if ($result->SegmentSpeedResultSet && $result->SegmentSpeedResultSet->SegmentSpeedResults) {
                             foreach ($result->SegmentSpeedResultSet->SegmentSpeedResults->Segment as $k => $segment) {
                                 $actualSpeed = $segment->attributes()['speed'];
-                                $condition = $value['condition'] == "Over"
-                                    ? $actualSpeed >= $value['threshold']
-                                    : $actualSpeed < $value['threshold'];
+                                $condition = $subscriber['condition'] == "Over"
+                                    ? $actualSpeed >= $subscriber['threshold']
+                                    : $actualSpeed < $subscriber['threshold'];
 
                                 if ($condition) {
-                                    file_get_contents($value['url'], false, $streamContext);
+                                    $response = file_get_contents($subscriber["url"], false, $streamContext);
+                                    $status = strpos($response, '"ret": "success"');
 
-                                    syslog(LOG_INFO, "[TrafficSpeed] Request '" . $key . "' for asset "
-                                        . $value['id'] . " has been sent to url " . $value['url']);
+                                    if ($response && $status && $status >= 0) {
+                                        syslog(LOG_INFO, "[TrafficSpeed] Request '" . $key . "' for asset "
+                                            . $subscriber['id'] . " has been sent to url " . $subscriber['url']);
+
+                                        $this->updateEventStatistic($subscriber['id'], IDemoBaseController::TRAFFIC_FLOW);
+
+                                        break;
+                                    } else {
+                                        syslog(LOG_ERR, "Response message from " . $subscriber["url"] . " is not valid.");
+                                    }
 
                                     break;
                                 }
@@ -156,8 +182,6 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action SpeedNotifier finished.");
     }
 
-    // TODO: Finish
-    // TODO: Test
     public function actionTwitterHashTagNotifier() {
         syslog(LOG_INFO, "Action TwitterHashTagNotifier started.");
 
@@ -171,21 +195,52 @@ class CronController extends IDemoBaseController
                 syslog(LOG_INFO, "Count of subscribers for 'Twitter hashtag': " . $count);
 
                 $streamContext = $this->getStreamContext();
+                $twitter = Yii::app()->twitter->getTwitterTokened(Yii::app()->params['twitter']['oauth_token'],
+                    Yii::app()->params['twitter']['oauth_token_secret']);
+                $favorites = $twitter->get('favorites/list');
 
                 foreach ($subscribers as $key => $subscriber) {
-                    // TODO: Get result from Twitter [FIX]
-                    $result = "";
-                    // TODO: Get count of hashtags [FIX]
-                    $tagsCount = count($result);
+                    $userName = $subscriber['userName'];
+                    $hashTag = $subscriber['hashTag'];
 
-                    if ($tagsCount) {
-                        foreach ($subscriber['campaigns'] as $c => $campaign) {
-                            if ($tagsCount >= $c) {
-                                file_get_contents($campaign['url'], false, $streamContext);
+                    $matches = array_filter($favorites, function($favorite) use ($userName, $hashTag) {
+                        if ($userName) {
+                            foreach ($favorite->entities->user_mentions as $k => $v) {
+                                if (strtolower($v->screen_name) == strtolower(substr($userName, 1))) {
+                                    return true;
+                                }
+                            }
+                        }
 
-                                syslog(LOG_INFO, "[Twitter hashtag] Request '" . $key . "' for asset "
-                                    . $subscriber['id'] . ", hashtag " . $subscriber['hashTag'] . ", count "
-                                    . $c . " has been sent to url " . $campaign['url']);
+                        if ($hashTag) {
+                            foreach ($favorite->entities->hashtags as $k => $v) {
+                                if (strtolower($v->text) == strtolower(substr($hashTag, 1))) {
+                                    return true;
+                                }
+                            }
+                        }
+
+                        return false;
+                    });
+                    $matchesCount = count($matches);
+
+                    if ($matchesCount) {
+                        foreach ($subscriber['campaigns'] as $c => $url) {
+                            if ($matchesCount >= $c) {
+                                $response = file_get_contents($url, false, $streamContext);
+                                $status = strpos($response, '"ret": "success"');
+
+                                if ($response && $status && $status >= 0) {
+                                    syslog(LOG_INFO, "[Twitter hashtag] Request for asset " . $subscriber['id']
+                                        . ", hashtag " . $subscriber['hashTag'] . ", count "
+                                        . $c . " has been sent to url " . $url);
+
+                                    $this->updateEventStatistic($subscriber['id'], IDemoBaseController::TWITTER_HASH_TAG);
+
+                                    break;
+                                } else {
+                                    syslog(LOG_ERR, "Response message from " . $subscriber["url"] . " is not valid.");
+                                }
 
                                 break;
                             }
@@ -236,10 +291,19 @@ class CronController extends IDemoBaseController
                                     . $subscriber['speed'] . "mph");
 
                                 if ($subscriber['speed'] && $actualSpeed >= $subscriber['speed']) {
-                                    file_get_contents($subscriber["url"], false, $streamContext);
+                                    $response = file_get_contents($subscriber["url"], false, $streamContext);
+                                    $status = strpos($response, '"ret": "success"');
 
-                                    syslog(LOG_INFO, "[WeatherWind Speed] Request '" . $key . "' for asset "
-                                        . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+                                    if ($response && $status && $status >= 0) {
+                                        syslog(LOG_INFO, "[WeatherWind Speed] Request '" . $key . "' for asset "
+                                            . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+
+                                        $this->updateEventStatistic($subscriber['id'], IDemoBaseController::WEATHER_WIND_SPEED);
+
+                                        break;
+                                    } else {
+                                        syslog(LOG_ERR, "Response message from " . $subscriber["url"] . " is not valid.");
+                                    }
 
                                     break;
                                 }
@@ -259,14 +323,13 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action WeatherWindNotifier finished.");
     }
 
-    // TODO: Test
     public function actionWeatherSunNotifier() {
         syslog(LOG_INFO, "Action WeatherSunNotifier started.");
 
         $filePath = Yii::app()->params['eventStoragePath'];
 
         if (is_file($filePath)) {
-            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::WEATHER_SUN);
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::WEATHER_SUNNY);
             $count = count($subscribers);
 
             if ($count) {
@@ -286,15 +349,25 @@ class CronController extends IDemoBaseController
 
                         if ($result->Weather && $result->Weather->Conditions) {
                             foreach ($result->Weather->Conditions->Station as $k => $station) {
-                                $actualSunValue = $station->Current->Sun->attributes()['uvIndex'];
+                                $sky = $station->Current->Sky->attributes()['description'];
+                                $contain = strpos($sky, IDemoBaseController::SKY_SUNNY);
 
-                                syslog(LOG_INFO, "Sun value: " . $actualSunValue);
+                                syslog(LOG_INFO, "Sun value: " . $sky);
 
-                                if ($actualSunValue > 0) {
-                                    file_get_contents($subscriber["url"], false, $streamContext);
+                                if ($contain !== false && $contain >= 0) {
+                                    $response = file_get_contents($subscriber["url"], false, $streamContext);
+                                    $status = strpos($response, '"ret": "success"');
 
-                                    syslog(LOG_INFO, "[Weather Sun] Request '" . $key . "' for asset "
-                                        . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+                                    if ($response && $status && $status >= 0) {
+                                        syslog(LOG_INFO, "[Weather Sun] Request '" . $key . "' for asset "
+                                            . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+
+                                        $this->updateEventStatistic($subscriber['id'], IDemoBaseController::WEATHER_SUNNY);
+
+                                        break;
+                                    } else {
+                                        syslog(LOG_ERR, "Response message from " . $subscriber["url"] . " is not valid.");
+                                    }
 
                                     break;
                                 }
@@ -314,7 +387,6 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action WeatherSunNotifier finished.");
     }
 
-    // TODO: Test
     public function actionWeatherRainNotifier() {
         syslog(LOG_INFO, "Action WeatherRainNotifier started.");
 
@@ -347,10 +419,19 @@ class CronController extends IDemoBaseController
                                 syslog(LOG_INFO, "Sky value: " . $sky);
 
                                 if ($contain !== false && $contain >= 0) {
-                                    file_get_contents($subscriber["url"], false, $streamContext);
+                                    $response = file_get_contents($subscriber["url"], false, $streamContext);
+                                    $status = strpos($response, '"ret": "success"');
 
-                                    syslog(LOG_INFO, "[Weather Rain] Request '" . $key . "' for asset "
-                                        . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+                                    if ($response && $status && $status >= 0) {
+                                        syslog(LOG_INFO, "[Weather Rain] Request '" . $key . "' for asset "
+                                            . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+
+                                        $this->updateEventStatistic($subscriber['id'], IDemoBaseController::WEATHER_RAIN);
+
+                                        break;
+                                    } else {
+                                        syslog(LOG_ERR, "Response message from " . $subscriber["url"] . " is not valid.");
+                                    }
 
                                     break;
                                 }
@@ -370,7 +451,6 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action WeatherRainNotifier finished.");
     }
 
-    // TODO: Test
     public function actionWeatherSnowNotifier() {
         syslog(LOG_INFO, "Action WeatherSnowNotifier started.");
 
@@ -403,10 +483,19 @@ class CronController extends IDemoBaseController
                                 syslog(LOG_INFO, "Sky value: " . $sky);
 
                                 if ($contain !== false && $contain >= 0) {
-                                    file_get_contents($subscriber["url"], false, $streamContext);
+                                    $response = file_get_contents($subscriber["url"], false, $streamContext);
+                                    $status = strpos($response, '"ret": "success"');
 
-                                    syslog(LOG_INFO, "[Weather Snow] Request '" . $key . "' for asset "
-                                        . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+                                    if ($response && $status && $status >= 0) {
+                                        syslog(LOG_INFO, "[Weather Snow] Request '" . $key . "' for asset "
+                                            . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+
+                                        $this->updateEventStatistic($subscriber['id'], IDemoBaseController::WEATHER_SNOW);
+
+                                        break;
+                                    } else {
+                                        syslog(LOG_ERR, "Response message from " . $subscriber["url"] . " is not valid.");
+                                    }
 
                                     break;
                                 }
@@ -426,7 +515,6 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action WeatherSnowNotifier finished.");
     }
 
-    // TODO: Test
     public function actionWeatherThunderstormsNotifier() {
         syslog(LOG_INFO, "Action WeatherThunderstormsNotifier started.");
 
@@ -455,14 +543,24 @@ class CronController extends IDemoBaseController
                             foreach ($result->Weather->Conditions->Station as $k => $station) {
                                 $sky = $station->Current->Sky->attributes()['description'];
                                 $contain = strpos($sky, IDemoBaseController::SKY_THUNDERSTORMS);
+                                $contain_t = strpos($sky, IDemoBaseController::SKY_T_STORM);
 
                                 syslog(LOG_INFO, "Sky value: " . $sky);
 
-                                if ($contain !== false && $contain >= 0) {
-                                    file_get_contents($subscriber["url"], false, $streamContext);
+                                if (($contain !== false && $contain >= 0) || ($contain_t !== false && $contain_t >= 0)) {
+                                    $response = file_get_contents($subscriber["url"], false, $streamContext);
+                                    $status = strpos($response, '"ret": "success"');
 
-                                    syslog(LOG_INFO, "[Weather Thunderstorms] Request '" . $key . "' for asset "
-                                        . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+                                    if ($response && $status && $status >= 0) {
+                                        syslog(LOG_INFO, "[Weather Thunderstorms] Request '" . $key . "' for asset "
+                                            . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+
+                                        $this->updateEventStatistic($subscriber['id'], IDemoBaseController::WEATHER_THUNDER_STORM);
+
+                                        break;
+                                    } else {
+                                        syslog(LOG_ERR, "Response message from " . $subscriber["url"] . " is not valid.");
+                                    }
 
                                     break;
                                 }
@@ -482,6 +580,70 @@ class CronController extends IDemoBaseController
         syslog(LOG_INFO, "Action WeatherThunderstormsNotifier finished.");
     }
 
+    public function actionWeatherCloudyNotifier() {
+        syslog(LOG_INFO, "Action WeatherCloudyNotifier started.");
+
+        $filePath = Yii::app()->params['eventStoragePath'];
+
+        if (is_file($filePath)) {
+            $subscribers = $this->getSubscribers($filePath, IDemoBaseController::WEATHER_CLOUDY);
+            $count = count($subscribers);
+
+            if ($count) {
+                syslog(LOG_INFO, "Count of subscribers for 'Weather Cloudy': " . $count);
+
+                $streamContext = $this->getStreamContext();
+                $securityToken = $this->getSecurityToken();
+
+                if (!$securityToken) {
+                    syslog(LOG_WARNING, "Cannot get security token.");
+                } else {
+                    syslog(LOG_INFO, "Start loop subscribers.");
+
+                    foreach ($subscribers as $key => $subscriber) {
+                        $result = $this->getWeatherInRadius($subscriber['center'], $subscriber['radius'],
+                            $securityToken);
+
+                        if ($result->Weather && $result->Weather->Conditions) {
+                            foreach ($result->Weather->Conditions->Station as $k => $station) {
+                                $sky = $station->Current->Sky->attributes()['description'];
+                                $contain = strpos($sky, IDemoBaseController::SKY_CLOUDY);
+
+                                syslog(LOG_INFO, "Sun value: " . $sky);
+
+                                if ($contain !== false && $contain >= 0) {
+                                    $response = file_get_contents($subscriber["url"], false, $streamContext);
+                                    $status = strpos($response, '"ret": "success"');
+
+                                    if ($response && $status && $status >= 0) {
+                                        syslog(LOG_INFO, "[Weather Cloudy] Request '" . $key . "' for asset "
+                                            . $subscriber['id'] . " has been sent to url " . $subscriber["url"]);
+
+                                        $this->updateEventStatistic($subscriber['id'], IDemoBaseController::WEATHER_CLOUDY);
+
+                                        break;
+                                    } else {
+                                        syslog(LOG_ERR, "Response message from " . $subscriber["url"] . " is not valid.");
+                                    }
+
+                                    break;
+                                }
+                            }
+                        } else {
+                            syslog(LOG_INFO, "Result is empty.");
+                        }
+                    }
+                }
+            } else {
+                syslog(LOG_INFO, "Subscribers for 'Weather Cloudy' event were not found.");
+            }
+        } else {
+            syslog(LOG_INFO, "FileStorage not found. Requested path: " . $filePath);
+        }
+
+        syslog(LOG_INFO, "Action WeatherCloudyNotifier finished.");
+    }
+
 
 
 
@@ -490,5 +652,32 @@ class CronController extends IDemoBaseController
         $ctx = $this->getStreamContextForPlanText();
 
         return unserialize(file_get_contents($filePath, 0, $ctx))[$type];
+    }
+
+    private function updateEventStatistic($assetId, $eventType) {
+        $filePath = Yii::app()->params['eventStatisticStoragePath'];
+
+        if (is_file($filePath)) {
+            syslog(LOG_INFO, "Event statistic storage exists. Start to unserialize.");
+
+            $fc = $this->readStorage($filePath);
+
+            if (!isset($fc[$assetId])) {
+                $fc[$assetId] = $this->createEventStorageArray(0);
+            }
+        } else {
+            syslog(LOG_INFO, "Event statistic storage does not exist. Start to create.");
+
+            $fc = [
+                $assetId => $this->createEventStorageArray(0)
+            ];
+        }
+
+        $fc[$assetId][$eventType] += 1;
+        $isSaved = $this->saveToStorage($filePath, $fc);
+
+        if ($isSaved) {
+            syslog(LOG_INFO, "Statistic for [" . $eventType . "] has been successfully updated.");
+        }
     }
 }

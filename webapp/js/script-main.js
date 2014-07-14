@@ -17,7 +17,6 @@ var trigger_type;
 var refreshKey;
 var updateMap;
 var contextMenuIsOpen;
-var markerDrag;
 
 var EVENT_TYPES = {
     INCIDENT: "traffic_accident",
@@ -27,6 +26,7 @@ var EVENT_TYPES = {
     WIND: "weather_wind",
     RAIN: "weather_rain",
     SUN: "weather_sun",
+    CLOUD: "weather_cloud",
     SNOW: "weather_snow",
     THUNDER_STORM: "weather_thunder_storm",
     STORM: "weather_storm",
@@ -137,7 +137,7 @@ function clearPopupFields() {
     });
 }
 
-function sendAJAX(url, data, callback, errorCallback) {
+function sendAJAX(url, data, callback, errorCallback, oncompleteCallback) {
     $.ajax({
         url: url,
         type: "POST",
@@ -146,7 +146,8 @@ function sendAJAX(url, data, callback, errorCallback) {
         error: errorCallback || function(error) {
             console.log(error.statusText + ": " + error.responseText);
             alert(error.statusText);
-        }
+        },
+        complete: oncompleteCallback || null
     });
 }
 
@@ -249,9 +250,14 @@ function removeAsset(asset) {
 function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
     var url = isNewTrigger ? "/demo/Default/RegisterEvent" : "/demo/Default/UpdateEvent";
     sendAJAX(url, trigger.getData(properties), function(data) {
-        var response = JSON.parse(data);
+        var response = JSON.parse(data),
+            marker;
         if (response.status) {
             if (isNewTrigger) {
+                if (!asset.triggers.length) {
+                    marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+                    marker.setIcon("img/trgrware_screen_pin_2.png");
+                }
                 asset.triggers.push(trigger);
             } else {
                 trigger.setProperties(properties);
@@ -280,9 +286,14 @@ function removeTrigger(asset, eventType) {
         eventType: trigger.type
     };
     sendAJAX("/demo/Default/DeleteEvent", data, function(data) {
-        var response = JSON.parse(data);
+        var response = JSON.parse(data),
+            marker;
         if (response.status) {
             asset.triggers.splice(asset.triggers.indexOf(trigger), 1);
+            if (!asset.triggers.length) {
+                marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+                marker.setIcon("img/screen_pin.png");
+            }
             console.log(response.message);
         } else {
             console.log(response.errorMessage);
@@ -336,7 +347,9 @@ function updateTrigger() {
 
 function validate(popup) {
     var inputs = $(popup + " .prop").toArray(),
-        value, el, errorMessage, i, length, min, max, ascending = {};
+        ascending = {},
+        conditionallyRequired = {},
+        value, el, errorMessage, i, length, min, max;
     for (i = 0, length = inputs.length; i < length; i++) {
         el = inputs[i];
         if (!el.disabled) {
@@ -377,7 +390,7 @@ function validate(popup) {
                     }
                     break;
                 case "hashtag":
-                    if (!/^#/.test(value)) {
+                    if (!/^\s*$/.test(value) && !/^#/.test(value)) {
                         errorMessage = "Incorrect hashtag (hashtag should start with '#')";
                         return {
                             isValid: false,
@@ -386,7 +399,7 @@ function validate(popup) {
                     }
                     break;
                 case "username":
-                    if (!/^@/.test(value)) {
+                    if (!/^\s*$/.test(value) && !/^@/.test(value)) {
                             errorMessage = "Incorrect username (username should start with '@')";
                             return {
                                 isValid: false,
@@ -430,10 +443,29 @@ function validate(popup) {
                 }
                 ascending[el.dataset.property] = getValue(el);
             }
+            if ($(el).hasClass("conditionally-required")) {
+                if (!(/^\s*$/.test(value))) {
+                    conditionallyRequired[el.dataset.group] = true;
+                } else {
+                    conditionallyRequired[el.dataset.group] = conditionallyRequired[el.dataset.group] || false;
+                }
+            }
         }        
     }
     if ($(popup + ' input[type=radio]').size() && !$(popup + ' input[type=radio]:checked').size()) {
         errorMessage = "One of options should be selected";
+        return {
+            isValid: false,
+            errorMessage: errorMessage
+        };
+    }
+    Object.keys(conditionallyRequired).forEach(function(key) {
+       if (!conditionallyRequired[key]) {
+           errorMessage = key + " - one of these fields should not be empty";
+           return;
+       } 
+    });
+    if (errorMessage) {
         return {
             isValid: false,
             errorMessage: errorMessage
@@ -454,7 +486,7 @@ function getValue(input) {
             value = isNaN(result) ? "" : result;
             break;
         default:
-            value = input.value;
+            value = input.value.trim();
             break;
     }
     return value;
@@ -531,15 +563,12 @@ function showIncidents(incidents) {
                 icon: 'img/incidentPin@2x-small.png',
                 title: 'incident'
             });
-            google.maps.event.addListener(marker, "mouseover", function() {
+            google.maps.event.addListener(marker, "click", function() {
                 var description = incident.fullDesc ? incident.fullDesc : "No description.";
                 if (!contextMenuIsOpen) {
                     infoWindow.setContent("<div class='infowindow_content'>" + description + "</div>");
                     infoWindow.open(map, this);
                 }
-            });
-            google.maps.event.addListener(marker, "mouseout", function() {
-                infoWindow.close();
             });
             incidentMarkers.push(marker);
         });
@@ -579,21 +608,20 @@ function showWeather(data) {
                         labelClass: "weather_station " + degreeClass,
                         title: "weather station"
                     });
-                    google.maps.event.addListener(marker, "mouseover", function() {
+                    google.maps.event.addListener(marker, "click", function() {
+                        var sky_desc;
                         if (!contextMenuIsOpen) {
-                            infoWindow.setContent("<p>Station:     " + station._attr.name._value + "</p>" +
-                                                  "<p>Elevation:   " + station._attr.elevation._value + " yd</p>" +
-                                                  "<p>Humidity:    " + station.Current[0].Humidity[0]._attr.relative._value + "%</p>" +
+                            sky_desc = station.Current[0].Sky[0]._attr.description._value;
+                            infoWindow.setContent("<p class='infowindow_title'>" + station._attr.name._value + "</p>" +
+                                                  "<p>Elevation: " + station._attr.elevation._value + " yd</p>" +
+                                                  "<p>Humidity: " + station.Current[0].Humidity[0]._attr.relative._value + "%</p>" +
                                                   "<p>Temperature: " + temperature + "\u00B0F</p>" +
-                                                  "<p>Pressure:    " + station.Current[0].Pressure[0]._attr.actual._value + " mbar</p>" +
-                                                  "<p>Wind speed:  " + station.Current[0].Wind[0]._attr.speed._value + " mph</p>" +
-                                                  "<p>Sky:         " + station.Current[0].Sky[0]._attr.description._value + "</p>"
+                                                  "<p>Pressure: " + station.Current[0].Pressure[0]._attr.actual._value + " mbar</p>" +
+                                                  "<p>Wind speed: " + station.Current[0].Wind[0]._attr.speed._value + " mph</p>" +
+                                                  "<p class='weather_info " + sky_desc.replace(/[\s\/\-\(\)]*/g,'') + "'>" + sky_desc + "</p>"
                                                   );
                              infoWindow.open(map, this);
                         }
-                    });
-                    google.maps.event.addListener(marker, "mouseout", function() {
-                        infoWindow.close();
                     });
                     google.maps.event.addListener(marker, "click", hideMenu);
                     weatherStations.push(marker);
@@ -603,7 +631,6 @@ function showWeather(data) {
             }
         } else {
             console.log(response.errorMessage);
-            alert(response.errorMessage);
         }
         $(".loading").removeClass("weather");
         if ($(".loading")[0].classList.length < 2) {
@@ -669,7 +696,6 @@ function getWeather() {
         if ($(".loading")[0].classList.length < 2) {
             $(".loading").hide();
         }
-        alert(error.statusText);
     });
 }
 
@@ -753,7 +779,7 @@ function autoUpdateMap() {
         getMapInfo();
         autoUpdateMap();
     }   
-    updateMap = setTimeout(update, 60000);
+    updateMap = setTimeout(update, 120000);
 }
 
 function getType(trigger_type) {
@@ -777,6 +803,7 @@ function getType(trigger_type) {
         case EVENT_TYPES.THUNDER_STORM:
         case EVENT_TYPES.WIND:
         case EVENT_TYPES.STORM:
+        case EVENT_TYPES.CLOUD:
             type = "Weather Event";
             break;
     }
@@ -785,7 +812,7 @@ function getType(trigger_type) {
 
 function checkEventType(type) {
     var eventType;
-    if ([EVENT_TYPES.RAIN, EVENT_TYPES.SUN, EVENT_TYPES.SNOW, EVENT_TYPES.THUNDER_STORM, EVENT_TYPES.WIND, EVENT_TYPES.STORM].indexOf(type) !== -1) {
+    if ([EVENT_TYPES.RAIN, EVENT_TYPES.SUN, EVENT_TYPES.CLOUD, EVENT_TYPES.SNOW, EVENT_TYPES.THUNDER_STORM, EVENT_TYPES.WIND, EVENT_TYPES.STORM].indexOf(type) !== -1) {
         eventType = EVENT_TYPES.WEATHER_EVENT;
     } else {
         eventType = type;
@@ -806,6 +833,21 @@ function addTwitterFields() {
 
 function removeContainer(event) {
     $(event.target.parentNode).remove();
+}
+
+function updateAssetInfowindow(asset) {
+    var content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><img class='infowindow_update' src='/img/loading.gif' width='13px' height='13px'><ul>",
+        count;
+    asset.triggers.forEach(function(tr) {
+        count = tr.triggeringCount + tr.injectionsCount;
+        if (count > 0) {
+            content += "<li>" + getType(tr.type) + " (triggered " + count + ((count === 1) ? " time" : " times") + ")</li>";
+        } else {
+            content += "<li>" + getType(tr.type) + "</li>";
+        }
+    });
+    content += "</ul></div>";
+    infoWindow.setContent(content);
 }
 
 $(function() {
@@ -887,9 +929,13 @@ $(function() {
         onZoom();
         autoUpdateMap();
         hideMenu();
+        infoWindow.close();
     });
     google.maps.event.addListener(map, "rightclick", hideMenu);
-    google.maps.event.addListener(map, "dragstart", hideMenu);
+    google.maps.event.addListener(map, "dragstart", function() {
+        infoWindow.close();
+        hideMenu();
+    });
     $("body").on("click", hideMenu);
     $("body").on("dragstart", hideMenu);
     $("#asset_popup").on("keyup", function(ev) {
@@ -965,35 +1011,42 @@ $(function() {
                 });
                 displayMenu(ev.Ra);
             });
-            google.maps.event.addListener(marker, "mouseover", function(ev) {
-                var asset, content;
-                if (!contextMenuIsOpen && !markerDrag) {
+            google.maps.event.addListener(marker, "click", function(ev) {
+                var asset;
+                if (!contextMenuIsOpen) {
                     asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
+                    marker = this;
                     if (asset.triggers.length) {
-                        content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><ul>";
-                        asset.triggers.forEach(function(tr) {
-                           content += "<li>" + getType(tr.type) + "</li>"; 
+                        updateAssetInfowindow(asset);
+                        infoWindow.open(map, marker);
+                        sendAJAX("/demo/Default/AjaxGetEventStatistic", { assetId: asset.id }, function(data) { 
+                            var response = JSON.parse(data);
+                            if (response.status) {
+                                asset.triggers.forEach(function (tr) {
+                                    tr.triggeringCount = response.statistic[tr.type];
+                                });
+                                updateAssetInfowindow(asset);
+                            }
+                        }, function(error) {
+                            console.log(error.statusText + ": " + error.responseText);
+                        },
+                        function() {
+                            $(".infowindow_update").hide();
                         });
-                        content += "</ul></div>";
-                        infoWindow.setContent(content);
                     } else {
                         infoWindow.setContent("No events attached to this asset.");
+                        infoWindow.open(map, this);
                     }
-                    infoWindow.open(map, this);
                 }
             });
-            google.maps.event.addListener(marker, "mouseout", function(ev) {
-                infoWindow.close();
-            });
             google.maps.event.addListener(marker, "dragstart", function(ev) {
-                markerDrag = true;
                 infoWindow.close();
+                hideMenu();
             });
             google.maps.event.addListener(marker, "dragend", function(ev) {
                 var asset = assets.filter(function(asset) { return asset.id === marker.title; })[0],
                     lat = ev.latLng.lat(),
                     lng = ev.latLng.lng();
-                markerDrag = false;
                 if (asset.lat !== lat || asset.lng !== lng) {
                     if (asset.triggers.length) {
                         sendAssetUpdateRequest(asset, {lat: lat, lng: lng}, false);
@@ -1002,7 +1055,6 @@ $(function() {
                     }
                 }
             });
-            google.maps.event.addListener(marker, "dragstart", hideMenu);
         } else if (action === "trigger_event") {
             var id = ev.target.parentNode.getAttribute("title"),
                 asset, trigger, url, type;
@@ -1014,7 +1066,10 @@ $(function() {
                     url = (trigger.type === EVENT_TYPES.TWITTER) ? trigger.getURL(asset.sid, trigger.cid)[0] : trigger.getURL(asset.sid, trigger.cid);
                     $.ajax({
                         url: url,
-                        success: function() { console.log("Successfully triggered."); },
+                        success: function() {
+                            trigger.injectionsCount += 1;
+                            console.log("Successfully triggered.");
+                        },
                         error: function() { console.log("Error on triggering event."); },
                         complete: function() { alert(type + " Trigger Simulated."); }
                     });

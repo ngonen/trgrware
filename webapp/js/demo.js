@@ -431,5 +431,35 @@
     $(document).on("click", "#BtnCronTestThunderstorms", function() {
         runCronJob('/demo/Cron/WeatherThunderstormsNotifier');
     });
+
+    $(document).on("click", "#BtnCronTestCloudy", function() {
+        runCronJob('/demo/Cron/WeatherCloudyNotifier');
+    });
+
+    $(document).on("click", "#BtnCronTestTwitter", function() {
+        runCronJob('/demo/Cron/TwitterHashTagNotifier');
+    });
+
+    $(document).on("click", "#BtnAssetStatistic", function() {
+        $.ajax({
+            url: "/demo/default/AjaxGetEventStatistic",
+            data: {
+                assetId: $("#assetId").val()
+            },
+            beforeSend: function() {
+                $("#Loader").css({ 'display': 'block' });
+                $("#Results").hide();
+            },
+            complete: function() {
+                $("#Loader").hide();
+            },
+            error: function(error) {
+                alert(error.msg || error.message || "Unexpected error.");
+            },
+            success: function(data) {
+
+            }
+        });
+    });
 })();
 

@@ -22,7 +22,7 @@
     <div class="title">Simulate Trigger</div>
     <div class="triggers_list">
         <div class="list_item">
-            <img src="img/incident@2x.png" width="18" height="18" class="item" data-type="traffic_accident" draggable="true"/>Accident
+            <img src="img/incident@2x.png" width="18" height="18" class="item" data-type="traffic_accident" draggable="true"/>Incident
         </div>
         <div class="list_item">
             <img src="img/congestion@2x.png" width="18" height="18" class="item" data-type="traffic_flow" draggable="true"/>Flow
@@ -31,16 +31,22 @@
             <img src="img/temp@2x.png" width="18" height="18" class="item" data-type="weather_temperature" draggable="true"/>Temperature
         </div>
         <div class="list_item">
+            <img src="img/sun.png" width="18" height="18" class="item" data-type="weather_sun" draggable="true"/>Sunny
+        </div>
+        <div class="list_item">
+            <img src="img/cloud.png" width="18" height="18" class="item" data-type="weather_cloud" draggable="true"/>Cloudy
+        </div>
+        <div class="list_item">
             <img src="img/rain.png" width="18" height="18" class="item" data-type="weather_rain" draggable="true"/>Rain
         </div>
         <div class="list_item">
-            <img src="img/storm.jpg" width="18" height="18" class="item" data-type="weather_storm" draggable="true"/>Storm
+            <img src="img/storm.jpg" width="18" height="18" class="item" data-type="weather_thunder_storm" draggable="true"/>Thunderstorm
         </div>
         <div class="list_item">
             <img src="img/snowflake.jpg" width="18" height="18" class="item" data-type="weather_snow" draggable="true"/>Snow
         </div>
         <div class="list_item">
-            <img src="img/cloud-wind.png" width="18" height="18" class="item" data-type="weather_wind" draggable="true"/>Wind
+            <img src="img/cloud-wind.png" width="18" height="18" class="item" data-type="weather_wind" draggable="true"/>Windy
         </div>
         <div class="list_item">
             <img src="img/twitter.jpg" width="18" height="18" class="item" data-type="twitter_hash_tag" draggable="true"/>Twitter
@@ -54,7 +60,7 @@
         </div>
         <div class="list_item">
             <input class="item_checkbox" type="checkbox" id="accidents" checked>
-            <label for="accidents">Accidents</label>
+            <label for="accidents">Incidents</label>
         </div>
         <div class="list_item">
             <input class="item_checkbox" type="checkbox" id="temperature" checked>
@@ -64,7 +70,7 @@
 </div>
 <div class="loading">
     <img src="/img/loading.gif" width="13px" height="13px">
-    Updating map
+    Loading
 </div>
 <div id="map_canvas"></div>
 <div class="popup_bg"></div>
@@ -199,11 +205,11 @@
         </div>
         <div class="popup-field">
             <span class="popup-label">Username</span>
-            <input data-property="username" data-type="username" class="textinput prop" type="text" placeholder="@target_username" required>
+            <input data-property="username" data-type="username" data-group="Username, Hashtag" class="textinput prop conditionally-required" type="text" placeholder="@target_username">
         </div>
         <div class="popup-field">
             <span class="popup-label">Hashtag</span>
-            <input data-property="hashtag" data-type="hashtag" class="textinput prop" type="text" placeholder="#target_hashtag" required>
+            <input data-property="hashtag" data-type="hashtag" data-group="Username, Hashtag" class="textinput prop conditionally-required" type="text" placeholder="#target_hashtag">
         </div>
         <div class="popup-field">
             <span class="popup-label">Count</span>
@@ -280,6 +286,10 @@
         <div class="popup-field">
             <span class="popup-label">Sunny</span>
             <input name="weather_event" value="weather_sun" data-property="type" type="radio" class="prop">
+        </div>
+        <div class="popup-field">
+            <span class="popup-label">Cloudy</span>
+            <input name="weather_event" value="weather_cloud" data-property="type" type="radio" class="prop">
         </div>
         <div class="popup-field">
             <span class="popup-label">Thunder Storm</span>
@@ -396,6 +406,8 @@
         <button id="BtnCronTestSnow">Snow</button>
         <button id="BtnCronTestRain">Rain</button>
         <button id="BtnCronTestWind">Wind</button>
+        <button id="BtnCronTestCloudy">Cloudy</button>
+        <button id="BtnCronTestTwitter">Twitter</button>
     </div>
 
     <div style="border: 1px solid; margin: 10px 0;">
@@ -404,6 +416,7 @@
         <button id="BtnDeleteAsset">Delete Asset</button>
         <button id="BtnDeleteEvent">Delete Event</button>
         <button id="BtnUpdateAsset">Update Asset</button>
+        <button id="BtnAssetStatistic">Get asset statistic</button>
     </div>
 
     <div style="border: 1px solid; margin: 10px 0;">

@@ -11,15 +11,7 @@ class DefaultController extends IDemoBaseController
             $this->redirect('site/login');
         }
 
-        // Clear file storage
-        $filePath = Yii::app()->params['eventStoragePath'];
-
-        if (is_file($filePath)) {
-            syslog(LOG_INFO, "Remove storage file.");
-
-            unlink($filePath);
-        }
-
+        $this->clearStorage();
 		$this->render('index');
 	}
 
@@ -145,20 +137,19 @@ class DefaultController extends IDemoBaseController
         }
 
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = $this->getStreamContextForPlanText();
 
         if (is_file($filePath)) {
             syslog(LOG_INFO, "Storage exists. Start to unserialize.");
 
-            $fc = $this->readStorage($filePath, $ctx);
+            $fc = $this->readStorage($filePath);
         } else {
             syslog(LOG_INFO, "Storage does not exist. Start to create.");
 
-            $fc = $this->createStorageArray();
+            $fc = $this->createEventStorageArray();
         }
 
         $fc[$event][] = $this->updateEventParameters($event, $assetId);
-        $isPut = $this->saveToStorage($filePath, $ctx, $fc);
+        $isPut = $this->saveToStorage($filePath, $fc);
 
         if ($isPut) {
             syslog(LOG_INFO, "Storage has been successfully saved.");
@@ -195,7 +186,6 @@ class DefaultController extends IDemoBaseController
         $event = Yii::app()->request->getParam('eventType');
         $deleteEventType = Yii::app()->request->getParam('delete');
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = $this->getStreamContextForPlanText();
         $response = ["status" => false];
         $isFound = false;
 
@@ -214,7 +204,7 @@ class DefaultController extends IDemoBaseController
         if ($storageExists) {
             syslog(LOG_INFO, "Storage exists. Start to unserialize.");
 
-            $fc = $this->readStorage($filePath, $ctx);
+            $fc = $this->readStorage($filePath);
 
             foreach ($fc[$event] as $key => $value) {
                 if ($value['id'] == $assetId) {
@@ -227,7 +217,7 @@ class DefaultController extends IDemoBaseController
         } else {
             syslog(LOG_INFO, "Storage does not exist. Start to create.");
 
-            $fc = $this->createStorageArray();
+            $fc = $this->createEventStorageArray();
             $fc[$event][] = $eventParams;
         }
 
@@ -237,7 +227,7 @@ class DefaultController extends IDemoBaseController
             $fc[$event][] = $eventParams;
         }
 
-        $isPut = $this->saveToStorage($filePath, $ctx, $fc);
+        $isPut = $this->saveToStorage($filePath, $fc);
 
         if ($isPut) {
             $response["status"] = $isPut > 0;
@@ -273,13 +263,12 @@ class DefaultController extends IDemoBaseController
         $events = json_decode(Yii::app()->request->getParam('events'), true);
         $response = ["status" => false];
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = $this->getStreamContextForPlanText();
 
         if (is_file($filePath)) {
-            $fc = $this->readStorage($filePath, $ctx);
+            $fc = $this->readStorage($filePath);
 
             if (!is_array($fc)) {
-                $this->saveToStorage($filePath, $ctx);
+                $this->saveToStorage($filePath);
 
                 $response["errorMessage"] = "Data in storage is not correct. Reload the page.";
 
@@ -307,7 +296,7 @@ class DefaultController extends IDemoBaseController
                 }
             }
 
-            $isPut = $this->saveToStorage($filePath, $ctx, $fc);
+            $isPut = $this->saveToStorage($filePath, $fc);
 
             if ($isPut) {
                 $response["status"] = $isPut > 0;
@@ -367,6 +356,47 @@ class DefaultController extends IDemoBaseController
         $this->endApp();
     }
 
+    public function actionAjaxGetEventStatistic() {
+        syslog(LOG_INFO, "Action 'EventStatistic' started.");
+
+        if (!Yii::app()->request->isAjaxRequest) {
+            throw new CHttpException('403', 'Forbidden access.');
+        }
+
+        $assetId = Yii::app()->request->getParam('assetId');
+        $response = ['status' => false];
+        $storageStatisticPath = Yii::app()->params['eventStatisticStoragePath'];
+
+        if (!$assetId) {
+            $response['errorMessage'] = "Asset ID not found";
+
+            $this->renderJSON($response);
+            $this->endApp();
+        }
+
+        if (is_file($storageStatisticPath)) {
+            $statistic = $this->readStorage($storageStatisticPath);
+
+            if (!isset($statistic[$assetId])) {
+                $response['errorMessage'] = "Statistic does not exists for this event type.";
+
+                $this->renderJSON($response);
+                $this->endApp();
+            }
+
+            $response['status'] = true;
+            $response['statistic'] = $statistic[$assetId];
+        } else {
+            $response['errorMessage'] = "Events have not been triggered yet.";
+        }
+
+        $this->renderJSON($response);
+
+        syslog(LOG_INFO, "Action 'EventStatistic' finished.");
+
+        $this->endApp();
+    }
+
 
 
 
@@ -374,11 +404,10 @@ class DefaultController extends IDemoBaseController
     private function deleteAssetInfo($assetId, $eventType = false) {
         $response = ["status" => false];
         $filePath = Yii::app()->params['eventStoragePath'];
-        $ctx = stream_context_create(["gs" => ["Content-Type" => "text/plain"]]);
         $isFound = false;
 
         if (is_file($filePath)) {
-            $fc = $this->readStorage($filePath, $ctx);
+            $fc = $this->readStorage($filePath);
 
             if (is_array($fc)) {
                 if ($eventType) {
@@ -415,7 +444,7 @@ class DefaultController extends IDemoBaseController
                     return $response;
                 }
 
-                $isPut = $this->saveToStorage($filePath, $ctx, $fc);
+                $isPut = $this->saveToStorage($filePath, $fc);
 
                 if ($isPut) {
                     $response["status"] = $isPut > 0;
@@ -429,7 +458,7 @@ class DefaultController extends IDemoBaseController
                     $response["errorMessage"] = "Error when tried to store event.";
                 }
             } else {
-                $this->saveToStorage($filePath, $ctx);
+                $this->saveToStorage($filePath);
 
                 $response["errorMessage"] = "Data in storage is not correct. Reload the page.";
             }
@@ -468,7 +497,6 @@ class DefaultController extends IDemoBaseController
                 $campaigns = json_decode(Yii::app()->request->getParam('campaigns'), true);
                 krsort($campaigns);
 
-//                $params['retriggerPeriod'] = Yii::app()->request->getParam('retriggerPeriod');
                 $params['hashTag'] = Yii::app()->request->getParam('hashTag');
                 $params['userName'] = Yii::app()->request->getParam('userName');
                 $params['campaigns'] = $campaigns;
@@ -480,7 +508,8 @@ class DefaultController extends IDemoBaseController
             case IDemoBaseController::WEATHER_RAIN:
             case IDemoBaseController::WEATHER_SNOW:
             case IDemoBaseController::WEATHER_STORM:
-            case IDemoBaseController::WEATHER_SUN:
+            case IDemoBaseController::WEATHER_SUNNY:
+            case IDemoBaseController::WEATHER_CLOUDY:
             case IDemoBaseController::WEATHER_THUNDER_STORM: {
                 break;
             }
@@ -503,35 +532,6 @@ class DefaultController extends IDemoBaseController
         return $params;
     }
 
-    private function createStorageArray() {
-        return [
-            IDemoBaseController::WEATHER_TEMPERATURE => [],
-            IDemoBaseController::WEATHER_WIND_SPEED => [],
-            IDemoBaseController::WEATHER_RAIN => [],
-            IDemoBaseController::WEATHER_SNOW => [],
-            IDemoBaseController::WEATHER_STORM => [],
-            IDemoBaseController::WEATHER_SUN => [],
-            IDemoBaseController::WEATHER_THUNDER_STORM => [],
-            IDemoBaseController::TRAFFIC_INCIDENTS => [],
-            IDemoBaseController::TRAFFIC_FLOW => [],
-            IDemoBaseController::TWITTER_HASH_TAG => []
-        ];
-    }
-
-    private function readStorage($filePath, $ctx) {
-        return unserialize(file_get_contents($filePath, 0, $ctx));
-    }
-
-    private function saveToStorage($filePath, $ctx, $fc = "") {
-        $data = "";
-
-        if ($fc) {
-            $data = serialize($fc);
-        }
-
-        return file_put_contents($filePath, $data, 0, $ctx);
-    }
-
     private function getStatistic($fc) {
         return [
             IDemoBaseController::WEATHER_TEMPERATURE => count($fc[IDemoBaseController::WEATHER_TEMPERATURE]),
@@ -539,7 +539,8 @@ class DefaultController extends IDemoBaseController
             IDemoBaseController::WEATHER_RAIN => count($fc[IDemoBaseController::WEATHER_RAIN]),
             IDemoBaseController::WEATHER_SNOW => count($fc[IDemoBaseController::WEATHER_SNOW]),
             IDemoBaseController::WEATHER_STORM => count($fc[IDemoBaseController::WEATHER_STORM]),
-            IDemoBaseController::WEATHER_SUN => count($fc[IDemoBaseController::WEATHER_SUN]),
+            IDemoBaseController::WEATHER_SUNNY => count($fc[IDemoBaseController::WEATHER_SUNNY]),
+            IDemoBaseController::WEATHER_CLOUDY => count($fc[IDemoBaseController::WEATHER_CLOUDY]),
             IDemoBaseController::WEATHER_THUNDER_STORM => count($fc[IDemoBaseController::WEATHER_THUNDER_STORM]),
             IDemoBaseController::TRAFFIC_INCIDENTS => count($fc[IDemoBaseController::TRAFFIC_INCIDENTS]),
             IDemoBaseController::TRAFFIC_FLOW => count($fc[IDemoBaseController::TRAFFIC_FLOW]),
