@@ -113,7 +113,7 @@ function TwitterTrigger(properties) {
         return {
             assetId: _self.asset_id,
             eventType: _self.type,
-            retriggerPeriod: properties.rwp,
+            center: asset.lat + "|" + asset.lng,
             hashTag: properties.hashtag,
             userName: properties.username,
             campaigns: JSON.stringify(campaigns)
