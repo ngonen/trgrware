@@ -194,7 +194,7 @@ class CronController extends IDemoBaseController
                     if ($tagsCount) {
                         foreach ($subscriber['campaigns'] as $c => $url) {
                             if ($tagsCount >= $c) {
-//                                file_get_contents($url, false, $streamContext);
+                                file_get_contents($url, false, $streamContext);
 
                                 syslog(LOG_INFO, "[Twitter hashtag] Request '" . $key . "' for asset "
                                     . $subscriber['id'] . ", hashtag " . $subscriber['hashTag'] . ", count "

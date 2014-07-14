@@ -374,17 +374,21 @@ class DefaultController extends IDemoBaseController
             $this->endApp();
         }
 
-        $statistic = $this->readStorage($storageStatisticPath);
+        if (is_file($storageStatisticPath)) {
+            $statistic = $this->readStorage($storageStatisticPath);
 
-        if (!isset($statistic[$assetId])) {
-            $response['errorMessage'] = "Statistic does not exists for this event type.";
+            if (!isset($statistic[$assetId])) {
+                $response['errorMessage'] = "Statistic does not exists for this event type.";
 
-            $this->renderJSON($response);
-            $this->endApp();
+                $this->renderJSON($response);
+                $this->endApp();
+            }
+
+            $response['status'] = true;
+            $response['statistic'] = $statistic[$assetId];
+        } else {
+            $response['errorMessage'] = "Events have not been triggered yet.";
         }
-
-        $response['status'] = true;
-        $response['statistic'] = $statistic[$assetId];
 
         $this->renderJSON($response);
 
