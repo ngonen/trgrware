@@ -70,7 +70,7 @@
 </div>
 <div class="loading">
     <img src="/img/loading.gif" width="13px" height="13px">
-    Updating map
+    Loading
 </div>
 <div id="map_canvas"></div>
 <div class="popup_bg"></div>
@@ -407,6 +407,7 @@
         <button id="BtnCronTestRain">Rain</button>
         <button id="BtnCronTestWind">Wind</button>
         <button id="BtnCronTestCloudy">Cloudy</button>
+        <button id="BtnCronTestTwitter">Twitter</button>
     </div>
 
     <div style="border: 1px solid; margin: 10px 0;">
@@ -415,6 +416,7 @@
         <button id="BtnDeleteAsset">Delete Asset</button>
         <button id="BtnDeleteEvent">Delete Event</button>
         <button id="BtnUpdateAsset">Update Asset</button>
+        <button id="BtnAssetStatistic">Get asset statistic</button>
     </div>
 
     <div style="border: 1px solid; margin: 10px 0;">

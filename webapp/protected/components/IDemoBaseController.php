@@ -117,4 +117,69 @@ abstract class IDemoBaseController extends Controller {
             ]
         ]);
     }
+
+    protected  function readStorage($filePath, $ctx = false) {
+        if ($ctx === false) {
+            $ctx = $this->getStreamContextForPlanText();
+        }
+
+        return unserialize(file_get_contents($filePath, 0, $ctx));
+    }
+
+    protected function saveToStorage($filePath, $fc = "", $ctx = false) {
+        if ($fc !== "") {
+            $fc = serialize($fc);
+        }
+
+        if ($ctx === false) {
+            $ctx = $this->getStreamContextForPlanText();
+        }
+
+        return file_put_contents($filePath, $fc, 0, $ctx);
+    }
+
+    protected function createEventStorageArray($value = []) {
+        return [
+            IDemoBaseController::WEATHER_TEMPERATURE => $value,
+            IDemoBaseController::WEATHER_WIND_SPEED => $value,
+            IDemoBaseController::WEATHER_RAIN => $value,
+            IDemoBaseController::WEATHER_SNOW => $value,
+            IDemoBaseController::WEATHER_STORM => $value,
+            IDemoBaseController::WEATHER_SUNNY => $value,
+            IDemoBaseController::WEATHER_CLOUDY => $value,
+            IDemoBaseController::WEATHER_THUNDER_STORM => $value,
+            IDemoBaseController::TRAFFIC_INCIDENTS => $value,
+            IDemoBaseController::TRAFFIC_FLOW => $value,
+            IDemoBaseController::TWITTER_HASH_TAG => $value
+        ];
+    }
+
+    protected function clearStorage() {
+        $this->clearEventStorage();
+        $this->clearEventStatistic();
+    }
+
+
+
+
+
+    private function clearEventStorage() {
+        $storagePath = Yii::app()->params['eventStoragePath'];
+
+        if (is_file($storagePath)) {
+            syslog(LOG_INFO, "Remove storage file.");
+
+            unlink($storagePath);
+        }
+    }
+
+    private function clearEventStatistic() {
+        $storagePath = Yii::app()->params['eventStatisticStoragePath'];
+
+        if (is_file($storagePath)) {
+            syslog(LOG_INFO, "Remove statistic file.");
+
+            unlink($storagePath);
+        }
+    }
 }

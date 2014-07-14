@@ -115,20 +115,33 @@ return array(
 				*/
 			),
 		),
+        'twitter' => [
+            'class' => 'ext.yiitwitteroauth.YiiTwitter',
+            'consumer_key' => 'DXN4RSCkDscqgQgAU2X6aQGM8',
+            'consumer_secret' => '4wIH59fuZ6Ymuc5VlBrpBdad7GfgtCc1RnN9RjFXe7J2CUgCya',
+//            'callback' => 'http://',
+        ]
 	),
 
 	// application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
 	'params' => array(
         'galaxyDomainUrl' => 'https://galaxy.signage.me/WebService/getUserDomain.ashx',
-        'Inrix' => array(
+        'Inrix' => [
             'inrixAPIUrl' => 'http://api.sandbox.inrix.com/Traffic/Inrix.ashx',
             'vendorId' => '1410303725',
             'consumerId' => '14ea4638-ffbb-4ba8-abba-d86a42e9887f'
-        ),
+        ],
         'eventStoragePath' => ENV_DEV
             ? Yii::getPathOfAlias('assets') . "/eventStorage.txt"
-            : 'gs://gae-yii.appspot.com/assets-bucket/eventStorage.txt'
+            : 'gs://gae-yii.appspot.com/assets-bucket/eventStorage.txt',
+        'eventStatisticStoragePath' => ENV_DEV
+                ? Yii::getPathOfAlias('assets') . "/eventStatistic.txt"
+                : 'gs://gae-yii.appspot.com/assets-bucket/eventStatistic.txt',
+        'twitter' => [
+            'oauth_token' => '21969245-3SquTbzEwVlS66p2DvAWt082n5f8139etJym8hlfG',
+            'oauth_token_secret' => 'IzWl2em8quH92f84ZyAYqQ3nAr6nEz3n2RrP5c3FCtSoM',
+        ]
 		// this is used in contact page
 //		'adminEmail'=>'webmaster@example.com',
 	),
