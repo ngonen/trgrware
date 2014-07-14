@@ -27,8 +27,6 @@ class SiteController extends Controller
 	 */
 	public function actionIndex()
 	{
-        syslog(LOG_INFO, 'Index index index log.');
-
         $this->render('index');
 	}
 
