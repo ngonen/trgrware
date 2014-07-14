@@ -612,6 +612,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .infowindow_content {
 	text-align: justify;
+	min-width: 125px;
 }
 
 .infowindow_content > ul {
