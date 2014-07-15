@@ -97,8 +97,8 @@ class DefaultController extends IDemoBaseController
 
         $resultXML = $this->getWeatherInRadius($center, $radius);
         $status = $resultXML->Weather->Conditions && count($resultXML->Weather->Conditions->Station) > 0;
+        $response["refreshKey"] = $refreshKey;
 
-		$response["refreshKey"] = $refreshKey;
         if ($status) {
             $response["status"] = $status;
             $response['message'] = "Weather stations were successfully returned.";
