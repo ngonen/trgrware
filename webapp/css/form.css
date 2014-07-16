@@ -42,7 +42,12 @@ div.form input,
 div.form textarea,
 div.form select
 {
-	margin: 0.2em 0 0.5em 0;
+	/*margin: 0.2em 0 0.5em 0;*/
+}
+
+#contact-form input[type="text"],
+#contact-form textarea {
+    width: 300px;
 }
 
 div.form fieldset

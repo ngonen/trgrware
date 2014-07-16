@@ -33,7 +33,7 @@ If you have business inquiries or other questions, please fill out the following
 	),
 )); ?>
 
-	<p class="note">Fields with <span class="required">*</span> are required.</p>
+<!--	<p class="note">Fields with <span class="required">*</span> are required.</p>-->
 
 	<?php echo $form->errorSummary($model); ?>
 
@@ -51,7 +51,7 @@ If you have business inquiries or other questions, please fill out the following
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'subject'); ?>
-		<?php echo $form->textField($model,'subject',array('size'=>60,'maxlength'=>128, 'style'=>'width: 203px')); ?>
+		<?php echo $form->textField($model,'subject',array('size'=>60,'maxlength'=>128)); ?>
 		<?php echo $form->error($model,'subject'); ?>
 	</div>
 
