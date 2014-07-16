@@ -614,12 +614,12 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .loading {
-	margin: 10px 0 0 15px;
+	margin: 20px 0 0 25px;
 	visibility: hidden;
-	font-size: 17px;
+	font-size: 18px;
 	font-style: italic;
 	width: 125px;
-	height: 56px;
+	height: 46px;
 }
 
 .hidden {

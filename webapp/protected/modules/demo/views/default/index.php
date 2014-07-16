@@ -14,7 +14,7 @@
 
 <div class="right_panel">
     <div class="loading">
-        <img src="/img/loading.gif" width="13px" height="13px">
+        <img src="/img/loading.gif" width="14px" height="14px">
         Loading
     </div>
     <div class="inventory">
