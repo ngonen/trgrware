@@ -157,7 +157,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .footer-links-container .footer-links {
     border-top: 1px solid #f36421;
     margin: 0 auto;
-    max-width: 1430px;
+    max-width: 75%;
     padding: 10px 0 0;
     text-align: center;
 }
@@ -445,6 +445,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 #context_menu > .menu_item:last-child .cross {
     display: block !important;
     left: 130px;
+}
+
+.context_menu_icon {
+    margin-bottom: -3px;
 }
 
 .menu_item {

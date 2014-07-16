@@ -331,11 +331,13 @@
             <div class="menu_item sub traffic_menu">Traffic
                 <div class="traffic_sub_menu">
                     <div class="menu_item" data-popup="#trigger_accident_popup" data-type="traffic_accident" onclick="showTriggerPopup(event)">
+                        <img class="context_menu_icon" src="/img/incident@2x.png" width="16px" height="16px">
                         Incident
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
                     <div class="separator"></div>
                     <div class="menu_item" data-popup="#trigger_flow_popup" data-type="traffic_flow" onclick="showTriggerPopup(event)">
+                        <img class="context_menu_icon" src="/img/congestion@2x.png" width="16px" height="16px">
                         Flow
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
@@ -345,11 +347,13 @@
             <div class="menu_item sub weather_menu">Weather
                 <div class="weather_sub_menu">
                     <div class="menu_item" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup(event)">
+                        <img class="context_menu_icon" src="/img/Cloudy4.png" width="16px" height="16px">
                         Event
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
                     <div class="separator"></div>
                     <div class="menu_item" data-popup="#trigger_temperature_popup" data-type="weather_temperature" onclick="showTriggerPopup(event)">
+                        <img class="context_menu_icon" src="/img/temp@2x.png" width="16px" height="16px">
                         Temperature
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
@@ -359,6 +363,7 @@
             <div class="menu_item sub social_menu">Social
                 <div class="social_sub_menu">
                     <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter_hash_tag" onclick="showTriggerPopup(event)">
+                        <img class="context_menu_icon" src="/img/twitter.jpg" width="16px" height="16px">
                         Twitter
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
