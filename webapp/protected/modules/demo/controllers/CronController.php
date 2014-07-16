@@ -204,6 +204,28 @@ class CronController extends IDemoBaseController
                     $hashTag = $subscriber['hashTag'];
 
                     $matches = array_filter($favorites, function($favorite) use ($userName, $hashTag) {
+                        if ($userName && $hashTag) {
+                            $hasUsername = $hasHashTag = false;
+
+                            foreach ($favorite->entities->user_mentions as $k => $v) {
+                                if (strtolower($v->screen_name) == strtolower(substr($userName, 1))) {
+                                    $hasUsername = true;
+
+                                    break;
+                                }
+                            }
+
+                            foreach ($favorite->entities->hashtags as $k => $v) {
+                                if (strtolower($v->text) == strtolower(substr($hashTag, 1))) {
+                                    $hasHashTag = true;
+
+                                    break;
+                                }
+                            }
+
+                            return $hasUsername && $hasHashTag;
+                        }
+
                         if ($userName) {
                             foreach ($favorite->entities->user_mentions as $k => $v) {
                                 if (strtolower($v->screen_name) == strtolower(substr($userName, 1))) {

@@ -1,7 +1,8 @@
+var defaultZoom = 12;
 // Setup Google Maps layer
 var mapOptions = {
     center: new google.maps.LatLng(40.7560341, -73.9869242),
-    zoom: 12,
+    zoom: defaultZoom,
     mapTypeId: google.maps.MapTypeId.ROADMAP
 };
 var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
@@ -177,6 +178,7 @@ function sendAssetUpdateRequest(asset, properties, updatedSID) {
             marker = markers.filter(function(m) { return m.title === asset.id; })[0];
         if (response.status) {
             asset.setProperties(properties);
+            $("#" + asset.id + " .asset_name").html(asset.name);
             console.log(response.message);
         } else {
             marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
@@ -192,9 +194,25 @@ function sendAssetUpdateRequest(asset, properties, updatedSID) {
     });
 }
 
+function moveToMarker(marker) {
+    var zoomChanged = false;
+    if (map.getZoom() !== defaultZoom) {
+        map.setZoom(defaultZoom);
+        zoomChanged = true;
+    }
+    if (map.getCenter().lat().toFixed(5) !== marker.position.lat().toFixed(5) || map.getCenter().lng().toFixed(5) !== marker.position.lng().toFixed(5)) {
+        map.panTo(new google.maps.LatLng(marker.position.lat(), marker.position.lng()));
+        if (!zoomChanged) {
+            clearTimeout(updateMap);
+            getMapInfo();
+            autoUpdateMap();
+        }
+    }
+}
+
 function updateAsset() {
     var validateObj = validate(active_popup),
-        marker, id, type, properties, lat, lng, sid;
+        marker, id, type, properties, lat, lng, sid, inventoryItem;
         
     if (validateObj.isValid) {
         id = active_asset? active_asset.id : props.id;
@@ -209,9 +227,24 @@ function updateAsset() {
                 sendAssetUpdateRequest(active_asset, properties, active_asset.sid !== properties.sid);
             } else {
                 active_asset.setProperties(properties);
+                $("#" + active_asset.id + " .asset_name").html(active_asset.name);
             }
         } else {
             assets.push(new Asset(properties));
+            inventoryItem = "<div id='" + properties.id + "' class='list_item inventory_item'>" +
+                            "<img src='img/screen.png' class='item' width='18' height='18'>" + 
+                            "<span class='asset_name'>" + properties.name + "</span></div>";
+            $(".inventory").append(inventoryItem);
+            $("#" + properties.id).on("click", function() {
+                var id = this.id,
+                    marker = markers.filter(function(m) { return m.title === id; })[0];
+                $(".selected").removeClass("selected");
+                $(this).addClass("selected");
+                moveToMarker(marker);
+            });
+            if ($(".inventory").css("display") === "none") {
+                $(".inventory").show();
+            }
         }
         hidePopup();
     } else {
@@ -228,6 +261,7 @@ function removeAsset(asset) {
             sendAJAX("/demo/Default/DeleteAsset", { assetId: asset.id }, function(data) {
                 var response = JSON.parse(data);
                 if (response.status) {
+                    $("#" + asset.id).remove();
                     marker = markers.filter(function(m) { return m.title === asset.id; })[0];
                     marker.setMap(null);
                     markers.splice(markers.indexOf(marker), 1);
@@ -240,10 +274,14 @@ function removeAsset(asset) {
             });
         }
     } else if (confirm("Are You Sure You Want To Remove This Asset?")) {
+        $("#" + asset.id).remove();
         marker = markers.filter(function(m) { return m.title === asset.id; })[0];
         marker.setMap(null);
         markers.splice(markers.indexOf(marker), 1);
         assets.splice(assets.indexOf(asset), 1);
+        if (!assets.length) {
+            $(".inventory").hide();
+        }
     }
 }
 
@@ -257,6 +295,7 @@ function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
                 if (!asset.triggers.length) {
                     marker = markers.filter(function(m) { return m.title === asset.id; })[0];
                     marker.setIcon("img/trgrware_screen_pin_2.png");
+                    $("#" + asset.id + " .item").attr("src", "img/screen_trgr.png");
                 }
                 asset.triggers.push(trigger);
             } else {
@@ -293,6 +332,7 @@ function removeTrigger(asset, eventType) {
             if (!asset.triggers.length) {
                 marker = markers.filter(function(m) { return m.title === asset.id; })[0];
                 marker.setIcon("img/screen_pin.png");
+                $("#" + asset.id + " .item").attr("src", "img/screen.png");
             }
             console.log(response.message);
         } else {
@@ -634,7 +674,7 @@ function showWeather(data) {
         }
         $(".loading").removeClass("weather");
         if ($(".loading")[0].classList.length < 2) {
-            $(".loading").hide();
+            $(".loading").css("visibility", "hidden");
         }
     }
 }
@@ -653,7 +693,7 @@ function getIncidents() {
             showIncidents(incidents);
             $(".loading").removeClass("incidents");
             if ($(".loading")[0].classList.length < 2) {
-                $(".loading").hide();
+                $(".loading").css("visibility", "hidden");
             }
         }
     };
@@ -694,7 +734,7 @@ function getWeather() {
         console.log(error.statusText + ": " + error.responseText);
         $(".loading").removeClass("weather");
         if ($(".loading")[0].classList.length < 2) {
-            $(".loading").hide();
+            $(".loading").css("visibility", "hidden");
         }
     });
 }
@@ -702,7 +742,7 @@ function getWeather() {
 function getMapInfo() {
     if (map.getZoom() > 11) {
         if ($("#temperature")[0].checked || $("#accidents")[0].checked) {
-            $(".loading").show();
+            $(".loading").css("visibility", "visible");
         }
         if ($("#temperature")[0].checked) {
             getWeather();
@@ -713,7 +753,7 @@ function getMapInfo() {
             $(".loading").addClass("incidents");
         }
     } else {
-        $(".loading").hide();
+        $(".loading").css("visibility", "hidden");
         $(".loading").removeClass("weather");
         $(".loading").removeClass("incidents");
         refreshKey = null;
@@ -881,13 +921,13 @@ $(function() {
         if (map.getZoom() > 11) {
             if (ev.target.checked) {
                 getIncidents();
-                $(".loading").show();
+                $(".loading").css("visibility", "visible");
                 $(".loading").addClass("incidents");
             } else {
                 clearMap(incidentMarkers);
                 $(".loading").removeClass("incidents");
                 if ($(".loading")[0].classList.length < 2) {
-                    $(".loading").hide();
+                    $(".loading").css("visibility", "hidden");
                 }
             }
         }
@@ -896,13 +936,13 @@ $(function() {
         if (map.getZoom() > 11) {
             if (ev.target.checked) {
                 getWeather();
-                $(".loading").show();
+                $(".loading").css("visibility", "visible");
                 $(".loading").addClass("weather");
             } else {
                 turnOfInfo(weatherStations);
                 $(".loading").removeClass("weather");
                 if ($(".loading")[0].classList.length < 2) {
-                    $(".loading").hide();
+                    $(".loading").css("visibility", "hidden");
                 }
             }
         }
@@ -1012,10 +1052,12 @@ $(function() {
                 displayMenu(ev.Ra);
             });
             google.maps.event.addListener(marker, "click", function(ev) {
-                var asset;
-                if (!contextMenuIsOpen) {
+                var marker = this,
                     asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
-                    marker = this;
+                $(".selected").removeClass("selected");
+                $("#" + asset.id).addClass("selected");
+                moveToMarker(marker);
+                if (!contextMenuIsOpen) {
                     if (asset.triggers.length) {
                         updateAssetInfowindow(asset);
                         infoWindow.open(map, marker);

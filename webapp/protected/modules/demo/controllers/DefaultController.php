@@ -15,7 +15,7 @@ class DefaultController extends IDemoBaseController
 		$this->render('index');
 	}
 
-    // TODO: remove as redundant
+    // Test function
     public function actionAjaxGetSecurityToken() {
         $token = $this->getSecurityToken();
 
@@ -28,7 +28,7 @@ class DefaultController extends IDemoBaseController
         $this->endApp();
     }
 
-    // TODO: remove as redundant
+    // Test function
     public function actionAjaxGetIncidentInfo() {
         syslog(LOG_INFO, "Action AjaxGetIncidentInfo start.");
 
@@ -53,7 +53,7 @@ class DefaultController extends IDemoBaseController
         syslog(LOG_INFO, "Action AjaxGetIncidentInfo end.");
     }
 
-    // TODO: remove as redundant
+    // Test function
     public function actionAjaxGetSegmentSpeedInRadius() {
         syslog(LOG_INFO, "Action AjaxGetSegmentSpeedInRadius start.");
 
@@ -97,11 +97,11 @@ class DefaultController extends IDemoBaseController
 
         $resultXML = $this->getWeatherInRadius($center, $radius);
         $status = $resultXML->Weather->Conditions && count($resultXML->Weather->Conditions->Station) > 0;
+        $response["refreshKey"] = $refreshKey;
 
         if ($status) {
             $response["status"] = $status;
             $response['message'] = "Weather stations were successfully returned.";
-            $response["refreshKey"] = $refreshKey;
             $response["weather"] = $resultXML->asXML();
         } else {
             $response['errorMessage'] = "Stations were not found.";

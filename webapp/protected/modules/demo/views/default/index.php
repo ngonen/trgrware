@@ -12,6 +12,15 @@
     Yii::app()->clientScript->registerScriptFile("/js/trigger.js", CClientScript::POS_END);
 ?>
 
+<div class="right_panel">
+    <div class="loading">
+        <img src="/img/loading.gif" width="14px" height="14px">
+        Loading
+    </div>
+    <div class="inventory">
+        <div class="title">Digital Inventory</div>
+    </div>
+</div>
 <div class="left_panel">
     <div class="title">Digital Assets</div>
     <div class="assets_list">
@@ -67,10 +76,6 @@
             <label for="temperature">Temperature</label>
         </div>
     </div>
-</div>
-<div class="loading">
-    <img src="/img/loading.gif" width="13px" height="13px">
-    Loading
 </div>
 <div id="map_canvas"></div>
 <div class="popup_bg"></div>

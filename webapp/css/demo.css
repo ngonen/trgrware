@@ -3,7 +3,7 @@ html.hcfe {
     background-color: #f5f5f5;
 }
 .hcfe body, .hcfe {
-    background-color: #fff;
+    background-color: #FFF;
     color: #444;
     direction: ltr;
     font: 400 13px/22px "Helvetica Neue","HelveticaNeue",Helvetica,sans-serif;
@@ -53,9 +53,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .appbar-container {
-    background-color: #393832;
+    background-color: #f36421;
     height: 45px;
     position: relative;
+    border: 1px solid #000000;
 }
 
 .appbar {
@@ -84,6 +85,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .appbar-nav .crumb, .appbar-nav .crumb:visited {
     color: #999;
+    font-weight: bold;
 }
 
 .hcfe a {
@@ -155,24 +157,25 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .footer-links-container .footer-links {
     margin: 0 auto;
     max-width: 978px;
-    width: 315px;
+    text-align: center;
 }
 
 .footer-links ul {
     display: inline-block;
     list-style: none outside none;
-    width: 716px;
+    margin: 0 auto;
 }
 
-.footer-links li + li:before {
-    content: "-";
-}
+/*.footer-links li + li:before {*/
+    /*content: "-";*/
+/*}*/
 .footer-links li {
-    display: inline-block;
+    display: block;
+    color: #000000;
 }
 
 .footer-links a {
-    color: #999;
+    color: #000000;
     text-decoration: none;
 }
 
@@ -212,9 +215,26 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     display: inline-block;
 }
 
+.right_panel {
+	width: 16.67%;
+    float: right;
+    position: relative;    
+	right: -16.67%;   
+	margin-left: -10%;
+	display: inline-block;
+}
+
+.selected {
+	font-weight: bold;
+}
+
+.inventory {
+	display: none;
+}
+
 .item {
 	margin-left: 10px;
-	margin-bottom: -2px;
+	margin-bottom: -4px;
 	margin-right: 5px;
 	cursor: pointer;
 }
@@ -226,6 +246,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .list_item {
 	padding-top: 2px;
 	padding-left: 10px;
+}
+
+.inventory_item {
+	cursor: pointer;
 }
 
 .popup {
@@ -590,15 +614,12 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .loading {
-	position: relative;
-	right: -140px;
-	top: 10px;
-	float: right;
-	margin: 10px 0 0 15px;
-	display: none;
-	font-size: 17px;
+	margin: 20px 0 0 25px;
+	visibility: hidden;
+	font-size: 18px;
 	font-style: italic;
 	width: 125px;
+	height: 46px;
 }
 
 .hidden {

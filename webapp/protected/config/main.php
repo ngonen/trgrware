@@ -61,22 +61,9 @@ return array(
         ),
 		'user' => array(
 			// enable cookie-based authentication
-			'allowAutoLogin'=>true,
+			'allowAutoLogin' => true,
 		),
-		// uncomment the following to enable URLs in path-format
-
-//		'urlManager'=>array(
-//			'urlFormat'=>'path',
-//            'baseUrl'=>'', // added to fix URL issues under Google App Engine
-//			'rules'=>array(
-//				'<controller:\w+>/<id:\d+>'=>'<controller>/view',
-//				'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
-//				'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
-//			),
-//		),
-
         'urlManager' => $routes,
-
 //		'db'=>array(
 //			'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/testdrive.db',
 //		),
