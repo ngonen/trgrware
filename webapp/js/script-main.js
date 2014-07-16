@@ -194,6 +194,22 @@ function sendAssetUpdateRequest(asset, properties, updatedSID) {
     });
 }
 
+function moveToMarker(marker) {
+    var zoomChanged = false;
+    if (map.getZoom() !== defaultZoom) {
+        map.setZoom(defaultZoom);
+        zoomChanged = true;
+    }
+    if (map.getCenter().lat().toFixed(5) !== marker.position.lat().toFixed(5) || map.getCenter().lng().toFixed(5) !== marker.position.lng().toFixed(5)) {
+        map.panTo(new google.maps.LatLng(marker.position.lat(), marker.position.lng()));
+        if (!zoomChanged) {
+            clearTimeout(updateMap);
+            getMapInfo();
+            autoUpdateMap();
+        }
+    }
+}
+
 function updateAsset() {
     var validateObj = validate(active_popup),
         marker, id, type, properties, lat, lng, sid, inventoryItem;
@@ -224,8 +240,7 @@ function updateAsset() {
                     marker = markers.filter(function(m) { return m.title === id; })[0];
                 $(".selected").removeClass("selected");
                 $(this).addClass("selected");
-                map.setZoom(defaultZoom);
-                map.panTo(new google.maps.LatLng(marker.position.lat(), marker.position.lng()));
+                moveToMarker(marker);
             });
             if ($(".inventory").css("display") === "none") {
                 $(".inventory").show();
@@ -1041,8 +1056,7 @@ $(function() {
                     asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
                 $(".selected").removeClass("selected");
                 $("#" + asset.id).addClass("selected");
-                map.setZoom(defaultZoom);
-                map.panTo(new google.maps.LatLng(marker.position.lat(), marker.position.lng()));
+                moveToMarker(marker);
                 if (!contextMenuIsOpen) {
                     if (asset.triggers.length) {
                         updateAssetInfowindow(asset);

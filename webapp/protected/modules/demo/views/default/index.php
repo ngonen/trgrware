@@ -18,7 +18,7 @@
         Loading
     </div>
     <div class="inventory">
-        <div class="title">Inventory</div>
+        <div class="title">Digital Inventory</div>
     </div>
 </div>
 <div class="left_panel">
