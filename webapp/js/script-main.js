@@ -1,7 +1,8 @@
+var defaultZoom = 12;
 // Setup Google Maps layer
 var mapOptions = {
     center: new google.maps.LatLng(40.7560341, -73.9869242),
-    zoom: 12,
+    zoom: defaultZoom,
     mapTypeId: google.maps.MapTypeId.ROADMAP
 };
 var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
@@ -223,7 +224,7 @@ function updateAsset() {
                     marker = markers.filter(function(m) { return m.title === id; })[0];
                 $(".selected").removeClass("selected");
                 $(this).addClass("selected");
-                map.setZoom(12);
+                map.setZoom(defaultZoom);
                 map.panTo(new google.maps.LatLng(marker.position.lat(), marker.position.lng()));
             });
             if ($(".inventory").css("display") === "none") {
@@ -1038,6 +1039,10 @@ $(function() {
             google.maps.event.addListener(marker, "click", function(ev) {
                 var marker = this,
                     asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
+                $(".selected").removeClass("selected");
+                $("#" + asset.id).addClass("selected");
+                map.setZoom(defaultZoom);
+                map.panTo(new google.maps.LatLng(marker.position.lat(), marker.position.lng()));
                 if (!contextMenuIsOpen) {
                     if (asset.triggers.length) {
                         updateAssetInfowindow(asset);
@@ -1061,10 +1066,6 @@ $(function() {
                         infoWindow.open(map, this);
                     }
                 }
-                $(".selected").removeClass("selected");
-                $("#" + asset.id).addClass("selected");
-                map.setZoom(12);
-                map.panTo(new google.maps.LatLng(marker.position.lat(), marker.position.lng()));
             });
             google.maps.event.addListener(marker, "dragstart", function(ev) {
                 infoWindow.close();
