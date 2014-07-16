@@ -53,9 +53,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .appbar-container {
-    background-color: #393832;
+    background-color: #f36421;
     height: 45px;
     position: relative;
+    border: 1px solid #000000;
 }
 
 .appbar {
@@ -84,6 +85,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .appbar-nav .crumb, .appbar-nav .crumb:visited {
     color: #999;
+    font-weight: bold;
 }
 
 .hcfe a {
@@ -155,24 +157,25 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .footer-links-container .footer-links {
     margin: 0 auto;
     max-width: 978px;
-    width: 315px;
+    text-align: center;
 }
 
 .footer-links ul {
     display: inline-block;
     list-style: none outside none;
-    width: 716px;
+    margin: 0 auto;
 }
 
-.footer-links li + li:before {
-    content: "-";
-}
+/*.footer-links li + li:before {*/
+    /*content: "-";*/
+/*}*/
 .footer-links li {
-    display: inline-block;
+    display: block;
+    color: #000000;
 }
 
 .footer-links a {
-    color: #999;
+    color: #000000;
     text-decoration: none;
 }
 

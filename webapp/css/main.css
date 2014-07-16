@@ -7,19 +7,32 @@ body
 	background: #EFEFEF;
 }
 
+#bgImage {
+    height: auto;
+    left: 0;
+    min-height: 100%;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: -999;
+}
+
 #page
 {
-	margin-top: 5px;
-	margin-bottom: 5px;
-	background: white;
-	border: 1px solid #C9E0ED;
+    background: none repeat scroll 0 0 white;
+    border: medium none;
+    height: 425px;
+    margin-bottom: 5px;
+    margin-top: 175px;
+    overflow-y: auto;
+    width: 86%;
 }
 
 #header
 {
 	margin: 0;
 	padding: 0;
-	border-top: 3px solid #C9E0ED;
+	border-top: 1px solid #eb6f2c;
 }
 
 #content
@@ -38,18 +51,19 @@ body
 	margin: 10px 20px;
 	font-size: 0.8em;
 	text-align: center;
-	border-top: 1px solid #C9E0ED;
+	border-top: 1px solid #eb6f2c;
 }
 
 #logo
 {
 	padding: 10px 20px;
-	font-size: 200%;
+	font-size: 300%;
+    text-align: center;
 }
 
 #mainmenu
 {
-	background:white url(bg.gif) repeat-x left top;
+    background-color: #eb6f2c;
 }
 
 #mainmenu ul
