@@ -369,7 +369,10 @@
     <div class="separator"></div>
     <div class="menu_item" onclick="showPropertiesPopup()">Properties</div>
     <div class="separator"></div>
-    <div class="menu_item" onclick="removeAsset(active_asset)">Remove Asset</div>
+    <div class="menu_item" onclick="removeAsset(active_asset)">
+        Remove Asset
+        <div class="cross remove"></div>
+    </div>
 </div>
             
 

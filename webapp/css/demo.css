@@ -155,8 +155,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .footer-links-container .footer-links {
+    border-top: 1px solid #f36421;
     margin: 0 auto;
-    max-width: 978px;
+    max-width: 1430px;
+    padding: 10px 0 0;
     text-align: center;
 }
 
@@ -225,7 +227,9 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .selected {
-	font-weight: bold;
+    font-weight: bold;
+    font-size: 14px;
+    text-decoration: underline;
 }
 
 .inventory {
@@ -430,6 +434,17 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	border: 1px solid lightgray;
 	border-radius: 5px;
 	z-index: 1000;
+}
+#context_menu > .menu_item:last-child {
+    font-size: 12px;
+    padding: 0 25px 0 0;
+    text-align: right;
+    text-decoration: underline;
+}
+
+#context_menu > .menu_item:last-child .cross {
+    display: block !important;
+    left: 130px;
 }
 
 .menu_item {
@@ -690,7 +705,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .Fog, .Smoke, .Windy {
-	background-image: url("/img/Fog.png");
+	background-image: url("img/Fog.png");
 }
 
 .Dust, .AMFogPMSun, .Haze, .SunnyWindy {
