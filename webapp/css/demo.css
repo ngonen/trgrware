@@ -3,7 +3,7 @@ html.hcfe {
     background-color: #f5f5f5;
 }
 .hcfe body, .hcfe {
-    background-color: #fff;
+    background-color: #FFF;
     color: #444;
     direction: ltr;
     font: 400 13px/22px "Helvetica Neue","HelveticaNeue",Helvetica,sans-serif;
@@ -212,9 +212,26 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     display: inline-block;
 }
 
+.right_panel {
+	width: 16.67%;
+    float: right;
+    position: relative;    
+	right: -16.67%;   
+	margin-left: -10%;
+	display: inline-block;
+}
+
+.selected {
+	font-weight: bold;
+}
+
+.inventory {
+	display: none;
+}
+
 .item {
 	margin-left: 10px;
-	margin-bottom: -2px;
+	margin-bottom: -4px;
 	margin-right: 5px;
 	cursor: pointer;
 }
@@ -226,6 +243,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .list_item {
 	padding-top: 2px;
 	padding-left: 10px;
+}
+
+.inventory_item {
+	cursor: pointer;
 }
 
 .popup {
@@ -590,15 +611,12 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .loading {
-	position: relative;
-	right: -140px;
-	top: 10px;
-	float: right;
 	margin: 10px 0 0 15px;
-	display: none;
+	visibility: hidden;
 	font-size: 17px;
 	font-style: italic;
 	width: 125px;
+	height: 56px;
 }
 
 .hidden {
