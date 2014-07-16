@@ -266,6 +266,9 @@ function removeAsset(asset) {
                     marker.setMap(null);
                     markers.splice(markers.indexOf(marker), 1);
                     assets.splice(assets.indexOf(asset), 1);
+                    if (!assets.length) {
+                        $(".inventory").hide();
+                    }
                     console.log(response.message);
                 } else {
                     console.log(response.errorMessage);
