@@ -15,7 +15,7 @@ class DefaultController extends IDemoBaseController
 		$this->render('index');
 	}
 
-    // TODO: remove as redundant
+    // Test function
     public function actionAjaxGetSecurityToken() {
         $token = $this->getSecurityToken();
 
@@ -28,7 +28,7 @@ class DefaultController extends IDemoBaseController
         $this->endApp();
     }
 
-    // TODO: remove as redundant
+    // Test function
     public function actionAjaxGetIncidentInfo() {
         syslog(LOG_INFO, "Action AjaxGetIncidentInfo start.");
 
@@ -53,7 +53,7 @@ class DefaultController extends IDemoBaseController
         syslog(LOG_INFO, "Action AjaxGetIncidentInfo end.");
     }
 
-    // TODO: remove as redundant
+    // Test function
     public function actionAjaxGetSegmentSpeedInRadius() {
         syslog(LOG_INFO, "Action AjaxGetSegmentSpeedInRadius start.");
 

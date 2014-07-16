@@ -4,6 +4,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="language" content="en" />
 
+        <link rel="shortcut icon" href="<?php echo Yii::app()->baseUrl . 'img/favicon.ico'; ?>" type="image/x-icon" />
         <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>css/demo.css" />
         <link rel="stylesheet" type="text/css" href="<?php echo Yii::app()->request->baseUrl; ?>css/popup.css" />
 
