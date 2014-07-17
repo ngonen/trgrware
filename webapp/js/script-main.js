@@ -31,7 +31,12 @@ var EVENT_TYPES = {
     SNOW: "weather_snow",
     THUNDER_STORM: "weather_thunder_storm",
     STORM: "weather_storm",
-    TWITTER: "twitter_hash_tag"
+    TWITTER: "twitter_hash_tag",
+    SPORTS: "sports",
+    NEWS: "news",
+    FINANCE: "finance",
+    TRENDS: "trends",
+    ENTERTAINMENT: "entertainment"
 };
 
 // Add INRIX Tile layer (see inrix.layer.js for details)
@@ -600,9 +605,9 @@ function displayMenu(ev){
         menu.style.left = pageXOffset + ev.clientX + "px";  
     }
     if (ev.clientX + menu.clientWidth + 300 > innerWidth) {
-        $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu").css("left", -150 + "px");
+        $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu, .other_sub_menu").css("left", -150 + "px");
     } else {
-        $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu").css("left", 150 + "px");
+        $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu, .other_sub_menu").css("left", 150 + "px");
     }
     menu.style.visibility = "visible";
     ev.preventDefault();
@@ -868,6 +873,21 @@ function getType(trigger_type) {
         case EVENT_TYPES.STORM:
         case EVENT_TYPES.CLOUD:
             type = "Weather Event";
+            break;
+        case EVENT_TYPES.SPORTS:
+            type = "Sports";
+            break;
+        case EVENT_TYPES.NEWS:
+            type = "News";
+            break;
+        case EVENT_TYPES.TRENDS:
+            type = "Trends";
+        break;
+            case EVENT_TYPES.FINANCE:
+            type = "Finance";
+            break;
+        case EVENT_TYPES.ENTERTAINMENT:
+            type = "Entertainment";
             break;
     }
     return type;

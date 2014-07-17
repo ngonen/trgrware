@@ -56,6 +56,21 @@
         <div class="list_item">
             <img src="img/twitter.png" width="18" height="18" class="item" data-type="twitter_hash_tag" draggable="true"/>Twitter
         </div>
+        <div class="list_item">
+            <img src="img/trends.png" width="18" height="18" class="item" data-type="trends" draggable="true"/>Trends
+        </div>
+        <div class="list_item">
+            <img src="img/sports.png" width="18" height="18" class="item" data-type="sports" draggable="true"/>Sports
+        </div>
+        <div class="list_item">
+            <img src="img/news.png" width="18" height="18" class="item" data-type="news" draggable="true"/>News
+        </div>
+        <div class="list_item">
+            <img src="img/finance.png" width="18" height="18" class="item" data-type="finance" draggable="true"/>Finance
+        </div>
+        <div class="list_item">
+            <img src="img/Entertainment.png" width="18" height="18" class="item" data-type="entertainment" draggable="true"/>Entertainment
+        </div>
     </div>
     <div class="title">Map Filter</div>
     <div>
@@ -361,6 +376,36 @@
                     <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter_hash_tag" onclick="showTriggerPopup(event)">
                         <img class="context_menu_icon" src="/img/twitter.png" width="16px" height="16px">
                         Twitter
+                        <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="separator"></div>
+            <div class="menu_item sub other_menu">Other
+                <div class="other_sub_menu">
+                    <div class="menu_item">
+                        <img class="context_menu_icon" src="/img/trends.png" width="16px" height="16px">
+                        Trends
+                        <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
+                    </div>
+                    <div class="menu_item">
+                        <img class="context_menu_icon" src="/img/sports.png" width="16px" height="16px">
+                        Sports
+                        <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
+                    </div>
+                    <div class="menu_item">
+                        <img class="context_menu_icon" src="/img/news.png" width="16px" height="16px">
+                        News
+                        <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
+                    </div>
+                    <div class="menu_item">
+                        <img class="context_menu_icon" src="/img/finance.png" width="16px" height="16px">
+                        Finance
+                        <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
+                    </div>
+                    <div class="menu_item">
+                        <img class="context_menu_icon" src="/img/Entertainment.png" width="16px" height="16px">
+                        Entertainment
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
                 </div>

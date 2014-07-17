@@ -513,7 +513,14 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	left: 150px;
 }
 
-.submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu {
+.other_menu:hover .other_sub_menu {
+	display: block;
+	position: absolute;
+	top: 87px;
+	left: 150px;
+}
+
+.submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu, .other_sub_menu {
 	display: none;
 	background-color: #FFF;
 	width: 150px;
