@@ -225,6 +225,8 @@ function updateAsset() {
         longitude = active_asset ? active_asset.lng : lng;
         marker = getMarkerByLocation(latitude, longitude);
         marker.setPosition(new google.maps.LatLng(properties.lat, properties.lng));
+        properties.lat = marker.position.lat();
+        properties.lng = marker.position.lng();
         if (active_asset) {
             if ((active_asset.lat !== properties.lat || active_asset.lng !== properties.lng || active_asset.sid !== properties.sid) && active_asset.triggers.length) {
                 sendAssetUpdateRequest(active_asset, properties, active_asset.sid !== properties.sid);
