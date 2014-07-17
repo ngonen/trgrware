@@ -37,8 +37,8 @@
             <div class="footer-links-container">
                 <div data-tracking-cat="footer-standard" class="footer-links">
                     <ul>
-                        <li> Copyright &copy; <?php echo date('Y'); ?> by TRGRware.</li>
-                        <li> <a href="#">All Rights Reserved.</a> </li>
+                        <li>Copyright &copy; <?php echo date('Y'); ?> by TRGRware.</li>
+                        <li>All Rights Reserved.</li>
                     </ul>
                 </div>
             </div>
