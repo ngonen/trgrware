@@ -11,7 +11,7 @@ var markers = [];
 var incidentMarkers = [];
 var weatherStations = [];
 var assets = [];
-var props;
+var props, lat, lng;
 var active_asset;
 var active_popup;
 var trigger_type;
@@ -48,7 +48,7 @@ var IncidentMgr = new Inrix.IncidentManager();
 
 var getUnigueID = (function () {
     function getStamp() {
-        return "_" + ((new Date()).valueOf()).toString(32);
+        return ((new Date()).valueOf()).toString(32);
     }
     function padLeft(str, len, charCode) {
         return ((len = len - str.length) > 0 ? Array(len + 1).join(charCode || " ") : "") + str;
@@ -65,7 +65,7 @@ var getUnigueID = (function () {
 }());
 
 function showTriggerPopup(event) {
-    var data = event.target.dataset,
+    var data = $(event.target).hasClass("menu_item") ? event.target.dataset : event.target.parentNode.dataset,
         count = {},
         i, length, trigger, property;
     trigger_type = data.type;
@@ -175,10 +175,11 @@ function sendAssetUpdateRequest(asset, properties, updatedSID) {
     }
     sendAJAX("/demo/Default/UpdateAsset", data, function(data) {
         var response = JSON.parse(data),
-            marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+            marker = getMarkerByLocation(properties.lat, properties.lng);
         if (response.status) {
             asset.setProperties(properties);
             $("#" + asset.id + " .asset_name").html(asset.name);
+            marker.setTitle(asset.name);
             console.log(response.message);
         } else {
             marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
@@ -187,7 +188,7 @@ function sendAssetUpdateRequest(asset, properties, updatedSID) {
         }
     },
     function(error) {
-        var marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+        var marker = getMarkerByLocation(properties.lat, properties.lng);;
         marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
         console.log(error.statusText + ": " + error.responseText);
         alert(error.statusText);
@@ -212,7 +213,7 @@ function moveToMarker(marker) {
 
 function updateAsset() {
     var validateObj = validate(active_popup),
-        marker, id, type, properties, lat, lng, sid, inventoryItem;
+        marker, id, type, properties, latitude, longitude, sid, inventoryItem;
         
     if (validateObj.isValid) {
         id = active_asset? active_asset.id : props.id;
@@ -220,24 +221,28 @@ function updateAsset() {
         properties = getProperties("#asset_popup");
         properties.id = id;
         properties.type = type;
-        marker = markers.filter(function(m) { return m.title === properties.id; })[0];
+        latitude = active_asset ? active_asset.lat : lat;
+        longitude = active_asset ? active_asset.lng : lng;
+        marker = getMarkerByLocation(latitude, longitude);
         marker.setPosition(new google.maps.LatLng(properties.lat, properties.lng));
+        properties.lat = marker.position.lat();
+        properties.lng = marker.position.lng();
         if (active_asset) {
             if ((active_asset.lat !== properties.lat || active_asset.lng !== properties.lng || active_asset.sid !== properties.sid) && active_asset.triggers.length) {
                 sendAssetUpdateRequest(active_asset, properties, active_asset.sid !== properties.sid);
             } else {
                 active_asset.setProperties(properties);
                 $("#" + active_asset.id + " .asset_name").html(active_asset.name);
+                marker.setTitle(active_asset.name);
             }
         } else {
             assets.push(new Asset(properties));
             inventoryItem = "<div id='" + properties.id + "' class='list_item inventory_item'>" +
                             "<img src='img/screen.png' class='item' width='18' height='18'>" + 
                             "<span class='asset_name'>" + properties.name + "</span></div>";
+            marker.setTitle(properties.name);
             $(".inventory").append(inventoryItem);
             $("#" + properties.id).on("click", function() {
-                var id = this.id,
-                    marker = markers.filter(function(m) { return m.title === id; })[0];
                 $(".selected").removeClass("selected");
                 $(this).addClass("selected");
                 moveToMarker(marker);
@@ -262,7 +267,7 @@ function removeAsset(asset) {
                 var response = JSON.parse(data);
                 if (response.status) {
                     $("#" + asset.id).remove();
-                    marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+                    marker = getMarkerByLocation(asset.lat, asset.lng);
                     marker.setMap(null);
                     markers.splice(markers.indexOf(marker), 1);
                     assets.splice(assets.indexOf(asset), 1);
@@ -278,7 +283,7 @@ function removeAsset(asset) {
         }
     } else if (confirm("Are You Sure You Want To Remove This Asset?")) {
         $("#" + asset.id).remove();
-        marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+        marker = getMarkerByLocation(asset.lat, asset.lng);
         marker.setMap(null);
         markers.splice(markers.indexOf(marker), 1);
         assets.splice(assets.indexOf(asset), 1);
@@ -296,7 +301,7 @@ function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
         if (response.status) {
             if (isNewTrigger) {
                 if (!asset.triggers.length) {
-                    marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+                    marker = getMarkerByLocation(asset.lat, asset.lng);
                     marker.setIcon("img/trgrware_screen_pin_2.png");
                     $("#" + asset.id + " .item").attr("src", "img/screen_trgr.png");
                 }
@@ -333,7 +338,7 @@ function removeTrigger(asset, eventType) {
         if (response.status) {
             asset.triggers.splice(asset.triggers.indexOf(trigger), 1);
             if (!asset.triggers.length) {
-                marker = markers.filter(function(m) { return m.title === asset.id; })[0];
+                marker = getMarkerByLocation(asset.lat, asset.lng);
                 marker.setIcon("img/screen_pin.png");
                 $("#" + asset.id + " .item").attr("src", "img/screen.png");
             }
@@ -392,7 +397,7 @@ function validate(popup) {
     var inputs = $(popup + " .prop").toArray(),
         ascending = {},
         conditionallyRequired = {},
-        value, el, errorMessage, i, length, min, max;
+        value, el, errorMessage, i, length, min, max, otherAssets;
     for (i = 0, length = inputs.length; i < length; i++) {
         el = inputs[i];
         if (!el.disabled) {
@@ -403,6 +408,18 @@ function validate(popup) {
                     isValid: false,
                     errorMessage: errorMessage
                 };
+            }
+            if (el.dataset.unique) {
+                otherAssets = active_asset ? assets.filter(function (asset) { return asset.id !== active_asset.id; }) : assets;
+                for (i = 0, length = otherAssets.length; i < length; i++) {
+                   if (otherAssets[i][el.dataset.property] === el.value) {
+                       errorMessage = el.parentNode.firstElementChild.textContent + " field should contain an unique value";
+                       return {
+                            isValid: false,
+                            errorMessage: errorMessage
+                        };
+                   } 
+                }
             }
             switch (el.dataset.type) {
                 case "int":
@@ -559,7 +576,7 @@ function getProperties(popup) {
 function onCancel() {
     var marker;
     if (!active_asset) {
-        marker = markers.filter(function(m) { return m.title === props.id; })[0];
+        marker = getMarkerByLocation(lat, lng);
         marker.setMap(null);
         markers.splice(markers.indexOf(marker), 1);
     }
@@ -893,6 +910,18 @@ function updateAssetInfowindow(asset) {
     infoWindow.setContent(content);
 }
 
+function getAssetByLocation(lat, lng) {
+    return assets.filter(function(asset) {
+        return (asset.lat === lat && asset.lng === lng);
+    })[0];
+}
+
+function getMarkerByLocation(lat, lng) {
+    return markers.filter(function(marker) {
+        return (marker.position.lat() === lat && marker.position.lng() === lng);
+    })[0];
+}
+
 $(function() {
     // Setup INRIX configuration with the right set of credentials (vendorID, vendorToken)
     var configuration = {
@@ -1034,11 +1063,12 @@ $(function() {
                 map: map,
                 draggable: true,
                 icon: "img/screen_pin.png",
-                title: 'asset' + getUnigueID(),
                 zIndex: 1000
             });
+            lat = location.lat();
+            lng = location.lng();
             props = { 
-                id: marker.title,
+                id: getUnigueID(),
                 type: ev.dataTransfer.getData("type")
             };
             $("#asset_popup [data-property='lat']")[0].value = location.lat();
@@ -1048,7 +1078,7 @@ $(function() {
             markers.push(marker);
             google.maps.event.addListener(marker, "rightclick", function(ev) {
                 hideMenu();
-                active_asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
+                active_asset = getAssetByLocation(marker.position.lat(), marker.position.lng());
                 active_asset.triggers.map(function(tr) { return  checkEventType(tr.type); }).forEach(function(type) {
                     $("#context_menu [data-type='" + type + "'] .cross").show(); 
                 });
@@ -1056,7 +1086,7 @@ $(function() {
             });
             google.maps.event.addListener(marker, "click", function(ev) {
                 var marker = this,
-                    asset = assets.filter(function(asset) { return asset.id === marker.title; })[0];
+                    asset = getAssetByLocation(marker.position.lat(), marker.position.lng());
                 $(".selected").removeClass("selected");
                 $("#" + asset.id).addClass("selected");
                 moveToMarker(marker);
@@ -1085,26 +1115,28 @@ $(function() {
                 }
             });
             google.maps.event.addListener(marker, "dragstart", function(ev) {
+                lat = marker.position.lat();
+                lng = marker.position.lng();
                 infoWindow.close();
                 hideMenu();
             });
             google.maps.event.addListener(marker, "dragend", function(ev) {
-                var asset = assets.filter(function(asset) { return asset.id === marker.title; })[0],
-                    lat = ev.latLng.lat(),
-                    lng = ev.latLng.lng();
-                if (asset.lat !== lat || asset.lng !== lng) {
+                var asset = getAssetByLocation(lat, lng),
+                    newLat = ev.latLng.lat(),
+                    newLng = ev.latLng.lng();
+                if (asset.lat !== newLat || asset.lng !== newLng) {
                     if (asset.triggers.length) {
-                        sendAssetUpdateRequest(asset, {lat: lat, lng: lng}, false);
+                        sendAssetUpdateRequest(asset, {lat: newLat, lng: newLng}, false);
                     } else {
-                        asset.setProperties({lat: lat, lng: lng});
+                        asset.setProperties({lat: newLat, lng: newLng});
                     }
                 }
             });
         } else if (action === "trigger_event") {
-            var id = ev.target.parentNode.getAttribute("title"),
-                asset, trigger, url, type;
-            if (id && id.indexOf("asset") !== -1) {
-                asset = assets.filter(function(a) { return a.id === id; })[0];
+            var name = ev.target.parentNode.getAttribute("title"),
+                asset = assets.filter(function (asset) { return asset.name === name; })[0],
+                trigger, url, type;
+            if (asset) {
                 trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
                 type = getType(ev.dataTransfer.getData("type"));
                 if (trigger) {

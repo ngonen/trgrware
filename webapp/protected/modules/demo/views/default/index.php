@@ -13,10 +13,6 @@
 ?>
 
 <div class="right_panel">
-    <div class="loading">
-        <img src="/img/loading.gif" width="14px" height="14px">
-        Loading
-    </div>
     <div class="inventory">
         <div class="title">Digital Inventory</div>
     </div>
@@ -58,7 +54,7 @@
             <img src="img/cloud-wind.png" width="18" height="18" class="item" data-type="weather_wind" draggable="true"/>Windy
         </div>
         <div class="list_item">
-            <img src="img/twitter.jpg" width="18" height="18" class="item" data-type="twitter_hash_tag" draggable="true"/>Twitter
+            <img src="img/twitter.png" width="18" height="18" class="item" data-type="twitter_hash_tag" draggable="true"/>Twitter
         </div>
     </div>
     <div class="title">Map Filter</div>
@@ -84,7 +80,7 @@
     <form>
         <div class="popup-field">
             <span class="popup-label">Sign Name</span>
-            <input data-property="name" class="textinput prop" type="text" required>
+            <input data-property="name" data-unique="true" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Sign ID</span>
@@ -363,7 +359,7 @@
             <div class="menu_item sub social_menu">Social
                 <div class="social_sub_menu">
                     <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter_hash_tag" onclick="showTriggerPopup(event)">
-                        <img class="context_menu_icon" src="/img/twitter.jpg" width="16px" height="16px">
+                        <img class="context_menu_icon" src="/img/twitter.png" width="16px" height="16px">
                         Twitter
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
