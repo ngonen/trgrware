@@ -43,6 +43,11 @@ body
     min-height: 312px;
     padding: 20px;
 }
+#content > p,
+#content > ul li {
+    font-size: 14px;
+    line-height: 18px;
+}
 
 #content > iframe {
     display: block;
