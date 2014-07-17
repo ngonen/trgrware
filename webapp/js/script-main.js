@@ -1050,20 +1050,21 @@ $(function() {
     });
     $("body").on("click", hideMenu);
     $("body").on("dragstart", hideMenu);
-    $("#asset_popup").on("keyup", function(ev) {
-        if (ev.keyCode === 13) {
-            updateAsset();
-        }
-        if (ev.keyCode === 27) {
-            onCancel();
-        }
-    });
-    $(".trigger_popup").on("keyup", function(ev) {
-        if (ev.keyCode === 13) {
-            updateTrigger();
-        }
-        if (ev.keyCode === 27) {
-            hidePopup();
+    $("body").on("keyup", function(ev) {
+        if ($("#asset_popup").css("display") !== "none") {
+            if (ev.keyCode === 13) {
+                updateAsset();
+            }
+            if (ev.keyCode === 27) {
+                onCancel();
+            }
+        } else if ($(".trigger_popup").css("display") !== "none") {
+            if (ev.keyCode === 13) {
+                updateTrigger();
+            }
+            if (ev.keyCode === 27) {
+                hidePopup();
+            }
         }
     });
     $(".assets_list").on("dragstart", function(ev) {
