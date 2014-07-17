@@ -32,7 +32,7 @@ body
 {
 	margin: 0;
 	padding: 0;
-	border-top: 1px solid #eb6f2c;
+	border-top: 1px solid #f16521;
 }
 
 #content
@@ -52,7 +52,7 @@ body
 	margin: 10px 20px;
 	font-size: 0.8em;
 	text-align: center;
-	border-top: 1px solid #eb6f2c;
+	border-top: 1px solid #f16521;
 }
 
 #logo
@@ -64,7 +64,7 @@ body
 
 #mainmenu
 {
-    background-color: #eb6f2c;
+    background-color: #f16521;
 }
 
 #mainmenu ul
