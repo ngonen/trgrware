@@ -13,10 +13,6 @@
 ?>
 
 <div class="right_panel">
-    <div class="loading">
-        <img src="/img/loading.gif" width="14px" height="14px">
-        Loading
-    </div>
     <div class="inventory">
         <div class="title">Digital Inventory</div>
     </div>
