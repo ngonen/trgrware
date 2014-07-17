@@ -65,7 +65,7 @@ var getUnigueID = (function () {
 }());
 
 function showTriggerPopup(event) {
-    var data = event.target.dataset,
+    var data = $(event.target).hasClass("menu_item") ? event.target.dataset : event.target.parentNode.dataset,
         count = {},
         i, length, trigger, property;
     trigger_type = data.type;
