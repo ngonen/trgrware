@@ -276,38 +276,8 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	padding-top: 17px;
 }
 
-#asset_popup {
-    margin-top: -298px;	
-    margin-left: -185px;
-}
-
 #asset_popup .error {
 	width: 286px;
-}
-
-#trigger_weather_popup {
-	margin-top: -292px;
-	margin-left: -220px;
-}
-
-#trigger_temperature_popup {
-	margin-top: -177px;
-	margin-left: -220px;
-}
-
-#trigger_accident_popup {
-	margin-top: -157px;
-	margin-left: -220px;
-}
-
-#trigger_flow_popup {
-	margin-top: -177px;
-	margin-left: -220px;
-}
-
-#trigger_twitter_popup {
-	margin-top: -188px;
-	margin-left: -220px;
 }
 
 .popup-field {

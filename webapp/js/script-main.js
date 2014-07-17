@@ -807,6 +807,7 @@ function turnOfInfo(markersArray) {
 function showPopup(selector) {
     active_popup = selector;
     $(selector).show();
+    $(selector).css("margin-left", - $(selector).innerWidth() / 2);
     $(selector).css("margin-top", - $(selector).innerHeight() / 2);
     $(selector).focus();
     $(".popup_bg").show();
