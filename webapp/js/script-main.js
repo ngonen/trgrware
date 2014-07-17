@@ -136,6 +136,8 @@ function clearPopupFields() {
                 break;
         }
     });
+    $('.popup').css("height", "auto");
+    $('.popup').css("overflow-y", "hidden");
 }
 
 function sendAJAX(url, data, callback, errorCallback, oncompleteCallback) {
@@ -800,6 +802,7 @@ function turnOfInfo(markersArray) {
 function showPopup(selector) {
     active_popup = selector;
     $(selector).show();
+    $(selector).css("margin-top", - $(selector).innerHeight() / 2);
     $(selector).focus();
     $(".popup_bg").show();
 }
@@ -884,11 +887,27 @@ function addTwitterFields() {
     var content = "<div class='additional'><div class='popup-field'>" +
                   "<span class='popup-label'>Count</span>" +
                   "<input data-property='count' data-type='int' class='textinput prop array-element ascending' type='number' min='1' required>" +
-                  "</div><div class='remove-fields cross'onclick='removeContainer(event)'></div>" +
+                  "</div><div class='remove-fields cross'onclick='removeTwitterFields(event)'></div>" +
                   "<div class='popup-field'>" +
                   "<span class='popup-label'>Campaign ID</span>" +
-                  "<input data-property='cid' class='textinput prop array-element' type='text' required></div></div>";
+                  "<input data-property='cid' class='textinput prop array-element' type='text' required></div></div>",
+        popup = $("#trigger_twitter_popup");
     $(".add-fields").before(content);
+    if ($(window).innerHeight() < popup.innerHeight() + 100) {
+        popup.css("height", $(window).innerHeight() - 100 - popup.css("padding-top").replace("px", "") - popup.css("padding-bottom").replace("px", ""));
+        popup.css("overflow-y", "scroll");
+    }
+    popup.css("margin-top", - popup.innerHeight() / 2);
+}
+
+function removeTwitterFields(event) {
+    var popup = $("#trigger_twitter_popup");
+    if ($(window).innerHeight() > popup[0].scrollHeight - $(event.target.parentNode).outerHeight() + 100) {
+        popup.css("height", "auto");
+        popup.css("overflow-y", "hidden");
+    }
+    removeContainer(event);
+    popup.css("margin-top", - popup.innerHeight() / 2);
 }
 
 function removeContainer(event) {

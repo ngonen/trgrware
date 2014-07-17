@@ -265,6 +265,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 	padding: 30px 42px;
 	display: none;
+	overflow-x: hidden;
 }
 
 .popup .error {
