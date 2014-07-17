@@ -84,7 +84,7 @@
     <form>
         <div class="popup-field">
             <span class="popup-label">Sign Name</span>
-            <input data-property="name" class="textinput prop" type="text" required>
+            <input data-property="name" data-unique="true" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Sign ID</span>

@@ -48,7 +48,7 @@ var IncidentMgr = new Inrix.IncidentManager();
 
 var getUnigueID = (function () {
     function getStamp() {
-        return "_" + ((new Date()).valueOf()).toString(32);
+        return ((new Date()).valueOf()).toString(32);
     }
     function padLeft(str, len, charCode) {
         return ((len = len - str.length) > 0 ? Array(len + 1).join(charCode || " ") : "") + str;
@@ -397,7 +397,7 @@ function validate(popup) {
     var inputs = $(popup + " .prop").toArray(),
         ascending = {},
         conditionallyRequired = {},
-        value, el, errorMessage, i, length, min, max;
+        value, el, errorMessage, i, length, min, max, otherAssets;
     for (i = 0, length = inputs.length; i < length; i++) {
         el = inputs[i];
         if (!el.disabled) {
@@ -408,6 +408,18 @@ function validate(popup) {
                     isValid: false,
                     errorMessage: errorMessage
                 };
+            }
+            if (el.dataset.unique) {
+                otherAssets = active_asset ? assets.filter(function (asset) { return asset.id !== active_asset.id; }) : assets;
+                for (i = 0, length = otherAssets.length; i < length; i++) {
+                   if (otherAssets[i][el.dataset.property] === el.value) {
+                       errorMessage = el.parentNode.firstElementChild.textContent + " field should contain an unique value";
+                       return {
+                            isValid: false,
+                            errorMessage: errorMessage
+                        };
+                   } 
+                }
             }
             switch (el.dataset.type) {
                 case "int":
@@ -1056,7 +1068,7 @@ $(function() {
             lat = location.lat();
             lng = location.lng();
             props = { 
-                id: 'asset' + getUnigueID(),
+                id: getUnigueID(),
                 type: ev.dataTransfer.getData("type")
             };
             $("#asset_popup [data-property='lat']")[0].value = location.lat();
@@ -1121,10 +1133,10 @@ $(function() {
                 }
             });
         } else if (action === "trigger_event") {
-            var id = ev.target.parentNode.getAttribute("title"),
-                asset, trigger, url, type;
-            if (id && id.indexOf("asset") !== -1) {
-                asset = assets.filter(function(a) { return a.id === id; })[0];
+            var name = ev.target.parentNode.getAttribute("title"),
+                asset = assets.filter(function (asset) { return asset.name === name; })[0],
+                trigger, url, type;
+            if (asset) {
                 trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
                 type = getType(ev.dataTransfer.getData("type"));
                 if (trigger) {
