@@ -26,20 +26,20 @@
     <body>
         <img id="bgImage" src="<?php echo Yii::app()->baseUrl . 'img/billboard.png'; ?>" />
 
-        <div class="container" id="page">
-            <div id="header">
-                <div id="logo"><?php echo CHtml::encode(Yii::app()->name); ?></div>
-            </div>
+        <div id="page" class="container">
+<!--            <div id="header">-->
+<!--                <div id="logo">--><?php //echo CHtml::encode(Yii::app()->name); ?><!--</div>-->
+<!--            </div>-->
 
             <div id="mainmenu">
                 <?php $this->widget('zii.widgets.CMenu',array(
                     'items' => array(
-                        array('label'=>'Home', 'url'=>array('/site/index')),
-                        array('label'=>'About', 'url'=>array('/site/page', 'view'=>'about')),
-                        array('label'=>'Contact Us', 'url'=>array('/site/contact')),
+                        array('label' => 'Home', 'url' => array('/site/index')),
+                        array('label' => 'About', 'url' => array('/site/page', 'view'=>'about')),
+                        array('label' => 'Contact Us', 'url' => array('/site/contact')),
                         array('label' => 'Demo', 'url' => array('/demo')),
                         array('label' => 'Login', 'url' => array('/site/login'), 'visible' => Yii::app()->user->isGuest),
-                        array('label' => 'Logout ('.Yii::app()->user->name.')', 'url' => array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest)
+                        array('label' => 'Logout (' . Yii::app()->user->name . ')', 'url' => array('/site/logout'), 'visible' => !Yii::app()->user->isGuest)
                     ),
                 )); ?>
             </div>
@@ -50,13 +50,15 @@
 //                )); ?>
 <!--            --><?php //endif?>
 
-            <?php echo $content; ?>
+            <div class="content-wrapper">
+                <?php echo $content; ?>
 
-            <div class="clear"></div>
+                <div class="clear"></div>
 
-            <div id="footer">
-                Copyright &copy; <?php echo date('Y'); ?> by TRGRware.<br/>
-                All Rights Reserved.<br/>
+                <div id="footer">
+                    Copyright &copy; <?php echo date('Y'); ?> by TRGRware.<br/>
+                    All Rights Reserved.<br/>
+                </div>
             </div>
         </div>
     </body>

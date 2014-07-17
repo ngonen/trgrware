@@ -9,14 +9,14 @@ class SiteController extends Controller
 	{
 		return array(
 			// captcha action renders the CAPTCHA image displayed on the contact page
-			'captcha'=>array(
-				'class'=>'CCaptchaAction',
-				'backColor'=>0xFFFFFF,
-			),
+//			'captcha'=>array(
+//				'class' => 'CCaptchaAction',
+//				'backColor' => 0xFFFFFF,
+//			),
 			// page action renders "static" pages stored under 'protected/views/site/pages'
 			// They can be accessed via: index.php?r=site/page&view=FileName
-			'page'=>array(
-				'class'=>'CViewAction',
+			'page' => array(
+				'class' => 'CViewAction',
 			),
 		);
 	}
@@ -50,22 +50,43 @@ class SiteController extends Controller
 	 */
 	public function actionContact()
 	{
-		$model=new ContactForm;
+		$model = new ContactForm;
 
 		if (isset($_POST['ContactForm']))
 		{
-			$model->attributes=$_POST['ContactForm'];
+			$model->attributes = $_POST['ContactForm'];
 
 			if ($model->validate())
 			{
-				$name='=?UTF-8?B?'.base64_encode($model->name).'?=';
-				$subject='=?UTF-8?B?'.base64_encode($model->subject).'?=';
-				$headers="From: $name <{$model->email}>\r\n".
-					"Reply-To: {$model->email}\r\n".
-					"MIME-Version: 1.0\r\n".
-					"Content-Type: text/plain; charset=UTF-8";
+//				$name = '=?UTF-8?B?' . base64_encode($model->name) . '?=';
+//				$subject = '=?UTF-8?B?' . Yii::app()->params['contactUs']['subject'] . '?=';
+//				$headers = "From: $name <{$model->email}>\r\n".
+//					"Reply-To: {$model->email}\r\n".
+//					"MIME-Version: 1.0\r\n".
+//					"Content-Type: text/plain; charset=UTF-8";
+//
+//				$isSent = mail(Yii::app()->params['contactUs']['adminEmail'], $subject, $model->body, $headers);
+//
+//                Yii::app()->user->setFlash('contact', $isSent
+//                    ? 'Thank you for contacting us. We will respond to you as soon as possible.'
+//                    : 'Error occurred when trying to send you message.');
 
-				mail(Yii::app()->params['adminEmail'], $subject, $model->body, $headers);
+                require_once 'google/appengine/api/mail/Message.php';
+
+                try {
+                    $message = new \google\appengine\api\mail\Message();
+                    $message->setSender(Yii::app()->params['contactUs']['adminEmail']);
+                    $message->addTo(Yii::app()->params['contactUs']['adminEmail']);
+                    $message->setReplyTo($model->email);
+                    $message->setSubject(Yii::app()->params['contactUs']['subject']);
+                    $message->setTextBody($model->body);
+                    $message->send();
+                } catch (InvalidArgumentException $exc) {
+                    Yii::app()->user->setFlash('contact', 'Your message was not sent.');
+
+                    $this->refresh();
+                }
+
 				Yii::app()->user->setFlash('contact', 'Thank you for contacting us. We will respond to you as soon as possible.');
 
 				$this->refresh();
@@ -93,7 +114,7 @@ class SiteController extends Controller
 		// collect user input data
 		if (isset($_POST['LoginForm']))
 		{
-			$model->attributes=$_POST['LoginForm'];
+			$model->attributes = $_POST['LoginForm'];
 			// validate user input and redirect to the previous page if valid
 			if ($model->validate() && $model->login()) {
                 $this->redirect(Yii::app()->user->returnUrl);
@@ -130,7 +151,6 @@ class SiteController extends Controller
         } else {
             $this->redirect('/site/login');
         }
-
     }
 
     // TODO: delete

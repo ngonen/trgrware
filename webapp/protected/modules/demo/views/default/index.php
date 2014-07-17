@@ -13,10 +13,6 @@
 ?>
 
 <div class="right_panel">
-    <div class="loading">
-        <img src="/img/loading.gif" width="14px" height="14px">
-        Loading
-    </div>
     <div class="inventory">
         <div class="title">Digital Inventory</div>
     </div>
@@ -58,7 +54,7 @@
             <img src="img/cloud-wind.png" width="18" height="18" class="item" data-type="weather_wind" draggable="true"/>Windy
         </div>
         <div class="list_item">
-            <img src="img/twitter.jpg" width="18" height="18" class="item" data-type="twitter_hash_tag" draggable="true"/>Twitter
+            <img src="img/twitter.png" width="18" height="18" class="item" data-type="twitter_hash_tag" draggable="true"/>Twitter
         </div>
     </div>
     <div class="title">Map Filter</div>
@@ -84,7 +80,7 @@
     <form>
         <div class="popup-field">
             <span class="popup-label">Sign Name</span>
-            <input data-property="name" class="textinput prop" type="text" required>
+            <input data-property="name" data-unique="true" class="textinput prop" type="text" required>
         </div>
         <div class="popup-field">
             <span class="popup-label">Sign ID</span>
@@ -331,11 +327,13 @@
             <div class="menu_item sub traffic_menu">Traffic
                 <div class="traffic_sub_menu">
                     <div class="menu_item" data-popup="#trigger_accident_popup" data-type="traffic_accident" onclick="showTriggerPopup(event)">
+                        <img class="context_menu_icon" src="/img/incident@2x.png" width="16px" height="16px">
                         Incident
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
                     <div class="separator"></div>
                     <div class="menu_item" data-popup="#trigger_flow_popup" data-type="traffic_flow" onclick="showTriggerPopup(event)">
+                        <img class="context_menu_icon" src="/img/congestion@2x.png" width="16px" height="16px">
                         Flow
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
@@ -345,11 +343,13 @@
             <div class="menu_item sub weather_menu">Weather
                 <div class="weather_sub_menu">
                     <div class="menu_item" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup(event)">
+                        <img class="context_menu_icon" src="/img/Cloudy4.png" width="16px" height="16px">
                         Event
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
                     <div class="separator"></div>
                     <div class="menu_item" data-popup="#trigger_temperature_popup" data-type="weather_temperature" onclick="showTriggerPopup(event)">
+                        <img class="context_menu_icon" src="/img/temp@2x.png" width="16px" height="16px">
                         Temperature
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
@@ -359,6 +359,7 @@
             <div class="menu_item sub social_menu">Social
                 <div class="social_sub_menu">
                     <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter_hash_tag" onclick="showTriggerPopup(event)">
+                        <img class="context_menu_icon" src="/img/twitter.png" width="16px" height="16px">
                         Twitter
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
@@ -369,7 +370,10 @@
     <div class="separator"></div>
     <div class="menu_item" onclick="showPropertiesPopup()">Properties</div>
     <div class="separator"></div>
-    <div class="menu_item" onclick="removeAsset(active_asset)">Remove Asset</div>
+    <div class="menu_item" onclick="removeAsset(active_asset)">
+        Remove Asset
+        <div class="cross remove"></div>
+    </div>
 </div>
             
 

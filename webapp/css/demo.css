@@ -53,7 +53,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .appbar-container {
-    background-color: #f36421;
+    background-color: #f16521;
     height: 45px;
     position: relative;
     border: 1px solid #000000;
@@ -155,8 +155,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .footer-links-container .footer-links {
+    border-top: 1px solid #f16521;
     margin: 0 auto;
-    max-width: 978px;
+    max-width: 75%;
+    padding: 10px 0 0;
     text-align: center;
 }
 
@@ -225,7 +227,9 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .selected {
-	font-weight: bold;
+    font-weight: bold;
+    font-size: 14px;
+    text-decoration: underline;
 }
 
 .inventory {
@@ -261,6 +265,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 	padding: 30px 42px;
 	display: none;
+	overflow-x: hidden;
 }
 
 .popup .error {
@@ -430,6 +435,21 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	border: 1px solid lightgray;
 	border-radius: 5px;
 	z-index: 1000;
+}
+#context_menu > .menu_item:last-child {
+    font-size: 12px;
+    padding: 0 25px 0 0;
+    text-align: right;
+    text-decoration: underline;
+}
+
+#context_menu > .menu_item:last-child .cross {
+    display: block !important;
+    left: 130px;
+}
+
+.context_menu_icon {
+    margin-bottom: -3px;
 }
 
 .menu_item {
@@ -614,12 +634,14 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .loading {
-	margin: 20px 0 0 25px;
 	visibility: hidden;
-	font-size: 18px;
+	font-weight: bold;
+	font-size: 20px;
 	font-style: italic;
-	width: 125px;
-	height: 46px;
+	position: absolute;
+	left: 80%;
+	color: #fff;
+	margin-top: 2px;
 }
 
 .hidden {
@@ -690,7 +712,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .Fog, .Smoke, .Windy {
-	background-image: url("/img/Fog.png");
+	background-image: url("img/Fog.png");
 }
 
 .Dust, .AMFogPMSun, .Haze, .SunnyWindy {

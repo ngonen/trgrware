@@ -21,6 +21,10 @@
                         <ul class="breadcrumbs">
                             <li><a href="/" class="crumb product-name">Home</a></li>
                             <li class="nav-title"><a href="/demo" class="crumb product-name">TRGRware Demo</a></li>
+                            <li class="loading">
+                                <img src="/img/loading.gif" width="16px" height="16px">
+                                Loading
+                            </li>
                             <li><a href="/site/logout" class="crumb product-name">Logout (<?php echo Yii::app()->user->name ?>)</a></li>
                         </ul>
                     </nav>
@@ -37,8 +41,8 @@
             <div class="footer-links-container">
                 <div data-tracking-cat="footer-standard" class="footer-links">
                     <ul>
-                        <li> Copyright &copy; <?php echo date('Y'); ?> by TRGRware.</li>
-                        <li> <a href="#">All Rights Reserved.</a> </li>
+                        <li>Copyright &copy; <?php echo date('Y'); ?> by TRGRware.</li>
+                        <li>All Rights Reserved.</li>
                     </ul>
                 </div>
             </div>

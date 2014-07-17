@@ -21,24 +21,37 @@ body
 {
     background: none repeat scroll 0 0 white;
     border: medium none;
-    height: 425px;
     margin-bottom: 5px;
     margin-top: 175px;
-    overflow-y: auto;
     width: 86%;
+}
+
+.content-wrapper {
+    height: 410px;
+    overflow-y: auto;
 }
 
 #header
 {
 	margin: 0;
 	padding: 0;
-	border-top: 1px solid #eb6f2c;
+	border-top: 1px solid #f16521;
 }
 
 #content
 {
-    min-height: 225px;
+    min-height: 312px;
     padding: 20px;
+}
+#content > p,
+#content > ul li {
+    font-size: 14px;
+    line-height: 18px;
+}
+
+#content > iframe {
+    display: block;
+    margin: 0 auto;
 }
 
 #sidebar
@@ -49,10 +62,10 @@ body
 #footer
 {
 	padding: 10px;
-	margin: 10px 20px;
+	margin: 0 10px 0 0;
 	font-size: 0.8em;
 	text-align: center;
-	border-top: 1px solid #eb6f2c;
+	border-top: 1px solid #f16521;
 }
 
 #logo
@@ -64,7 +77,7 @@ body
 
 #mainmenu
 {
-    background-color: #eb6f2c;
+    background-color: #f16521;
 }
 
 #mainmenu ul

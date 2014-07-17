@@ -110,7 +110,7 @@ return array(
         ]
 	),
 
-	// application-level parameters that can be accessed
+	// Application-level parameters that can be accessed
 	// using Yii::app()->params['paramName']
 	'params' => array(
         'galaxyDomainUrl' => 'https://galaxy.signage.me/WebService/getUserDomain.ashx',
@@ -128,8 +128,11 @@ return array(
         'twitter' => [
             'oauth_token' => '21969245-3SquTbzEwVlS66p2DvAWt082n5f8139etJym8hlfG',
             'oauth_token_secret' => 'IzWl2em8quH92f84ZyAYqQ3nAr6nEz3n2RrP5c3FCtSoM',
+        ],
+		// This is used in contact page
+        'contactUs' => [
+            'adminEmail' => 'me@noamgonen.com',
+            'subject' => "TRGRware - Website Inquiry"
         ]
-		// this is used in contact page
-//		'adminEmail'=>'webmaster@example.com',
 	),
 );
