@@ -31,7 +31,12 @@ var EVENT_TYPES = {
     SNOW: "weather_snow",
     THUNDER_STORM: "weather_thunder_storm",
     STORM: "weather_storm",
-    TWITTER: "twitter_hash_tag"
+    TWITTER: "twitter_hash_tag",
+    SPORTS: "sports",
+    NEWS: "news",
+    FINANCE: "finance",
+    TRENDS: "trends",
+    ENTERTAINMENT: "entertainment"
 };
 
 // Add INRIX Tile layer (see inrix.layer.js for details)
@@ -586,7 +591,10 @@ function onCancel() {
 }
 
 function displayMenu(ev){
-    var menu = $("#context_menu")[0];
+    var menu = $("#context_menu")[0],
+        menuDepth = 3,
+        menuItemWidth = 152,
+        menuItemHeight = 28,
     contextMenuIsOpen = true;
     infoWindow.close();
     if (ev.clientY + menu.clientHeight > innerHeight) {
@@ -599,18 +607,26 @@ function displayMenu(ev){
     } else {
         menu.style.left = pageXOffset + ev.clientX + "px";  
     }
-    if (ev.clientX + menu.clientWidth + 300 > innerWidth) {
-        $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu").css("left", -150 + "px");
+    if (ev.clientX + menuDepth * menuItemWidth > innerWidth) {
+        $(".submenu").css("left", -menuItemWidth + "px");
     } else {
-        $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu").css("left", 150 + "px");
+        $(".submenu").css("left", "");
     }
+    $(".submenu").toArray().forEach(function (submenu) {
+        if ($(submenu).offset().top + $(submenu).height() > innerHeight) {
+            $(submenu).css("top", "-=" + ($(submenu).height() - menuItemHeight) + "px");
+        } else {
+            $(submenu).css('top', '');
+        }
+    });
     menu.style.visibility = "visible";
     ev.preventDefault();
 }
 
 function hideMenu() {
-    $("#context_menu").css("visibility", "hidden");
+    $("#context_menu").css("visibility", "hidden").css("top", "0").css("left", "0");
     $("#context_menu .cross").hide();
+    $(".submenu").removeAttr("style");
     contextMenuIsOpen = false;
 }
 
@@ -802,6 +818,7 @@ function turnOfInfo(markersArray) {
 function showPopup(selector) {
     active_popup = selector;
     $(selector).show();
+    $(selector).css("margin-left", - $(selector).innerWidth() / 2);
     $(selector).css("margin-top", - $(selector).innerHeight() / 2);
     $(selector).focus();
     $(".popup_bg").show();
@@ -868,6 +885,21 @@ function getType(trigger_type) {
         case EVENT_TYPES.STORM:
         case EVENT_TYPES.CLOUD:
             type = "Weather Event";
+            break;
+        case EVENT_TYPES.SPORTS:
+            type = "Sports";
+            break;
+        case EVENT_TYPES.NEWS:
+            type = "News";
+            break;
+        case EVENT_TYPES.TRENDS:
+            type = "Trends";
+        break;
+            case EVENT_TYPES.FINANCE:
+            type = "Finance";
+            break;
+        case EVENT_TYPES.ENTERTAINMENT:
+            type = "Entertainment";
             break;
     }
     return type;
@@ -1029,20 +1061,21 @@ $(function() {
     });
     $("body").on("click", hideMenu);
     $("body").on("dragstart", hideMenu);
-    $("#asset_popup").on("keyup", function(ev) {
-        if (ev.keyCode === 13) {
-            updateAsset();
-        }
-        if (ev.keyCode === 27) {
-            onCancel();
-        }
-    });
-    $(".trigger_popup").on("keyup", function(ev) {
-        if (ev.keyCode === 13) {
-            updateTrigger();
-        }
-        if (ev.keyCode === 27) {
-            hidePopup();
+    $("body").on("keyup", function(ev) {
+        if ($("#asset_popup").css("display") !== "none") {
+            if (ev.keyCode === 13) {
+                updateAsset();
+            }
+            if (ev.keyCode === 27) {
+                onCancel();
+            }
+        } else if ($(".trigger_popup").css("display") !== "none") {
+            if (ev.keyCode === 13) {
+                updateTrigger();
+            }
+            if (ev.keyCode === 27) {
+                hidePopup();
+            }
         }
     });
     $(".assets_list").on("dragstart", function(ev) {
@@ -1170,7 +1203,7 @@ $(function() {
                         complete: function() { alert(type + " Trigger Simulated."); }
                     });
                 } else {
-                    alert(type + " Trigger Was Not Set.");
+                    alert(type + " Trigger Is Not Defined For This Asset.\nSimulate Request Denied.");
                 }
             }
         }
