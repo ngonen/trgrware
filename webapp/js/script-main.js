@@ -1072,7 +1072,7 @@ $(function() {
             if (ev.keyCode === 27) {
                 onCancel();
             }
-        } else if ($(".trigger_popup").css("display") !== "none") {
+        } else if ($(".trigger_popup").toArray().some(function (popup) { return $(popup).css("display") !== "none"; })) {
             if (ev.keyCode === 13) {
                 updateTrigger();
             }
