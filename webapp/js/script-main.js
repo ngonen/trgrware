@@ -605,9 +605,9 @@ function displayMenu(ev){
         menu.style.left = pageXOffset + ev.clientX + "px";  
     }
     if (ev.clientX + menu.clientWidth + 300 > innerWidth) {
-        $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu, .other_sub_menu").css("left", -150 + "px");
+        $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu, .development_sub_menu").css("left", -150 + "px");
     } else {
-        $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu, .other_sub_menu").css("left", 150 + "px");
+        $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu, .development_sub_menu").css("left", 150 + "px");
     }
     menu.style.visibility = "visible";
     ev.preventDefault();
@@ -1192,7 +1192,7 @@ $(function() {
                         complete: function() { alert(type + " Trigger Simulated."); }
                     });
                 } else {
-                    alert(type + " Trigger Was Not Set.");
+                    alert(type + " Trigger Is Not Defined For This Asset.\nSimulate Request Denied.");
                 }
             }
         }

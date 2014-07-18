@@ -381,8 +381,8 @@
                 </div>
             </div>
             <div class="separator"></div>
-            <div class="menu_item sub other_menu">Other
-                <div class="other_sub_menu">
+            <div class="menu_item sub development_menu">In Development
+                <div class="development_sub_menu">
                     <div class="menu_item">
                         <img class="context_menu_icon" src="/img/trends.png" width="16px" height="16px">
                         Trends
