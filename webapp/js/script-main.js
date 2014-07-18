@@ -591,7 +591,10 @@ function onCancel() {
 }
 
 function displayMenu(ev){
-    var menu = $("#context_menu")[0];
+    var menu = $("#context_menu")[0],
+        menuDepth = 3,
+        menuItemWidth = 152,
+        menuItemHeight = 28,
     contextMenuIsOpen = true;
     infoWindow.close();
     if (ev.clientY + menu.clientHeight > innerHeight) {
@@ -604,18 +607,26 @@ function displayMenu(ev){
     } else {
         menu.style.left = pageXOffset + ev.clientX + "px";  
     }
-    if (ev.clientX + menu.clientWidth + 300 > innerWidth) {
-        $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu, .development_sub_menu").css("left", -150 + "px");
+    if (ev.clientX + menuDepth * menuItemWidth > innerWidth) {
+        $(".submenu").css("left", -menuItemWidth + "px");
     } else {
-        $(".submenu, .traffic_sub_menu, .weather_sub_menu, .social_sub_menu, .development_sub_menu").css("left", 150 + "px");
+        $(".submenu").css("left", "");
     }
+    $(".submenu").toArray().forEach(function (submenu) {
+        if ($(submenu).offset().top + $(submenu).height() > innerHeight) {
+            $(submenu).css("top", "-=" + ($(submenu).height() - menuItemHeight) + "px");
+        } else {
+            $(submenu).css('top', '');
+        }
+    });
     menu.style.visibility = "visible";
     ev.preventDefault();
 }
 
 function hideMenu() {
-    $("#context_menu").css("visibility", "hidden");
+    $("#context_menu").css("visibility", "hidden").css("top", "0").css("left", "0");
     $("#context_menu .cross").hide();
+    $(".submenu").removeAttr("style");
     contextMenuIsOpen = false;
 }
 

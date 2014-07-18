@@ -338,9 +338,9 @@
 </div>
 <div id="context_menu">
     <div class="menu_item sub triggers_menu">Triggers
-        <div class="submenu">
+        <div class="triggers_sub_menu submenu">
             <div class="menu_item sub traffic_menu">Traffic
-                <div class="traffic_sub_menu">
+                <div class="traffic_sub_menu submenu">
                     <div class="menu_item" data-popup="#trigger_accident_popup" data-type="traffic_accident" onclick="showTriggerPopup(event)">
                         <img class="context_menu_icon" src="/img/incident@2x.png" width="16px" height="16px">
                         Incident
@@ -356,7 +356,7 @@
             </div>
             <div class="separator"></div>
             <div class="menu_item sub weather_menu">Weather
-                <div class="weather_sub_menu">
+                <div class="weather_sub_menu submenu">
                     <div class="menu_item" data-popup="#trigger_weather_popup" data-type="weather_event" onclick="showTriggerPopup(event)">
                         <img class="context_menu_icon" src="/img/Cloudy4.png" width="16px" height="16px">
                         Event
@@ -372,7 +372,7 @@
             </div>
             <div class="separator"></div>
             <div class="menu_item sub social_menu">Social
-                <div class="social_sub_menu">
+                <div class="social_sub_menu submenu">
                     <div class="menu_item" data-popup="#trigger_twitter_popup" data-type="twitter_hash_tag" onclick="showTriggerPopup(event)">
                         <img class="context_menu_icon" src="/img/twitter.png" width="16px" height="16px">
                         Twitter
@@ -382,27 +382,31 @@
             </div>
             <div class="separator"></div>
             <div class="menu_item sub development_menu">In Development
-                <div class="development_sub_menu">
+                <div class="development_sub_menu submenu">
                     <div class="menu_item">
                         <img class="context_menu_icon" src="/img/trends.png" width="16px" height="16px">
                         Trends
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
+                    <div class="separator"></div>
                     <div class="menu_item">
                         <img class="context_menu_icon" src="/img/sports.png" width="16px" height="16px">
                         Sports
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
+                    <div class="separator"></div>
                     <div class="menu_item">
                         <img class="context_menu_icon" src="/img/news.png" width="16px" height="16px">
                         News
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
+                    <div class="separator"></div>
                     <div class="menu_item">
                         <img class="context_menu_icon" src="/img/finance.png" width="16px" height="16px">
                         Finance
                         <div class="cross hidden" onclick="onTriggerRemove(event)"></div>
                     </div>
+                    <div class="separator"></div>
                     <div class="menu_item">
                         <img class="context_menu_icon" src="/img/Entertainment.png" width="16px" height="16px">
                         Entertainment
