@@ -404,7 +404,7 @@ function validate(popup) {
     var inputs = $(popup + " .prop").toArray(),
         ascending = {},
         conditionallyRequired = {},
-        value, el, errorMessage, i, length, min, max, otherAssets;
+        value, el, errorMessage, i, length, min, max, otherAssets, j;
     for (i = 0, length = inputs.length; i < length; i++) {
         el = inputs[i];
         if (!el.disabled) {
@@ -421,8 +421,8 @@ function validate(popup) {
             }
             if (el.dataset.unique) {
                 otherAssets = active_asset ? assets.filter(function (asset) { return asset.id !== active_asset.id; }) : assets;
-                for (i = 0; i < otherAssets.length; i++) {
-                   if (otherAssets[i][el.dataset.property] === el.value) {
+                for (j = 0; j < otherAssets.length; j++) {
+                   if (otherAssets[j][el.dataset.property].toLowerCase() === el.value.trim().toLowerCase()) {
                        errorMessage = el.parentNode.firstElementChild.textContent + " field should contain an unique value";
                        return {
                             isValid: false,
