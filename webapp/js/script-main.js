@@ -404,13 +404,16 @@ function validate(popup) {
     var inputs = $(popup + " .prop").toArray(),
         ascending = {},
         conditionallyRequired = {},
-        value, el, errorMessage, i, length, min, max, otherAssets;
+        value, el, errorMessage, i, length, min, max, otherAssets, j;
     for (i = 0, length = inputs.length; i < length; i++) {
         el = inputs[i];
         if (!el.disabled) {
             value = el.value;
             if (el.required && /^\s*$/.test(value)) {
-                errorMessage = el.parentNode.firstElementChild.textContent + " field is required"; 
+                errorMessage = el.parentNode.firstElementChild.textContent + " field is required";
+                if (el.type === "number") {
+                    errorMessage += " and should contain a number";
+                }
                 return {
                     isValid: false,
                     errorMessage: errorMessage
@@ -418,8 +421,8 @@ function validate(popup) {
             }
             if (el.dataset.unique) {
                 otherAssets = active_asset ? assets.filter(function (asset) { return asset.id !== active_asset.id; }) : assets;
-                for (i = 0, length = otherAssets.length; i < length; i++) {
-                   if (otherAssets[i][el.dataset.property] === el.value) {
+                for (j = 0; j < otherAssets.length; j++) {
+                   if (otherAssets[j][el.dataset.property].toLowerCase() === el.value.trim().toLowerCase()) {
                        errorMessage = el.parentNode.firstElementChild.textContent + " field should contain an unique value";
                        return {
                             isValid: false,
@@ -1069,7 +1072,7 @@ $(function() {
             if (ev.keyCode === 27) {
                 onCancel();
             }
-        } else if ($(".trigger_popup").css("display") !== "none") {
+        } else if ($(".trigger_popup").toArray().some(function (popup) { return $(popup).css("display") !== "none"; })) {
             if (ev.keyCode === 13) {
                 updateTrigger();
             }
