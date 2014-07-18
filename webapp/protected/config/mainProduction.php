@@ -1,0 +1,138 @@
+<?php
+// uncomment the following to define a path alias
+// Yii::setPathOfAlias('local','path/to/local-folder');
+
+include_once "routes.php";
+
+// define path to assets
+Yii::setPathOfAlias('assets', realpath(dirname(__FILE__) . '/../../assets'));
+
+// check environment dev or production
+if (strpos(getenv("SERVER_SOFTWARE"), 'Development') === 0) {
+    define('ENV_DEV', true); // we are on development machine
+} else {
+    define('ENV_DEV', false); // we are on production server
+}
+
+// This is the main Web application configuration. Any writable
+// CWebApplication properties can be configured here.
+return array(
+	'basePath' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..',
+	'name' => 'TRGRware',
+
+	// preloading 'log' component
+	'preload' => array('log'),
+
+	// autoloading model and component classes
+	'import' => array(
+		'application.models.*',
+		'application.components.*',
+	),
+
+	'modules' => array(
+		// uncomment the following to enable the Gii tool
+		'gii' => array(
+			'class' => 'system.gii.GiiModule',
+			'password' => 'Enter Your Password Here',
+			// If removed, Gii defaults to localhost only. Edit carefully to taste.
+			'ipFilters' => array('127.0.0.1', '::1'),
+		),
+        'demo' // Yii on Google App Engine demo module
+	),
+
+	// application components
+	'components' => array(
+        'assetManager' => array(
+            // This is special Asset Manger which can work under Google App Engine
+            'class' => 'application.components.CGAssetManager',
+            // CHANGE THIS: Enter here your own Google Cloud Storage bucket name Google App Engine
+            'basePath' => ENV_DEV
+                ? Yii::getPathOfAlias('assets') // basePath for development version, assets path alias was defined above
+                : 'gs://trgrware.appspot.com/assets-bucket', // basePath for production version
+            // CHANGE THIS: All files on Google Cloud Storage can be accessed via the URL below,
+            // note the bucket name at the end, should be the same as in basePath above
+            'baseUrl' => ENV_DEV
+                ? '/assets' // baseUrl for development App Engine
+                : 'http://commondatastorage.googleapis.com/trgrware.appspot.com/assets-bucket' // baseUrl for production App Engine
+        ),
+        'request' => array(
+            'baseUrl' => '/',
+            'scriptUrl' => '/',
+        ),
+		'user' => array(
+			// enable cookie-based authentication
+			'allowAutoLogin' => true,
+		),
+        'urlManager' => $routes,
+//		'db'=>array(
+//			'connectionString' => 'sqlite:'.dirname(__FILE__).'/../data/testdrive.db',
+//		),
+		// uncomment the following to use a MySQL database
+//		'db'=>array(
+//			'connectionString' => ENV_DEV
+//                    // local development server connection string
+//                    ? 'mysql:host=localhost;dbname=yii-appengine'
+//                    // App Engine Cloud SQL connection string
+//                    // explanation:
+//                    // yii-framework - here is a name of App Engine project
+//                    // db - here is the name of Cloud SQL instance
+//                    : 'mysql:unix_socket=/cloudsql/yii-framework:db;charset=utf8',
+//			'emulatePrepare' => true,
+//			'username' => 'username',
+//			'password' => 'password',
+//			'charset' => 'utf8',
+//		),
+		'errorHandler' => array(
+			// use 'site/error' action to display errors
+			'errorAction'=>'site/error',
+		),
+		'log' => array(
+			'class' => 'CLogRouter',
+			'routes' => array(
+				array(
+//					'class'=>'CFileLogRoute', // default
+					'class' => 'CSyslogRoute', // log errors to syslog (supported by Google App Engine)
+					'levels' => 'error, warning',
+				),
+				// uncomment the following to show log messages on web pages
+				/*
+				array(
+					'class'=>'CWebLogRoute',
+				),
+				*/
+			),
+		),
+        'twitter' => [
+            'class' => 'ext.yiitwitteroauth.YiiTwitter',
+            'consumer_key' => 'DXN4RSCkDscqgQgAU2X6aQGM8',
+            'consumer_secret' => '4wIH59fuZ6Ymuc5VlBrpBdad7GfgtCc1RnN9RjFXe7J2CUgCya',
+//            'callback' => 'http://',
+        ]
+	),
+
+	// Application-level parameters that can be accessed
+	// using Yii::app()->params['paramName']
+	'params' => array(
+        'galaxyDomainUrl' => 'https://galaxy.signage.me/WebService/getUserDomain.ashx',
+        'Inrix' => [
+            'inrixAPIUrl' => 'http://api.sandbox.inrix.com/Traffic/Inrix.ashx',
+            'vendorId' => '1410303725',
+            'consumerId' => '14ea4638-ffbb-4ba8-abba-d86a42e9887f'
+        ],
+        'eventStoragePath' => ENV_DEV
+            ? Yii::getPathOfAlias('assets') . "/eventStorage.txt"
+            : 'gs://trgrware.appspot.com/assets-bucket/eventStorage.txt',
+        'eventStatisticStoragePath' => ENV_DEV
+                ? Yii::getPathOfAlias('assets') . "/eventStatistic.txt"
+                : 'gs://trgrware.appspot.com/assets-bucket/eventStatistic.txt',
+        'twitter' => [
+            'oauth_token' => '21969245-3SquTbzEwVlS66p2DvAWt082n5f8139etJym8hlfG',
+            'oauth_token_secret' => 'IzWl2em8quH92f84ZyAYqQ3nAr6nEz3n2RrP5c3FCtSoM',
+        ],
+		// This is used in contact page
+        'contactUs' => [
+            'adminEmail' => 'me@noamgonen.com',
+            'subject' => "TRGRware - Website Inquiry"
+        ]
+	),
+);
