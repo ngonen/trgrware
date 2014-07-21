@@ -780,6 +780,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 .gm-style-iw{
     height: 100% !important;
 	
-    width: 100% !important;
+    width: 85% !important;
     overflow: hidden !important;
+    min-width: 170px;
 }
