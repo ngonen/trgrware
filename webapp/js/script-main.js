@@ -7,6 +7,7 @@ var mapOptions = {
 };
 var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 var infoWindow = new google.maps.InfoWindow({ content: "", disableAutoPan: true, maxWidth: 250 });
+var geocoder = new google.maps.Geocoder();
 var markers = [];
 var incidentMarkers = [];
 var weatherStations = [];
@@ -162,9 +163,10 @@ function sendAJAX(url, data, callback, errorCallback, oncompleteCallback) {
 function sendAssetUpdateRequest(asset, properties, updatedSID) {
     var data = {
             assetId: asset.id,
+            signName: asset.name,
             center: properties.lat + "|" + properties.lng
         },
-        events, url, i, length;
+        events, url, i, length, component, city, country;
     if (updatedSID) {
         events = {};
         asset.triggers.forEach(function(trigger) {
@@ -180,25 +182,38 @@ function sendAssetUpdateRequest(asset, properties, updatedSID) {
         });
         data.events = JSON.stringify(events);
     }
-    sendAJAX("/demo/Default/UpdateAsset", data, function(data) {
-        var response = JSON.parse(data),
-            marker = getMarkerByLocation(properties.lat, properties.lng);
-        if (response.status) {
-            asset.setProperties(properties);
-            $("#" + asset.id + " .asset_name").html(asset.name);
-            marker.setTitle(asset.name);
-            console.log(response.message);
-        } else {
-            marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
-            console.log(response.errorMessage);
-            alert(response.errorMessage);
+    geocoder.geocode({'latLng': new google.maps.LatLng(properties.lat, properties.lng)}, function(results, status) {
+        if (status === "OK") {
+            for (i = 0, length = results[0].address_components.length; i < length; i++) {
+                component = results[0].address_components[i];
+                if (component.types[0] === "locality") {
+                    city = component.long_name;
+                } else if (component.types[0] === "country") {
+                    country = component.long_name;
+                }
+            }
+            data.locationName = city || country;
         }
-    },
-    function(error) {
-        var marker = getMarkerByLocation(properties.lat, properties.lng);;
-        marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
-        console.log(error.statusText + ": " + error.responseText);
-        alert(error.statusText);
+        sendAJAX("/demo/Default/UpdateAsset", data, function(data) {
+            var response = JSON.parse(data),
+                marker = getMarkerByLocation(properties.lat, properties.lng);
+            if (response.status) {
+                asset.setProperties(properties);
+                $("#" + asset.id + " .asset_name").html(asset.name);
+                marker.setTitle(asset.name);
+                console.log(response.message);
+            } else {
+                marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
+                console.log(response.errorMessage);
+                alert(response.errorMessage);
+            }
+        },
+        function(error) {
+            var marker = getMarkerByLocation(properties.lat, properties.lng);;
+            marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
+            console.log(error.statusText + ": " + error.responseText);
+            alert(error.statusText);
+        });
     });
 }
 
