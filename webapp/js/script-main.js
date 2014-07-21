@@ -163,7 +163,7 @@ function sendAJAX(url, data, callback, errorCallback, oncompleteCallback) {
 function sendAssetUpdateRequest(asset, properties, updatedSID) {
     var data = {
             assetId: asset.id,
-            signName: asset.name,
+            signName: properties.name,
             center: properties.lat + "|" + properties.lng
         },
         events, url, i, length, component, city, country;
@@ -250,7 +250,7 @@ function updateAsset() {
         properties.lat = marker.position.lat();
         properties.lng = marker.position.lng();
         if (active_asset) {
-            if ((active_asset.lat !== properties.lat || active_asset.lng !== properties.lng || active_asset.sid !== properties.sid) && active_asset.triggers.length) {
+            if ((active_asset.lat !== properties.lat || active_asset.lng !== properties.lng || active_asset.sid !== properties.sid || active_asset.name !== properties.name) && active_asset.triggers.length) {
                 sendAssetUpdateRequest(active_asset, properties, active_asset.sid !== properties.sid);
             } else {
                 active_asset.setProperties(properties);
