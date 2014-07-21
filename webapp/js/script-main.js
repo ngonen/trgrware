@@ -315,27 +315,48 @@ function removeAsset(asset) {
     }
 }
 
+function mergeObjects(obj1, obj2) {
+    var obj3 = {};
+    for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+    for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+    return obj3;
+}
+
 function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
     var url = isNewTrigger ? "/demo/Default/RegisterEvent" : "/demo/Default/UpdateEvent";
-    sendAJAX(url, trigger.getData(properties), function(data) {
-        var response = JSON.parse(data),
-            marker;
-        if (response.status) {
-            if (isNewTrigger) {
-                if (!asset.triggers.length) {
-                    marker = getMarkerByLocation(asset.lat, asset.lng);
-                    marker.setIcon("img/trgrware_screen_pin_2.png");
-                    $("#" + asset.id + " .item").attr("src", "img/screen_trgr.png");
+    geocoder.geocode({'latLng': new google.maps.LatLng(asset.lat, asset.lng)}, function(results, status) {
+        var data = {};
+        if (status === "OK") {
+            for (i = 0, length = results[0].address_components.length; i < length; i++) {
+                component = results[0].address_components[i];
+                if (component.types[0] === "locality") {
+                    city = component.long_name;
+                } else if (component.types[0] === "country") {
+                    country = component.long_name;
                 }
-                asset.triggers.push(trigger);
-            } else {
-                trigger.setProperties(properties);
             }
-            console.log(response.message);
-        } else {
-            console.log(response.errorMessage);
-            alert(response.errorMessage);
+            data.locationName =  city || country;
         }
+        sendAJAX(url, mergeObjects(data, trigger.getData(properties)), function(data) {
+            var response = JSON.parse(data),
+                marker;
+            if (response.status) {
+                if (isNewTrigger) {
+                    if (!asset.triggers.length) {
+                        marker = getMarkerByLocation(asset.lat, asset.lng);
+                        marker.setIcon("img/trgrware_screen_pin_2.png");
+                        $("#" + asset.id + " .item").attr("src", "img/screen_trgr.png");
+                    }
+                    asset.triggers.push(trigger);
+                } else {
+                    trigger.setProperties(properties);
+                }
+                console.log(response.message);
+            } else {
+                console.log(response.errorMessage);
+                alert(response.errorMessage);
+            }
+        });
     });
 }
 
