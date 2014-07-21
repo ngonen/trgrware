@@ -766,8 +766,14 @@ function getIncidents() {
         corner2: sw.lat() +'|'+ sw.lng(),
         incidentType: "Incidents",
         incidentSource: "All",
-        success:function (incidents) {
+        success: function (incidents) {
             showIncidents(incidents);
+            $(".loading").removeClass("incidents");
+            if ($(".loading")[0].classList.length < 2) {
+                $(".loading").css("visibility", "hidden");
+            }
+        },
+        error: function() {
             $(".loading").removeClass("incidents");
             if ($(".loading")[0].classList.length < 2) {
                 $(".loading").css("visibility", "hidden");
