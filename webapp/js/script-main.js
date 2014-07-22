@@ -1004,7 +1004,7 @@ function updateAssetInfowindow(asset) {
     var content = "<div><span class='infowindow_title'>Attached events:</span><img class='infowindow_update' src='/img/loading.gif' width='13px' height='13px'><ul>",
         count;
     asset.triggers.forEach(function(tr) {
-        count = tr.triggeringCount + tr.injectionsCount;
+        count = tr.triggeringCount;
         if (count > 0) {
             content += "<li>" + getType(tr.type) + " (triggered " + count + ((count === 1) ? " time" : " times") + ")</li>";
         } else {
@@ -1241,20 +1241,30 @@ $(function() {
         } else if (action === "trigger_event") {
             var name = ev.target.parentNode.getAttribute("title"),
                 asset = assets.filter(function (asset) { return asset.name === name; })[0],
-                trigger, url, type;
+                trigger, url, type, data;
             if (asset) {
                 trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
                 type = getType(ev.dataTransfer.getData("type"));
                 if (trigger) {
                     url = (trigger.type === EVENT_TYPES.TWITTER) ? trigger.getURL(asset.sid, trigger.cid)[0] : trigger.getURL(asset.sid, trigger.cid);
-                    $.ajax({
-                        url: url,
-                        success: function() {
-                            trigger.injectionsCount += 1;
-                            console.log("Successfully triggered.");
-                        },
-                        error: function() { console.log("Error on triggering event."); },
-                        complete: function() { alert(type + " Trigger Simulated."); }
+                    data = {
+                        assetId: asset.id,
+                        eventType: trigger.type,
+                        url: url
+                    }
+                    sendAJAX("/demo/Default/AjaxTriggerEvent", data, function(data) {
+                        var response = JSON.parse(data);
+                        if (response.status) {
+                            trigger.triggeringCount = response.count;
+                            console.log(response.message);
+                            alert(type + " Trigger Simulated.");
+                        } else {
+                            console.log(response.errorMessage);
+                            alert(type + " Trigger Was Not Simulated.");
+                        }
+                    }, function() {
+                        console.log("Error on triggering event.");
+                        alert(type + " Trigger Was Not Simulated.");
                     });
                 } else {
                     alert(type + " Trigger Is Not Defined For This Asset.\nSimulate Request Denied.");
