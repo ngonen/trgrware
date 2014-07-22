@@ -10,7 +10,8 @@ html.hcfe {
     margin: 0;
     padding: 0;
     position: relative;
-	overflow-x: hidden;
+	
+    overflow-x: hidden;
     height: 100%;
 }
 html {
@@ -638,17 +639,18 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .gm-style-iw {
-	left: 10px !important;
-	top: 8px !important;
+	left: 8px !important;
+	top: 10px !important;
+	overflow: hidden !important;
+}
+
+.gm-style-iw ul {
+	padding-left: 20px;
 }
 
 .infowindow_content {
 	text-align: justify;
 	min-width: 125px;
-}
-
-.infowindow_content > ul {
-	margin-left: 20px;
 }
 
 .infowindow_title {
@@ -802,14 +804,6 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     min-width: 310px;
     max-width: 800px;
     margin: 0 auto;
-}
-
-.gm-style-iw{
-    height: 100% !important;
-	
-    width: 85% !important;
-    overflow: hidden !important;
-    min-width: 170px;
 }
 
 /*li > a.crumb.product-name.links {*/
