@@ -144,6 +144,8 @@ class AnalyticsController extends IDemoBaseController {
                             $response['series'][$eventType]['data'][$index] += 1;
                         } else {
                             $response['series'][$eventType] = $series;
+                            $response['series'][$eventType]['name'] = $response['series'][$eventType]['name']
+                                . " [" . $asset['name'] . "]";
                             $response['series'][$eventType]['data'] = $data;
                             $response['series'][$eventType]['data'][$index] = 1;
                         }
