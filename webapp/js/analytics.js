@@ -47,7 +47,7 @@ $(function() {
                     marginRight: 40
                 },
                 title: {
-                    text: 'Digital asset list'
+                    text: 'Digital Asset Simulation List'
                 },
                 subtitle: {
                     text: 'Represents count of triggered events for each Digital Asset'
@@ -82,40 +82,47 @@ $(function() {
             $('#location-container').highcharts({
                 chart: {
                     type: 'column',
-                    margin: 75,
                     options3d: {
                         enabled: true,
-                        alpha: 10,
-                        beta: 25,
-                        depth: 70
-                    }
+                        alpha: 15,
+                        beta: 20,
+                        viewDistance: 25,
+                        depth: 50
+                    },
+                    marginTop: 80,
+                    marginRight: 40
                 },
                 title: {
-                    text: 'Digital assets location'
+                    text: 'Digital Asset Location'
+                },
+                xAxis: {
+                    categories: response.categories || []
+                },
+                yAxis: {
+                    allowDecimals: false,
+                    min: 0,
+                    title: {
+                        text: 'Count of digital assets'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<b>{point.key}</b><br>',
+                    pointFormat: '<span style="color:{series.color}">\u25CF</span> {series.name}: {point.y} / {point.stackTotal}'
                 },
                 plotOptions: {
                     column: {
-                        depth: 25
+                        stacking: 'normal',
+                        depth: 50
                     }
                 },
-                xAxis: {
-                    categories: response.categories
-                },
-                yAxis: {
-                    opposite: true
-                },
-                series: response.series
-//                series: [{
-//                    name: 'Sales',
-//                    data: [2, 3, null, 4, 0, 5, 1, 4, 6, 3]
-//                }]
+                series: response.series || []
             });
         });
     }
 
     function load() {
         getEventList();
-//        getLocationList();
+        getLocationList();
     }
 
     load();

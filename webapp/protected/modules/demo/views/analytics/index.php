@@ -11,7 +11,7 @@
     <div id="a-container"></div>
 </div>
 
-<div class="a-item" style="display: none;">
+<div class="a-item">
     <button id="Btn2">Refresh</button>
     <div id="location-container"></div>
 </div>

@@ -180,7 +180,6 @@ abstract class IDemoBaseController extends Controller {
             $fc = $this->readStorage($filePath);
 
             if (!isset($fc[$assetId])) {
-//                $fc[$assetId]['statistic'] = $this->createEventStatisticArray();
                 $fc[$assetId]['statistic'] = $this->createEventStorageArray(null);
             }
         } else {
@@ -188,7 +187,6 @@ abstract class IDemoBaseController extends Controller {
 
             $fc = [
                 $assetId => [
-//                    'statistic' => $this->createEventStatisticArray()
                     'statistic' => $this->createEventStorageArray(null)
                 ]
             ];
@@ -233,54 +231,5 @@ abstract class IDemoBaseController extends Controller {
 
             unlink($storagePath);
         }
-    }
-
-    private function createEventStatisticArray() {
-        return [
-            IDemoBaseController::WEATHER_TEMPERATURE => [
-//                'name' => 'Temperature',
-                'y' => null
-            ],
-            IDemoBaseController::WEATHER_WIND_SPEED => [
-//                'name' => 'Wind',
-                'y' => null
-            ],
-            IDemoBaseController::WEATHER_RAIN => [
-//                'name' => 'Rain',
-                'y' => null
-            ],
-            IDemoBaseController::WEATHER_SNOW => [
-//                'name' => 'Snow',
-                'y' => null
-            ],
-            IDemoBaseController::WEATHER_STORM => [
-//                'name' => 'Storm',
-                'y' => null
-            ],
-            IDemoBaseController::WEATHER_SUNNY => [
-//                'name' => 'Sunny',
-                'y' => null
-            ],
-            IDemoBaseController::WEATHER_CLOUDY => [
-//                'name' => 'Cloudy',
-                'y' => null
-            ],
-            IDemoBaseController::WEATHER_THUNDER_STORM => [
-//                'name' => 'Thunderstorms',
-                'y' => null
-            ],
-            IDemoBaseController::TRAFFIC_INCIDENTS => [
-//                'name' => 'Incidents',
-                'y' => null
-            ],
-            IDemoBaseController::TRAFFIC_FLOW => [
-//                'name' => 'Flow',
-                'y' => null
-            ],
-            IDemoBaseController::TWITTER_HASH_TAG => [
-//                'name' => 'Twitter hastag',
-                'y' => null
-            ]
-        ];
     }
 }

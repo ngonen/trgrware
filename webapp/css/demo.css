@@ -10,9 +10,7 @@ html.hcfe {
     margin: 0;
     padding: 0;
     position: relative;
-	
     overflow-x: hidden;
-    height: 100%;
 }
 html {
     overflow-y: scroll;
@@ -132,7 +130,6 @@ img {
 
 .primary-container {
     box-shadow: 0 -30px 30px -4px #999;
-    min-height: 80%;
     margin: 0 auto;
     max-width: 75%;
 }
@@ -308,7 +305,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .button {
-	border: 1.1px solid transparent;
+	border: 1px solid transparent;
     border-radius: 2px;
 	cursor: pointer;    
 	font-family: inherit;
@@ -799,13 +796,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     z-index: 100;
 }
 
-#a-container {
+#a-container,
+#location-container{
     height: 400px;
     min-width: 310px;
     max-width: 800px;
     margin: 0 auto;
 }
-
-/*li > a.crumb.product-name.links {*/
-    /*display: none;*/
-/*}*/
