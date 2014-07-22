@@ -93,10 +93,10 @@ $(function() {
                     marginRight: 40
                 },
                 title: {
-                    text: 'Triggers By Location'
+                    text: 'Set Triggers By Location'
                 },
                 subtitle: {
-                    text: 'Distribution Of Triggers Grouped By Geographic Affiliation'
+                    text: 'Count of Set Triggers Grouped By Geographic Affiliation'
                 },
                 xAxis: {
                     categories: response.categories || []

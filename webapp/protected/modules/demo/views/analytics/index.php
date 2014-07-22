@@ -7,11 +7,11 @@
 ?>
 
 <div class="a-item">
-    <button id="Btn1">Refresh</button>
-    <div id="a-container"></div>
+    <button id="Btn2">Refresh</button>
+    <div id="location-container"></div>
 </div>
 
 <div class="a-item">
-    <button id="Btn2">Refresh</button>
-    <div id="location-container"></div>
+    <button id="Btn1">Refresh</button>
+    <div id="a-container"></div>
 </div>

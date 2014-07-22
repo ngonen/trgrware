@@ -32,11 +32,6 @@ body
     /* overflow-y: auto; */
 }
 
-.content-wrapper {
-    height: 410px;
-    overflow-y: auto;
-}
-
 #header
 {
 	margin: 0;
