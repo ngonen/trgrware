@@ -17,13 +17,13 @@ function Trigger(properties) {
         var asset = assets.filter(function(a) { return a.id === _self.asset_id; })[0];
         return {
             assetId: _self.asset_id,
+            signName: asset.name,
             center: asset.lat + "|" + asset.lng,
             callbackURL: _self.getURL(asset.sid, properties.cid),
             eventType: properties.type
         };
     };
     
-    this.injectionsCount = 0;
     this.triggeringCount = 0;
     
     this.setProperties(properties);
@@ -112,6 +112,7 @@ function TwitterTrigger(properties) {
         }
         return {
             assetId: _self.asset_id,
+            signName: asset.name,
             eventType: _self.type,
             center: asset.lat + "|" + asset.lng,
             hashTag: properties.hashtag,

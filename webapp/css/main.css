@@ -24,6 +24,12 @@ body
     margin-bottom: 5px;
     margin-top: 175px;
     width: 86%;
+	overflow-y: auto;
+}
+
+.content-wrapper {
+    height: 410px;
+    /* overflow-y: auto; */
 }
 
 .content-wrapper {
@@ -53,6 +59,67 @@ body
     display: block;
     margin: 0 auto;
 }
+
+@media (max-width: 1680px) and (max-height: 1050px) {
+	#page {
+		margin-top: 180px;
+		height: 462px;}
+}
+
+@media (max-width: 1600px) and (max-height: 900px) {
+	#page {
+		margin-top: 155px;
+		height: 400px;}
+}
+
+@media (max-width: 1440px) and (max-height: 900px) {
+	#page {
+		margin-top: 155px;
+		height: 400px;}
+}
+
+@media (max-width: 1366px) and (max-height: 768px) {
+	#page {
+		margin-top: 132px;
+		height: 340px;}
+}
+
+@media (max-width: 1280px) and (max-height: 1024px) {
+	#page {
+		margin-top: 175px;
+		height: 455px;}
+}
+
+@media (max-width: 1280px) and (max-height: 980px) {
+	#page {
+		margin-top: 170px;
+		height: 428px;}
+}
+
+@media (max-width: 1280px) and (max-height: 800px) {
+	#page {
+		margin-top: 138px;
+		height: 355px;}
+}
+
+@media (max-width: 1280px) and (max-height: 600px) {
+	#page {
+		margin-top: 116px;
+		height: 300px;}
+}
+
+@media (max-width: 1024px) and (max-height: 768px) {
+	#page {
+		margin-top: 132px;
+		height: 338px;}
+}
+
+@media (max-width: 800px) and (max-height: 600px) {
+	#page {
+		margin-top: 102px;
+		height: 265px;}
+}
+
 
 #sidebar
 {

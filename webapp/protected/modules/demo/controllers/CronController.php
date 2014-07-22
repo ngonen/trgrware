@@ -99,8 +99,6 @@ class CronController extends IDemoBaseController
                                     . " has been sent to url " . $subscriber["url"]);
 
                                 $this->updateEventStatistic($subscriber['id'], IDemoBaseController::TRAFFIC_INCIDENTS);
-
-                                break;
                             } else {
                                 syslog(LOG_ERR, "Response message from " . $subscriber["url"] . " is not valid.");
                             }
@@ -674,32 +672,5 @@ class CronController extends IDemoBaseController
         $ctx = $this->getStreamContextForPlanText();
 
         return unserialize(file_get_contents($filePath, 0, $ctx))[$type];
-    }
-
-    private function updateEventStatistic($assetId, $eventType) {
-        $filePath = Yii::app()->params['eventStatisticStoragePath'];
-
-        if (is_file($filePath)) {
-            syslog(LOG_INFO, "Event statistic storage exists. Start to unserialize.");
-
-            $fc = $this->readStorage($filePath);
-
-            if (!isset($fc[$assetId])) {
-                $fc[$assetId] = $this->createEventStorageArray(0);
-            }
-        } else {
-            syslog(LOG_INFO, "Event statistic storage does not exist. Start to create.");
-
-            $fc = [
-                $assetId => $this->createEventStorageArray(0)
-            ];
-        }
-
-        $fc[$assetId][$eventType] += 1;
-        $isSaved = $this->saveToStorage($filePath, $fc);
-
-        if ($isSaved) {
-            syslog(LOG_INFO, "Statistic for [" . $eventType . "] has been successfully updated.");
-        }
     }
 }

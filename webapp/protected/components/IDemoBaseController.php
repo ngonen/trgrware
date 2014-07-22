@@ -21,6 +21,8 @@ abstract class IDemoBaseController extends Controller {
     const SKY_THUNDERSTORMS = "Thunderstorms";
     const SKY_T_STORM = "T-storms";
 
+    public $layout = '/layouts/layout';
+
     /**
      * Get Security Token for vendor
      * @return bool
@@ -159,6 +161,64 @@ abstract class IDemoBaseController extends Controller {
         $this->clearEventStatistic();
     }
 
+    protected function clearEventStatistic() {
+        $storagePath = Yii::app()->params['eventStatisticStoragePath'];
+
+        if (is_file($storagePath)) {
+            syslog(LOG_INFO, "Remove statistic file.");
+
+            unlink($storagePath);
+        }
+    }
+
+    protected function updateEventStatistic($assetId, $eventType, $signName = '', $locationName = '') {
+        $filePath = Yii::app()->params['eventStatisticStoragePath'];
+
+        if (is_file($filePath)) {
+            syslog(LOG_INFO, "Event statistic storage exists. Start to unserialize.");
+
+            $fc = $this->readStorage($filePath);
+
+            if (!isset($fc[$assetId])) {
+                $fc[$assetId]['statistic'] = $this->createEventStorageArray(null);
+            }
+        } else {
+            syslog(LOG_INFO, "Event statistic storage does not exist. Start to create.");
+
+            $fc = [
+                $assetId => [
+                    'statistic' => $this->createEventStorageArray(null)
+                ]
+            ];
+        }
+
+        if ($locationName) {
+            $fc[$assetId]['locationName'] = $locationName;
+
+            if ($signName) {
+                $fc[$assetId]['name'] = $signName;
+            }
+
+            if (!isset($fc[$assetId]['statistic'][$eventType])) {
+                $fc[$assetId]['statistic'][$eventType] = 0;
+            }
+        } else {
+            if (isset($fc[$assetId]['statistic'][$eventType])) {
+                $fc[$assetId]['statistic'][$eventType] += 1;
+            } else {
+                $fc[$assetId]['statistic'][$eventType] = 1;
+            }
+        }
+
+        if ($this->saveToStorage($filePath, $fc)) {
+            syslog(LOG_INFO, "Statistic for [" . $eventType . "] has been successfully updated.");
+
+            return $fc[$assetId]['statistic'][$eventType];
+        }
+
+        return false;
+    }
+
 
 
 
@@ -168,16 +228,6 @@ abstract class IDemoBaseController extends Controller {
 
         if (is_file($storagePath)) {
             syslog(LOG_INFO, "Remove storage file.");
-
-            unlink($storagePath);
-        }
-    }
-
-    private function clearEventStatistic() {
-        $storagePath = Yii::app()->params['eventStatisticStoragePath'];
-
-        if (is_file($storagePath)) {
-            syslog(LOG_INFO, "Remove statistic file.");
 
             unlink($storagePath);
         }

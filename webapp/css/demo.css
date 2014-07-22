@@ -10,7 +10,7 @@ html.hcfe {
     margin: 0;
     padding: 0;
     position: relative;
-	overflow-x: hidden;
+    overflow-x: hidden;
 }
 html {
     overflow-y: scroll;
@@ -113,6 +113,7 @@ img {
 .appbar-nav > ul > li {
     display: inline-block;
     float: left;
+    margin: 0 15px 0 0;
 }
 
 .appbar-nav > ul > li:last-child {float: right;}
@@ -254,6 +255,8 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .inventory_item {
 	cursor: pointer;
+	display: inline-block;
+	padding-right: 10px;
 }
 
 .popup {
@@ -304,7 +307,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .button {
-	border: 1.1px solid transparent;
+	border: 1px solid transparent;
     border-radius: 2px;
 	cursor: pointer;    
 	font-family: inherit;
@@ -635,17 +638,18 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 }
 
 .gm-style-iw {
-	left: 10px !important;
-	top: 8px !important;
+	left: 8px !important;
+	top: 10px !important;
+	overflow: hidden !important;
+}
+
+.gm-style-iw ul {
+	padding-left: 20px;
 }
 
 .infowindow_content {
 	text-align: justify;
 	min-width: 125px;
-}
-
-.infowindow_content > ul {
-	margin-left: 20px;
 }
 
 .infowindow_title {
@@ -775,4 +779,29 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .PMClouds {
 	background-image: url("/img/Cloudy3_night.png");
+}
+
+.a-item {
+    margin: 0 auto;
+    padding: 50px 0;
+    position: relative;
+    width: 800px;
+}
+
+.a-item > button {
+    font-size: 14px;
+    left: 0;
+    padding: 0;
+    position: absolute;
+    text-decoration: underline !important;
+    top: 25px;
+    z-index: 100;
+}
+
+#a-container,
+#location-container{
+    height: 400px;
+    min-width: 310px;
+    max-width: 800px;
+    margin: 0 auto;
 }

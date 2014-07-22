@@ -7,6 +7,7 @@ var mapOptions = {
 };
 var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 var infoWindow = new google.maps.InfoWindow({ content: "", disableAutoPan: true, maxWidth: 250 });
+var geocoder = new google.maps.Geocoder();
 var markers = [];
 var incidentMarkers = [];
 var weatherStations = [];
@@ -162,9 +163,10 @@ function sendAJAX(url, data, callback, errorCallback, oncompleteCallback) {
 function sendAssetUpdateRequest(asset, properties, updatedSID) {
     var data = {
             assetId: asset.id,
+            signName: properties.name ? properties.name : asset.name,
             center: properties.lat + "|" + properties.lng
         },
-        events, url, i, length;
+        events, url, i, length, component, city, country;
     if (updatedSID) {
         events = {};
         asset.triggers.forEach(function(trigger) {
@@ -180,25 +182,38 @@ function sendAssetUpdateRequest(asset, properties, updatedSID) {
         });
         data.events = JSON.stringify(events);
     }
-    sendAJAX("/demo/Default/UpdateAsset", data, function(data) {
-        var response = JSON.parse(data),
-            marker = getMarkerByLocation(properties.lat, properties.lng);
-        if (response.status) {
-            asset.setProperties(properties);
-            $("#" + asset.id + " .asset_name").html(asset.name);
-            marker.setTitle(asset.name);
-            console.log(response.message);
-        } else {
-            marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
-            console.log(response.errorMessage);
-            alert(response.errorMessage);
+    geocoder.geocode({'latLng': new google.maps.LatLng(properties.lat, properties.lng)}, function(results, status) {
+        if (status === "OK") {
+            for (i = 0, length = results[0].address_components.length; i < length; i++) {
+                component = results[0].address_components[i];
+                if (component.types[0] === "locality") {
+                    city = component.long_name;
+                } else if (component.types[0] === "country") {
+                    country = component.long_name;
+                }
+            }
+            data.locationName = city || country;
         }
-    },
-    function(error) {
-        var marker = getMarkerByLocation(properties.lat, properties.lng);;
-        marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
-        console.log(error.statusText + ": " + error.responseText);
-        alert(error.statusText);
+        sendAJAX("/demo/Default/UpdateAsset", data, function(data) {
+            var response = JSON.parse(data),
+                marker = getMarkerByLocation(properties.lat, properties.lng);
+            if (response.status) {
+                asset.setProperties(properties);
+                $("#" + asset.id + " .asset_name").html(asset.name);
+                marker.setTitle(asset.name);
+                console.log(response.message);
+            } else {
+                marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
+                console.log(response.errorMessage);
+                alert(response.errorMessage);
+            }
+        },
+        function(error) {
+            var marker = getMarkerByLocation(properties.lat, properties.lng);;
+            marker.setPosition(new google.maps.LatLng(asset.lat, asset.lng));
+            console.log(error.statusText + ": " + error.responseText);
+            alert(error.statusText);
+        });
     });
 }
 
@@ -235,7 +250,7 @@ function updateAsset() {
         properties.lat = marker.position.lat();
         properties.lng = marker.position.lng();
         if (active_asset) {
-            if ((active_asset.lat !== properties.lat || active_asset.lng !== properties.lng || active_asset.sid !== properties.sid) && active_asset.triggers.length) {
+            if ((active_asset.lat !== properties.lat || active_asset.lng !== properties.lng || active_asset.sid !== properties.sid || active_asset.name !== properties.name) && active_asset.triggers.length) {
                 sendAssetUpdateRequest(active_asset, properties, active_asset.sid !== properties.sid);
             } else {
                 active_asset.setProperties(properties);
@@ -244,7 +259,7 @@ function updateAsset() {
             }
         } else {
             assets.push(new Asset(properties));
-            inventoryItem = "<div id='" + properties.id + "' class='list_item inventory_item'>" +
+            inventoryItem = "<div class='list_item'><div id='" + properties.id + "' class='inventory_item'>" +
                             "<img src='img/screen.png' class='item' width='18' height='18'>" + 
                             "<span class='asset_name'>" + properties.name + "</span></div>";
             marker.setTitle(properties.name);
@@ -253,6 +268,15 @@ function updateAsset() {
                 $(".selected").removeClass("selected");
                 $(this).addClass("selected");
                 moveToMarker(marker);
+            });
+            $("#" + properties.id).on('contextmenu', function(ev) {
+                hideMenu();
+                active_asset = getAssetByLocation(marker.position.lat(), marker.position.lng());
+                active_asset.triggers.map(function(tr) { return  checkEventType(tr.type); }).forEach(function(type) {
+                    $("#context_menu [data-type='" + type + "'] .cross").show(); 
+                });
+                displayMenu(ev);
+                return false;
             });
             if ($(".inventory").css("display") === "none") {
                 $(".inventory").show();
@@ -281,6 +305,9 @@ function removeAsset(asset) {
                     if (!assets.length) {
                         $(".inventory").hide();
                     }
+//                    if (!assets.some(function (asset) { return asset.triggers.length; })) {
+//                        $("li > a.crumb.product-name.links").hide();
+//                    }
                     console.log(response.message);
                 } else {
                     console.log(response.errorMessage);
@@ -300,27 +327,51 @@ function removeAsset(asset) {
     }
 }
 
+function mergeObjects(obj1, obj2) {
+    var obj3 = {};
+    for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+    for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+    return obj3;
+}
+
 function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
     var url = isNewTrigger ? "/demo/Default/RegisterEvent" : "/demo/Default/UpdateEvent";
-    sendAJAX(url, trigger.getData(properties), function(data) {
-        var response = JSON.parse(data),
-            marker;
-        if (response.status) {
-            if (isNewTrigger) {
-                if (!asset.triggers.length) {
-                    marker = getMarkerByLocation(asset.lat, asset.lng);
-                    marker.setIcon("img/trgrware_screen_pin_2.png");
-                    $("#" + asset.id + " .item").attr("src", "img/screen_trgr.png");
+    geocoder.geocode({'latLng': new google.maps.LatLng(asset.lat, asset.lng)}, function(results, status) {
+        var data = {};
+        if (status === "OK") {
+            for (i = 0, length = results[0].address_components.length; i < length; i++) {
+                component = results[0].address_components[i];
+                if (component.types[0] === "locality") {
+                    city = component.long_name;
+                } else if (component.types[0] === "country") {
+                    country = component.long_name;
                 }
-                asset.triggers.push(trigger);
-            } else {
-                trigger.setProperties(properties);
             }
-            console.log(response.message);
-        } else {
-            console.log(response.errorMessage);
-            alert(response.errorMessage);
+            data.locationName =  city || country;
         }
+        sendAJAX(url, mergeObjects(data, trigger.getData(properties)), function(data) {
+            var response = JSON.parse(data),
+                marker;
+            if (response.status) {
+                if (isNewTrigger) {
+                    if (!asset.triggers.length) {
+                        marker = getMarkerByLocation(asset.lat, asset.lng);
+                        marker.setIcon("img/trgrware_screen_pin_2.png");
+                        $("#" + asset.id + " .item").attr("src", "img/screen_trgr.png");
+                    }
+//                    if (!assets.some(function (asset) { return asset.triggers.length; })) {
+//                        $("li > a.crumb.product-name.links").show();
+//                    }
+                    asset.triggers.push(trigger);
+                } else {
+                    trigger.setProperties(properties);
+                }
+                console.log(response.message);
+            } else {
+                console.log(response.errorMessage);
+                alert(response.errorMessage);
+            }
+        });
     });
 }
 
@@ -349,6 +400,9 @@ function removeTrigger(asset, eventType) {
                 marker.setIcon("img/screen_pin.png");
                 $("#" + asset.id + " .item").attr("src", "img/screen.png");
             }
+//            if (!assets.some(function (asset) { return asset.triggers.length; })) {
+//                $("li > a.crumb.product-name.links").hide();
+//            }
             console.log(response.message);
         } else {
             console.log(response.errorMessage);
@@ -638,7 +692,7 @@ function showIncidents(incidents) {
     if (map.getZoom() > 11) {
         clearMap(incidentMarkers);
         incidents.forEach(function(incident) {
-            marker = new google.maps.Marker({
+            marker = new MarkerWithLabel({
                 position: new google.maps.LatLng(incident.latitude, incident.longitude),
                 map: map,
                 icon: 'img/incidentPin@2x-small.png',
@@ -730,8 +784,14 @@ function getIncidents() {
         corner2: sw.lat() +'|'+ sw.lng(),
         incidentType: "Incidents",
         incidentSource: "All",
-        success:function (incidents) {
+        success: function (incidents) {
             showIncidents(incidents);
+            $(".loading").removeClass("incidents");
+            if ($(".loading")[0].classList.length < 2) {
+                $(".loading").css("visibility", "hidden");
+            }
+        },
+        error: function() {
             $(".loading").removeClass("incidents");
             if ($(".loading")[0].classList.length < 2) {
                 $(".loading").css("visibility", "hidden");
@@ -950,10 +1010,10 @@ function removeContainer(event) {
 }
 
 function updateAssetInfowindow(asset) {
-    var content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><img class='infowindow_update' src='/img/loading.gif' width='13px' height='13px'><ul>",
+    var content = "<div><span class='infowindow_title'>Attached events:</span><img class='infowindow_update' src='/img/loading.gif' width='13px' height='13px'><ul>",
         count;
     asset.triggers.forEach(function(tr) {
-        count = tr.triggeringCount + tr.injectionsCount;
+        count = tr.triggeringCount;
         if (count > 0) {
             content += "<li>" + getType(tr.type) + " (triggered " + count + ((count === 1) ? " time" : " times") + ")</li>";
         } else {
@@ -1149,7 +1209,7 @@ $(function() {
                     if (asset.triggers.length) {
                         updateAssetInfowindow(asset);
                         infoWindow.open(map, marker);
-                        sendAJAX("/demo/Default/AjaxGetEventStatistic", { assetId: asset.id }, function(data) { 
+                        sendAJAX("/demo/analytics/AjaxGetEventStatistic", { assetId: asset.id }, function(data) {
                             var response = JSON.parse(data);
                             if (response.status) {
                                 asset.triggers.forEach(function (tr) {
@@ -1190,20 +1250,30 @@ $(function() {
         } else if (action === "trigger_event") {
             var name = ev.target.parentNode.getAttribute("title"),
                 asset = assets.filter(function (asset) { return asset.name === name; })[0],
-                trigger, url, type;
+                trigger, url, type, data;
             if (asset) {
                 trigger = asset.triggers.filter(function(trigger) { return trigger.type === ev.dataTransfer.getData("type"); })[0];
                 type = getType(ev.dataTransfer.getData("type"));
                 if (trigger) {
                     url = (trigger.type === EVENT_TYPES.TWITTER) ? trigger.getURL(asset.sid, trigger.cid)[0] : trigger.getURL(asset.sid, trigger.cid);
-                    $.ajax({
-                        url: url,
-                        success: function() {
-                            trigger.injectionsCount += 1;
-                            console.log("Successfully triggered.");
-                        },
-                        error: function() { console.log("Error on triggering event."); },
-                        complete: function() { alert(type + " Trigger Simulated."); }
+                    data = {
+                        assetId: asset.id,
+                        eventType: trigger.type,
+                        url: url
+                    }
+                    sendAJAX("/demo/Default/AjaxTriggerEvent", data, function(data) {
+                        var response = JSON.parse(data);
+                        if (response.status) {
+                            trigger.triggeringCount = response.count;
+                            console.log(response.message);
+                            alert(type + " Trigger Simulated.");
+                        } else {
+                            console.log(response.errorMessage);
+                            alert(type + " Trigger Was Not Simulated.");
+                        }
+                    }, function() {
+                        console.log("Error on triggering event.");
+                        alert(type + " Trigger Was Not Simulated.");
                     });
                 } else {
                     alert(type + " Trigger Is Not Defined For This Asset.\nSimulate Request Denied.");
