@@ -259,7 +259,7 @@ function updateAsset() {
             }
         } else {
             assets.push(new Asset(properties));
-            inventoryItem = "<div id='" + properties.id + "' class='list_item inventory_item'>" +
+            inventoryItem = "<div class='list_item'><div id='" + properties.id + "' class='inventory_item'>" +
                             "<img src='img/screen.png' class='item' width='18' height='18'>" + 
                             "<span class='asset_name'>" + properties.name + "</span></div>";
             marker.setTitle(properties.name);
@@ -268,6 +268,15 @@ function updateAsset() {
                 $(".selected").removeClass("selected");
                 $(this).addClass("selected");
                 moveToMarker(marker);
+            });
+            $("#" + properties.id).on('contextmenu', function(ev) {
+                hideMenu();
+                active_asset = getAssetByLocation(marker.position.lat(), marker.position.lng());
+                active_asset.triggers.map(function(tr) { return  checkEventType(tr.type); }).forEach(function(type) {
+                    $("#context_menu [data-type='" + type + "'] .cross").show(); 
+                });
+                displayMenu(ev);
+                return false;
             });
             if ($(".inventory").css("display") === "none") {
                 $(".inventory").show();
