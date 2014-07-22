@@ -194,6 +194,7 @@ function sendAssetUpdateRequest(asset, properties, updatedSID) {
             }
             data.locationName = city || country;
         }
+        data.locationName = data.locationName || "Unknown Location";
         sendAJAX("/demo/Default/UpdateAsset", data, function(data) {
             var response = JSON.parse(data),
                 marker = getMarkerByLocation(properties.lat, properties.lng);
@@ -349,6 +350,7 @@ function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
             }
             data.locationName =  city || country;
         }
+        data.locationName = data.locationName || "Unknown Location";
         sendAJAX(url, mergeObjects(data, trigger.getData(properties)), function(data) {
             var response = JSON.parse(data),
                 marker;
@@ -1204,7 +1206,6 @@ $(function() {
                     asset = getAssetByLocation(marker.position.lat(), marker.position.lng());
                 $(".selected").removeClass("selected");
                 $("#" + asset.id).addClass("selected");
-                moveToMarker(marker);
                 if (!contextMenuIsOpen) {
                     if (asset.triggers.length) {
                         updateAssetInfowindow(asset);
