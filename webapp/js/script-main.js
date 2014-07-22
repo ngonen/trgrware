@@ -683,7 +683,7 @@ function showIncidents(incidents) {
     if (map.getZoom() > 11) {
         clearMap(incidentMarkers);
         incidents.forEach(function(incident) {
-            marker = new google.maps.Marker({
+            marker = new MarkerWithLabel({
                 position: new google.maps.LatLng(incident.latitude, incident.longitude),
                 map: map,
                 icon: 'img/incidentPin@2x-small.png',
