@@ -144,8 +144,7 @@ class AnalyticsController extends IDemoBaseController {
                             $response['series'][$eventType]['data'][$index] += 1;
                         } else {
                             $response['series'][$eventType] = $series;
-                            $response['series'][$eventType]['name'] = $response['series'][$eventType]['name']
-                                . " [" . $asset['name'] . "]";
+                            $response['series'][$eventType]['name'] = $response['series'][$eventType]['name'];
                             $response['series'][$eventType]['data'] = $data;
                             $response['series'][$eventType]['data'][$index] = 1;
                         }
@@ -172,20 +171,21 @@ class AnalyticsController extends IDemoBaseController {
 
     private function getSeriesForEventList() {
         return [
-            IDemoBaseController::WEATHER_TEMPERATURE => [name => "Temperature", color => '#d11430', data => []],
-            IDemoBaseController::WEATHER_WIND_SPEED => [name => "Wind", color => "#7cb5ec", data => []],
-            IDemoBaseController::WEATHER_RAIN => [name => "Rain", color => "#434348", color => "#", data => []],
-            IDemoBaseController::WEATHER_SUNNY => [name => "Sunny", color => "#90ed7d", data => []],
-            IDemoBaseController::WEATHER_CLOUDY => [name => "Cloudy", color => "#f7a35c", data => []],
-            IDemoBaseController::WEATHER_SNOW => [name => "Snow", color => "#4072b4", data => []],
-            IDemoBaseController::WEATHER_THUNDER_STORM => [name => "Thunderstorm", color => "#", data => []],
-            IDemoBaseController::WEATHER_STORM => [name => "Storm", color => "#a2014c", data => []],
-            IDemoBaseController::TRAFFIC_FLOW => [name => "Flow", color => "#e370b9", data => []],
-            IDemoBaseController::TRAFFIC_INCIDENTS => [name => "Incidents", color => "#848484", data => []],
-            IDemoBaseController::TWITTER_HASH_TAG => [name => "Twitter hashtag", color => "#31ad51", data => []]
+            IDemoBaseController::WEATHER_TEMPERATURE => ['name' => "Temperature", 'color' => '#d11430', 'data' => []],
+            IDemoBaseController::WEATHER_WIND_SPEED => ['name' => "Wind", 'color' => "#7cb5ec", 'data' => []],
+            IDemoBaseController::WEATHER_RAIN => ['name' => "Rain", 'color' => "#434348", 'data' => []],
+            IDemoBaseController::WEATHER_SUNNY => ['name' => "Sunny", 'color' => "#90ed7d", 'data' => []],
+            IDemoBaseController::WEATHER_CLOUDY => ['name' => "Cloudy", 'color' => "#f7a35c", 'data' => []],
+            IDemoBaseController::WEATHER_SNOW => ['name' => "Snow", 'color' => "#4072b4", 'data' => []],
+            IDemoBaseController::WEATHER_THUNDER_STORM => ['name' => "Thunderstorm", 'color' => "#ac5429", 'data' => []],
+            IDemoBaseController::WEATHER_STORM => ['name' => "Storm", 'color' => "#a2014c", 'data' => []],
+            IDemoBaseController::TRAFFIC_FLOW => ['name' => "Flow", 'color' => "#e370b9", 'data' => []],
+            IDemoBaseController::TRAFFIC_INCIDENTS => ['name' => "Incidents", 'color' => "#848484", 'data' => []],
+            IDemoBaseController::TWITTER_HASH_TAG => ['name' => "Twitter hashtag", 'color' => "#31ad51", 'data' => []]
         ];
     }
 
+    // TODO: delete
     private function getAssetName($asset) {
         foreach ($asset['statistic'] as $k => $v) {
             if (isset($v)) {

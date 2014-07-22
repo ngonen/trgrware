@@ -47,10 +47,10 @@ $(function() {
                     marginRight: 40
                 },
                 title: {
-                    text: 'Digital Asset Simulation List'
+                    text: 'Triggers By Asset'
                 },
                 subtitle: {
-                    text: 'Represents count of triggered events for each Digital Asset'
+                    text: 'Distribution Of Triggers Grouped By Digital Asset'
                 },
                 xAxis: {
                     categories: response.categories || []
@@ -59,7 +59,7 @@ $(function() {
                     allowDecimals: false,
                     min: 0,
                     title: {
-                        text: 'Count of events'
+                        text: 'Triggers'
                     }
                 },
                 tooltip: {
@@ -93,7 +93,10 @@ $(function() {
                     marginRight: 40
                 },
                 title: {
-                    text: 'Digital Asset Location'
+                    text: 'Triggers By Location'
+                },
+                subtitle: {
+                    text: 'Distribution Of Triggers Grouped By Geographic Affiliation'
                 },
                 xAxis: {
                     categories: response.categories || []
@@ -102,7 +105,7 @@ $(function() {
                     allowDecimals: false,
                     min: 0,
                     title: {
-                        text: 'Count of digital assets'
+                        text: 'Digital Assets'
                     }
                 },
                 tooltip: {
