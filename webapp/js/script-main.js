@@ -296,6 +296,9 @@ function removeAsset(asset) {
                     if (!assets.length) {
                         $(".inventory").hide();
                     }
+                    if (!assets.some(function (asset) { return asset.triggers.length; })) {
+                        $("li > a.crumb.product-name.links").hide();
+                    }
                     console.log(response.message);
                 } else {
                     console.log(response.errorMessage);
@@ -347,6 +350,9 @@ function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
                         marker.setIcon("img/trgrware_screen_pin_2.png");
                         $("#" + asset.id + " .item").attr("src", "img/screen_trgr.png");
                     }
+                    if (!assets.some(function (asset) { return asset.triggers.length; })) {
+                        $("li > a.crumb.product-name.links").show();
+                    }
                     asset.triggers.push(trigger);
                 } else {
                     trigger.setProperties(properties);
@@ -384,6 +390,9 @@ function removeTrigger(asset, eventType) {
                 marker = getMarkerByLocation(asset.lat, asset.lng);
                 marker.setIcon("img/screen_pin.png");
                 $("#" + asset.id + " .item").attr("src", "img/screen.png");
+            }
+            if (!assets.some(function (asset) { return asset.triggers.length; })) {
+                $("li > a.crumb.product-name.links").hide();
             }
             console.log(response.message);
         } else {
