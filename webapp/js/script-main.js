@@ -296,9 +296,9 @@ function removeAsset(asset) {
                     if (!assets.length) {
                         $(".inventory").hide();
                     }
-                    if (!assets.some(function (asset) { return asset.triggers.length; })) {
-                        $("li > a.crumb.product-name.links").hide();
-                    }
+//                    if (!assets.some(function (asset) { return asset.triggers.length; })) {
+//                        $("li > a.crumb.product-name.links").hide();
+//                    }
                     console.log(response.message);
                 } else {
                     console.log(response.errorMessage);
@@ -350,9 +350,9 @@ function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
                         marker.setIcon("img/trgrware_screen_pin_2.png");
                         $("#" + asset.id + " .item").attr("src", "img/screen_trgr.png");
                     }
-                    if (!assets.some(function (asset) { return asset.triggers.length; })) {
-                        $("li > a.crumb.product-name.links").show();
-                    }
+//                    if (!assets.some(function (asset) { return asset.triggers.length; })) {
+//                        $("li > a.crumb.product-name.links").show();
+//                    }
                     asset.triggers.push(trigger);
                 } else {
                     trigger.setProperties(properties);
@@ -391,9 +391,9 @@ function removeTrigger(asset, eventType) {
                 marker.setIcon("img/screen_pin.png");
                 $("#" + asset.id + " .item").attr("src", "img/screen.png");
             }
-            if (!assets.some(function (asset) { return asset.triggers.length; })) {
-                $("li > a.crumb.product-name.links").hide();
-            }
+//            if (!assets.some(function (asset) { return asset.triggers.length; })) {
+//                $("li > a.crumb.product-name.links").hide();
+//            }
             console.log(response.message);
         } else {
             console.log(response.errorMessage);
@@ -1200,7 +1200,7 @@ $(function() {
                     if (asset.triggers.length) {
                         updateAssetInfowindow(asset);
                         infoWindow.open(map, marker);
-                        sendAJAX("/demo/Default/AjaxGetEventStatistic", { assetId: asset.id }, function(data) { 
+                        sendAJAX("/demo/analytics/AjaxGetEventStatistic", { assetId: asset.id }, function(data) {
                             var response = JSON.parse(data);
                             if (response.status) {
                                 asset.triggers.forEach(function (tr) {

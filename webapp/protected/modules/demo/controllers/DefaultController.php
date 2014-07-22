@@ -2,79 +2,16 @@
 
 class DefaultController extends IDemoBaseController
 {
-    public $layout = '/layouts/layout';
-
-	public function actionIndex() {
+    public function actionIndex() {
         if (Yii::app()->user->isGuest) {
             Yii::app()->user->returnUrl = "/demo";
 
-            $this->redirect('site/login');
+            $this->redirect('/site/login');
         }
 
         $this->clearStorage();
 		$this->render('index');
 	}
-
-    // Test function
-    public function actionAjaxGetSecurityToken() {
-        $token = $this->getSecurityToken();
-
-        $result = array(
-            "status" => $token ? true : false,
-            "token" => $token
-        );
-
-        $this->renderJSON($result);
-        $this->endApp();
-    }
-
-    // Test function
-    public function actionAjaxGetIncidentInfo() {
-        syslog(LOG_INFO, "Action AjaxGetIncidentInfo start.");
-
-        if (!Yii::app()->request->isAjaxRequest) {
-            throw new CHttpException('403', 'Forbidden access.');
-        }
-
-        $center = Yii::app()->request->getParam('center');
-        $radius = Yii::app()->request->getParam('radius');
-        $resultXML = $this->getIncidentInfo($center, $radius);
-
-        syslog(LOG_INFO, "XML result created: " . $resultXML);
-
-        $response = array(
-            "status" => count($resultXML->Incidents) > 0,
-            "incidents" => $resultXML->asXML()
-        );
-
-        $this->renderJSON($response);
-        $this->endApp();
-
-        syslog(LOG_INFO, "Action AjaxGetIncidentInfo end.");
-    }
-
-    // Test function
-    public function actionAjaxGetSegmentSpeedInRadius() {
-        syslog(LOG_INFO, "Action AjaxGetSegmentSpeedInRadius start.");
-
-        if (!Yii::app()->request->isAjaxRequest) {
-            throw new CHttpException('403', 'Forbidden access.');
-        }
-
-        $center = Yii::app()->request->getParam('center');
-        $radius = Yii::app()->request->getParam('radius');
-        $resultXML = $this->getSegmentSpeedInRadius($center, $radius);
-
-        $response = array(
-            "status" => count($resultXML->SegmentSpeedResults) > 0,
-            "segmentSpeed" => $resultXML->asXML()
-        );
-
-        $this->renderJSON($response);
-        $this->endApp();
-
-        syslog(LOG_INFO, "Action AjaxGetWeatherInBoxFGC end.");
-    }
 
     public function actionAjaxGetWeatherInRadius() {
         syslog(LOG_INFO, "Action AjaxGetWeatherInRadius start.");
@@ -128,6 +65,8 @@ class DefaultController extends IDemoBaseController
         $response = ["status" => false];
         $assetId = Yii::app()->request->getParam('assetId');
         $event = Yii::app()->request->getParam('eventType');
+        $signName = Yii::app()->request->getParam('signName');
+        $locationName = Yii::app()->request->getParam('locationName');
 
         if (!$event) {
             $response['errorMessage'] = "Type of event is not defined.";
@@ -148,11 +87,13 @@ class DefaultController extends IDemoBaseController
             $fc = $this->createEventStorageArray();
         }
 
-        $fc[$event][] = $this->updateEventParameters($event, $assetId);
+        $fc[$event][] = $this->updateEventParameters($event, $assetId, $signName);
         $isPut = $this->saveToStorage($filePath, $fc);
 
         if ($isPut) {
             syslog(LOG_INFO, "Storage has been successfully saved.");
+
+            $this->updateEventStatistic($assetId, $event, $signName, $locationName);
 
             $response["status"] = $isPut > 0;
             $response["message"] = "Event has been successfully registered.";
@@ -184,6 +125,7 @@ class DefaultController extends IDemoBaseController
 
         $assetId = Yii::app()->request->getParam('assetId');
         $event = Yii::app()->request->getParam('eventType');
+        $signName = Yii::app()->request->getParam('signName');
         $deleteEventType = Yii::app()->request->getParam('delete');
         $filePath = Yii::app()->params['eventStoragePath'];
         $response = ["status" => false];
@@ -199,7 +141,7 @@ class DefaultController extends IDemoBaseController
         }
 
         $storageExists = is_file($filePath);
-        $eventParams = $this->updateEventParameters($event, $assetId);
+        $eventParams = $this->updateEventParameters($event, $assetId, $signName);
 
         if ($storageExists) {
             syslog(LOG_INFO, "Storage exists. Start to unserialize.");
@@ -260,6 +202,8 @@ class DefaultController extends IDemoBaseController
 
         $assetId = Yii::app()->request->getParam('assetId');
         $center = Yii::app()->request->getParam('center');
+        $signName = Yii::app()->request->getParam('signName');
+        $locationName = Yii::app()->request->getParam('locationName');
         $events = json_decode(Yii::app()->request->getParam('events'), true);
         $response = ["status" => false];
         $filePath = Yii::app()->params['eventStoragePath'];
@@ -299,6 +243,8 @@ class DefaultController extends IDemoBaseController
             $isPut = $this->saveToStorage($filePath, $fc);
 
             if ($isPut) {
+                $this->updateAssetNameInStatisticStorage($assetId, $signName, $locationName);
+
                 $response["status"] = $isPut > 0;
                 $response["message"] = "Your asset has been successfully updated.";
                 $response["statistic"] = $this->getStatistic($fc);
@@ -356,46 +302,45 @@ class DefaultController extends IDemoBaseController
         $this->endApp();
     }
 
-    public function actionAjaxGetEventStatistic() {
-        syslog(LOG_INFO, "Action 'EventStatistic' started.");
+    public function actionAjaxTriggerEvent() {
+        syslog(LOG_INFO, "Action 'AjaxTriggerEvent' started.");
 
         if (!Yii::app()->request->isAjaxRequest) {
             throw new CHttpException('403', 'Forbidden access.');
         }
 
+        $response = ["status" => false];
         $assetId = Yii::app()->request->getParam('assetId');
-        $response = ['status' => false];
-        $storageStatisticPath = Yii::app()->params['eventStatisticStoragePath'];
+        $eventType = Yii::app()->request->getParam('eventType');
+        $url = Yii::app()->request->getParam('url');
 
-        if (!$assetId) {
-            $response['errorMessage'] = "Asset ID not found";
+        $result = file_get_contents($url, false, $this->getStreamContext());
+        $status = strpos($result, '"ret": "success"');
 
-            $this->renderJSON($response);
-            $this->endApp();
-        }
+        if ($result && $status && $status >= 0) {
+            // Update statistic in storage
+            $count = $this->updateEventStatistic($assetId, $eventType);
 
-        if (is_file($storageStatisticPath)) {
-            $statistic = $this->readStorage($storageStatisticPath);
-
-            if (!isset($statistic[$assetId])) {
-                $response['errorMessage'] = "Statistic does not exists for this event type.";
-
-                $this->renderJSON($response);
-                $this->endApp();
+            if ($count) {
+                $response['status'] = true;
+                $response['assetId'] = $assetId;
+                $response['eventType'] = $eventType;
+                $response['count'] = $count;
+                $response['message'] = "Event has been successfully simulated.";
+            } else {
+                $response['message'] = "Could not update event storage file.";
             }
-
-            $response['status'] = true;
-            $response['statistic'] = $statistic[$assetId];
         } else {
-            $response['errorMessage'] = "Events have not been triggered yet.";
+            $response['errorMessage'] = "Response message from " . $url . " is not valid.";
         }
 
         $this->renderJSON($response);
 
-        syslog(LOG_INFO, "Action 'EventStatistic' finished.");
+        syslog(LOG_INFO, "Action 'AjaxTriggerEvent' started.");
 
         $this->endApp();
     }
+
 
 
 
@@ -447,6 +392,9 @@ class DefaultController extends IDemoBaseController
                 $isPut = $this->saveToStorage($filePath, $fc);
 
                 if ($isPut) {
+                    // TODO: test
+//                    $this->deleteAssetStatistic($assetId, $eventType);
+
                     $response["status"] = $isPut > 0;
                     $response["assetId"] = $assetId;
                     $response["statistic"] = $this->getStatistic($fc);
@@ -469,8 +417,46 @@ class DefaultController extends IDemoBaseController
         return $response;
     }
 
-    private function updateEventParameters($event, $assetId) {
-        $params = ["id" => $assetId];
+    private function deleteAssetStatistic($assetId, $eventType = false) {
+        $isFound = false;
+        $filePath = Yii::app()->params['eventStatisticStoragePath'];
+
+        if (is_file($filePath)) {
+            $fc = $this->readStorage($filePath);
+
+            if (is_array($fc)) {
+                if ($eventType) {
+                    foreach ($fc as $key => $value) {
+                        if ($key == $assetId) {
+                            $fc[$key]['statistic'][$eventType] = 0;
+                            $isFound = true;
+                            break;
+                        }
+                    }
+                } else {
+                    foreach ($fc as $key => $value) {
+                        if ($key == $assetId) {
+                            unset($fc[$key]);
+                            $isFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                if ($isFound) {
+                    $this->saveToStorage($filePath, $fc);
+                }
+            } else {
+                $this->clearEventStatistic();
+            }
+        }
+    }
+
+    private function updateEventParameters($event, $assetId, $signName) {
+        $params = [
+            "id" => $assetId,
+            "signName" => $signName
+        ];
 
         switch ($event) {
             case IDemoBaseController::TRAFFIC_FLOW:
@@ -546,5 +532,37 @@ class DefaultController extends IDemoBaseController
             IDemoBaseController::TRAFFIC_FLOW => count($fc[IDemoBaseController::TRAFFIC_FLOW]),
             IDemoBaseController::TWITTER_HASH_TAG => count($fc[IDemoBaseController::TWITTER_HASH_TAG])
         ];
+    }
+
+    private function updateAssetNameInStatisticStorage($assetId, $signName, $locationName) {
+        $filePath = Yii::app()->params['eventStatisticStoragePath'];
+        $isUpdated = false;
+
+        if (is_file($filePath)) {
+            $fc = $this->readStorage($filePath);
+
+            if (!is_array($fc)) {
+                $this->clearEventStatistic();
+
+                $response["errorMessage"] = "Data in storage is not correct. Reload the page.";
+
+                $this->renderJSON($response);
+                $this->endApp();
+            }
+
+            foreach ($fc as $key => $value) {
+                if ($key == $assetId) {
+                    $fc[$key]['name'] = $signName;
+                    $fc[$key]['locationName'] = $locationName;
+
+                    $isUpdated = true;
+                    break;
+                }
+            }
+
+            if ($isUpdated) {
+                $this->saveToStorage($filePath, $fc);
+            }
+        }
     }
 }

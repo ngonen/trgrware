@@ -21,6 +21,8 @@ abstract class IDemoBaseController extends Controller {
     const SKY_THUNDERSTORMS = "Thunderstorms";
     const SKY_T_STORM = "T-storms";
 
+    public $layout = '/layouts/layout';
+
     /**
      * Get Security Token for vendor
      * @return bool
@@ -159,6 +161,66 @@ abstract class IDemoBaseController extends Controller {
         $this->clearEventStatistic();
     }
 
+    protected function clearEventStatistic() {
+        $storagePath = Yii::app()->params['eventStatisticStoragePath'];
+
+        if (is_file($storagePath)) {
+            syslog(LOG_INFO, "Remove statistic file.");
+
+            unlink($storagePath);
+        }
+    }
+
+    protected function updateEventStatistic($assetId, $eventType, $signName = '', $locationName = '') {
+        $filePath = Yii::app()->params['eventStatisticStoragePath'];
+
+        if (is_file($filePath)) {
+            syslog(LOG_INFO, "Event statistic storage exists. Start to unserialize.");
+
+            $fc = $this->readStorage($filePath);
+
+            if (!isset($fc[$assetId])) {
+//                $fc[$assetId]['statistic'] = $this->createEventStatisticArray();
+                $fc[$assetId]['statistic'] = $this->createEventStorageArray(null);
+            }
+        } else {
+            syslog(LOG_INFO, "Event statistic storage does not exist. Start to create.");
+
+            $fc = [
+                $assetId => [
+//                    'statistic' => $this->createEventStatisticArray()
+                    'statistic' => $this->createEventStorageArray(null)
+                ]
+            ];
+        }
+
+        if ($locationName) {
+            $fc[$assetId]['locationName'] = $locationName;
+
+            if ($signName) {
+                $fc[$assetId]['name'] = $signName;
+            }
+
+            if (!isset($fc[$assetId]['statistic'][$eventType])) {
+                $fc[$assetId]['statistic'][$eventType] = 0;
+            }
+        } else {
+            if (isset($fc[$assetId]['statistic'][$eventType])) {
+                $fc[$assetId]['statistic'][$eventType] += 1;
+            } else {
+                $fc[$assetId]['statistic'][$eventType] = 1;
+            }
+        }
+
+        if ($this->saveToStorage($filePath, $fc)) {
+            syslog(LOG_INFO, "Statistic for [" . $eventType . "] has been successfully updated.");
+
+            return $fc[$assetId]['statistic'][$eventType];
+        }
+
+        return false;
+    }
+
 
 
 
@@ -173,13 +235,52 @@ abstract class IDemoBaseController extends Controller {
         }
     }
 
-    private function clearEventStatistic() {
-        $storagePath = Yii::app()->params['eventStatisticStoragePath'];
-
-        if (is_file($storagePath)) {
-            syslog(LOG_INFO, "Remove statistic file.");
-
-            unlink($storagePath);
-        }
+    private function createEventStatisticArray() {
+        return [
+            IDemoBaseController::WEATHER_TEMPERATURE => [
+//                'name' => 'Temperature',
+                'y' => null
+            ],
+            IDemoBaseController::WEATHER_WIND_SPEED => [
+//                'name' => 'Wind',
+                'y' => null
+            ],
+            IDemoBaseController::WEATHER_RAIN => [
+//                'name' => 'Rain',
+                'y' => null
+            ],
+            IDemoBaseController::WEATHER_SNOW => [
+//                'name' => 'Snow',
+                'y' => null
+            ],
+            IDemoBaseController::WEATHER_STORM => [
+//                'name' => 'Storm',
+                'y' => null
+            ],
+            IDemoBaseController::WEATHER_SUNNY => [
+//                'name' => 'Sunny',
+                'y' => null
+            ],
+            IDemoBaseController::WEATHER_CLOUDY => [
+//                'name' => 'Cloudy',
+                'y' => null
+            ],
+            IDemoBaseController::WEATHER_THUNDER_STORM => [
+//                'name' => 'Thunderstorms',
+                'y' => null
+            ],
+            IDemoBaseController::TRAFFIC_INCIDENTS => [
+//                'name' => 'Incidents',
+                'y' => null
+            ],
+            IDemoBaseController::TRAFFIC_FLOW => [
+//                'name' => 'Flow',
+                'y' => null
+            ],
+            IDemoBaseController::TWITTER_HASH_TAG => [
+//                'name' => 'Twitter hastag',
+                'y' => null
+            ]
+        ];
     }
 }

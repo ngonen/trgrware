@@ -11,6 +11,7 @@ html.hcfe {
     padding: 0;
     position: relative;
 	overflow-x: hidden;
+    height: 100%;
 }
 html {
     overflow-y: scroll;
@@ -113,6 +114,7 @@ img {
 .appbar-nav > ul > li {
     display: inline-block;
     float: left;
+    margin: 0 15px 0 0;
 }
 
 .appbar-nav > ul > li:last-child {float: right;}
@@ -129,6 +131,7 @@ img {
 
 .primary-container {
     box-shadow: 0 -30px 30px -4px #999;
+    min-height: 80%;
     margin: 0 auto;
     max-width: 75%;
 }
@@ -777,6 +780,30 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 	background-image: url("/img/Cloudy3_night.png");
 }
 
+.a-item {
+    margin: 0 auto;
+    padding: 50px 0;
+    position: relative;
+    width: 800px;
+}
+
+.a-item > button {
+    font-size: 14px;
+    left: 0;
+    padding: 0;
+    position: absolute;
+    text-decoration: underline !important;
+    top: 25px;
+    z-index: 100;
+}
+
+#a-container {
+    height: 400px;
+    min-width: 310px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
 .gm-style-iw{
     height: 100% !important;
 	
@@ -784,3 +811,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
     overflow: hidden !important;
     min-width: 170px;
 }
+
+/*li > a.crumb.product-name.links {*/
+    /*display: none;*/
+/*}*/
