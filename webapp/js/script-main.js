@@ -1001,7 +1001,7 @@ function removeContainer(event) {
 }
 
 function updateAssetInfowindow(asset) {
-    var content = "<div class='infowindow_content'><span class='infowindow_title'>Attached events:</span><img class='infowindow_update' src='/img/loading.gif' width='13px' height='13px'><ul>",
+    var content = "<div><span class='infowindow_title'>Attached events:</span><img class='infowindow_update' src='/img/loading.gif' width='13px' height='13px'><ul>",
         count;
     asset.triggers.forEach(function(tr) {
         count = tr.triggeringCount + tr.injectionsCount;
