@@ -163,7 +163,7 @@ function sendAJAX(url, data, callback, errorCallback, oncompleteCallback) {
 function sendAssetUpdateRequest(asset, properties, updatedSID) {
     var data = {
             assetId: asset.id,
-            signName: properties.name,
+            signName: properties.name ? properties.name : asset.name,
             center: properties.lat + "|" + properties.lng
         },
         events, url, i, length, component, city, country;
