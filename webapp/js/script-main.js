@@ -1012,12 +1012,12 @@ function removeContainer(event) {
 }
 
 function updateAssetInfowindow(asset) {
-    var content = "<div><span class='infowindow_title'>Attached events:</span><img class='infowindow_update' src='/img/loading.gif' width='13px' height='13px'><ul>",
+    var content = "<div><span class='infowindow_title'>Attached Triggers:</span><img class='infowindow_update' src='/img/loading.gif' width='13px' height='13px'><ul>",
         count;
     asset.triggers.forEach(function(tr) {
         count = tr.triggeringCount;
         if (count > 0) {
-            content += "<li>" + getType(tr.type) + " (triggered " + count + ((count === 1) ? " time" : " times") + ")</li>";
+            content += "<li>" + getType(tr.type) + " (" + count + ((count === 1) ? " time" : " times") + ")</li>";
         } else {
             content += "<li>" + getType(tr.type) + "</li>";
         }
