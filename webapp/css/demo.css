@@ -255,6 +255,8 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .inventory_item {
 	cursor: pointer;
+	display: inline-block;
+	padding-right: 10px;
 }
 
 .popup {
