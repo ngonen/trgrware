@@ -517,7 +517,7 @@ function validate(popup) {
                     }
                     break;
                 case "hashtag":
-                    if (!/^\s*$/.test(value) && !/^#/.test(value)) {
+                    if (!/^\s*$/.test(value) && !/^#[\w\d_]+$/.test(value)) {
                         errorMessage = "Incorrect hashtag (hashtag should start with '#')";
                         return {
                             isValid: false,
@@ -526,7 +526,7 @@ function validate(popup) {
                     }
                     break;
                 case "username":
-                    if (!/^\s*$/.test(value) && !/^@/.test(value)) {
+                    if (!/^\s*$/.test(value) && !/^@[\w\d_]+$/.test(value)) {
                             errorMessage = "Incorrect username (username should start with '@')";
                             return {
                                 isValid: false,
