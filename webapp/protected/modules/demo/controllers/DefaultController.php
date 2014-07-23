@@ -240,9 +240,13 @@ class DefaultController extends IDemoBaseController
                 }
             }
 
+            syslog(LOG_INFO, "Start save info to storage.");
+
             $isPut = $this->saveToStorage($filePath, $fc);
 
             if ($isPut) {
+                syslog(LOG_INFO, "Start update asset name and statistic.");
+
                 $this->updateAssetNameInStatisticStorage($assetId, $signName, $locationName);
 
                 $response["status"] = $isPut > 0;
@@ -259,7 +263,7 @@ class DefaultController extends IDemoBaseController
 
         $this->renderJSON($response);
 
-        syslog(LOG_INFO, "Action 'UpdateAsset' started.");
+        syslog(LOG_INFO, "Action 'UpdateAsset' finished.");
 
         $this->endApp();
     }
