@@ -92,6 +92,8 @@ class CronController extends IDemoBaseController
 
                         if ($result->Incidents && count($result->Incidents->Incident)) {
                             foreach ($result->Incidents->Incident as $i => $v) {
+                                syslog(LOG_INFO, "Severity: " . $subscriber['severity']);
+
                                 if ($subscriber['severity'] == IDemoBaseController::Accident) {
                                     $isAccident = strpos($v->ParameterizedDescription->EventText,
                                         IDemoBaseController::Accident);
@@ -680,6 +682,8 @@ class CronController extends IDemoBaseController
     }
 
     private function runIncidentCampaign($url, $id, $streamContext) {
+        syslog(LOG_INFO, "Start to send request to " . $url);
+
         $response = file_get_contents($url, false, $streamContext);
         $status = strpos($response, '"ret": "success"');
 
