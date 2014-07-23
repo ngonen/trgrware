@@ -91,16 +91,21 @@ class CronController extends IDemoBaseController
                         $result = $this->getIncidentInfo($subscriber['center'], $subscriber['radius'], $securityToken);
 
                         if ($result->Incidents && count($result->Incidents->Incident)) {
-                            $response = file_get_contents($subscriber["url"], false, $streamContext);
-                            $status = strpos($response, '"ret": "success"');
+                            foreach ($result->Incidents->Incident as $i => $v) {
+                                if ($subscriber['severity'] == IDemoBaseController::Accident) {
+                                    $isAccident = strpos($v->ParameterizedDescription->EventText,
+                                        IDemoBaseController::Accident);
 
-                            if ($response && $status && $status >= 0) {
-                                syslog(LOG_INFO, "[TrafficIncidents] Request for asset " . $subscriber['id']
-                                    . " has been sent to url " . $subscriber["url"]);
+                                    if ($isAccident !== false && $isAccident >= 0) {
+                                        $this->runIncidentCampaign($subscriber['url'], $subscriber['id'], $streamContext);
 
-                                $this->updateEventStatistic($subscriber['id'], IDemoBaseController::TRAFFIC_INCIDENTS);
-                            } else {
-                                syslog(LOG_ERR, "Response message from " . $subscriber["url"] . " is not valid.");
+                                        break;
+                                    }
+                                } else {
+                                    $this->runIncidentCampaign($subscriber['url'], $subscriber['id'], $streamContext);
+
+                                    break;
+                                }
                             }
                         } else {
                             syslog(LOG_INFO, "Empty result.");
@@ -672,5 +677,19 @@ class CronController extends IDemoBaseController
         $ctx = $this->getStreamContextForPlanText();
 
         return unserialize(file_get_contents($filePath, 0, $ctx))[$type];
+    }
+
+    private function runIncidentCampaign($url, $id, $streamContext) {
+        $response = file_get_contents($url, false, $streamContext);
+        $status = strpos($response, '"ret": "success"');
+
+        if ($response && $status !== false && $status >= 0) {
+            syslog(LOG_INFO, "[TrafficIncidents] Request for asset " . $id
+                . " has been sent to url " . $url);
+
+            $this->updateEventStatistic($id, IDemoBaseController::TRAFFIC_INCIDENTS);
+        } else {
+            syslog(LOG_ERR, "Response message from " . $url . " is not valid.");
+        }
     }
 }

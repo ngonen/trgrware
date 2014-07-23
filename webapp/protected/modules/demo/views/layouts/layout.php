@@ -22,7 +22,7 @@
                             <li><a href="/" class="crumb product-name">Home</a></li>
                             <li><a href="/demo" class="crumb product-name links">Demo</a></li>
                             <li><a href="/demo/analytics" target="_blank" class="crumb product-name links">Analytics</a></li>
-                            <li class="nav-title"><a href="/demo" class="crumb product-name">TRGRware Demo</a></li>
+                            <li class="nav-title"><a href="/demo" class="crumb product-name">TRGRware Integration Demo</a></li>
                             <li class="loading">
                                 <img src="/img/loading.gif" width="16px" height="16px">
                                 Loading

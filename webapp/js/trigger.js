@@ -160,14 +160,14 @@ function WeatherEventTrigger(properties) {
     this.setProperties = function(properties) {
         superclass_setProperties(properties);
         _self.radius = properties.radius;
-        if (properties.windSpeed) {
+        if (properties.hasOwnProperty("windSpeed")) {
             _self.windSpeed = properties.windSpeed;
-        } else if (_self.windSpeed) {
+        } else if (_self.hasOwnProperty("windSpeed")) {
             delete _self.windSpeed;
         }
-        if (properties.stormSeverity) {
+        if (properties.hasOwnProperty("stormSeverity")) {
             _self.stormSeverity = properties.stormSeverity;
-        } else if (_self.stormSeverity) {
+        } else if (_self.hasOwnProperty("stormSeverity")) {
             delete _self.stormSeverity;
         }
     };
@@ -176,10 +176,10 @@ function WeatherEventTrigger(properties) {
     this.getData = function(properties) {
         var data = superclass_getData(properties);
         data.radius = properties.radius;
-        if (properties.stormSeverity) {
+        if (properties.hasOwnProperty("stormSeverity")) {
             data.stormSeverity = properties.stormSeverity;
         }
-        if (properties.windSpeed) {
+        if (properties.hasOwnProperty("windSpeed")) {
             data.speed = properties.windSpeed;
         }
         if (properties.removePrevious) {
