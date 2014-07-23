@@ -184,12 +184,11 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .appbar-nav .nav-title {	
     color: white;
-    width: 318px;
     font-size: 39px;
     font-weight: bold;
     position: absolute;
     left: 50%;
-    margin-left: -159px;
+    margin-left: -250px;
 }
 
 #map_canvas { 
