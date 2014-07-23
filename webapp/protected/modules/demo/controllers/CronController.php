@@ -12,7 +12,7 @@ class CronController extends IDemoBaseController
             $count = count($subscribers);
 
             if ($count) {
-                syslog(LOG_WARNING, "Count of subscribers for 'Weather Temperature': " . $count);
+                syslog(LOG_INFO, "Count of subscribers for 'Weather Temperature': " . $count);
 
                 $securityToken = $this->getSecurityToken();
 
@@ -77,7 +77,7 @@ class CronController extends IDemoBaseController
             $count = count($subscribers);
 
             if ($count) {
-                syslog(LOG_WARNING, "Count of subscribers for 'Traffic Incident': " . $count);
+                syslog(LOG_INFO, "Count of subscribers for 'Traffic Incident': " . $count);
 
                 $streamContext = $this->getStreamContext();
                 $securityToken = $this->getSecurityToken();
