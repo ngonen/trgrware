@@ -20,6 +20,7 @@ abstract class IDemoBaseController extends Controller {
     const SKY_SNOW = "Snow";
     const SKY_THUNDERSTORMS = "Thunderstorms";
     const SKY_T_STORM = "T-storms";
+    const Accident = "Accident";
 
     public $layout = '/layouts/layout';
 
