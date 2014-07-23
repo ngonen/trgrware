@@ -97,6 +97,8 @@ class CronController extends IDemoBaseController
                                 syslog(LOG_INFO, "Start to search for '" . IDemoBaseController::Accident . "' in list.");
 
                                 foreach ($result->Incidents->Incident as $i => $v) {
+                                    syslog(LOG_INFO, "EventText: '" . $v->ParameterizedDescription->EventText->__toString());
+
                                     $isAccident = strpos($v->ParameterizedDescription->EventText,
                                         IDemoBaseController::Accident);
 
@@ -112,8 +114,6 @@ class CronController extends IDemoBaseController
                                 syslog(LOG_INFO, "Start to run incident: 'All'");
 
                                 $this->runIncidentCampaign($subscriber['url'], $subscriber['id'], $streamContext);
-
-                                break;
                             }
                         } else {
                             syslog(LOG_INFO, "Incidents were not found.");
