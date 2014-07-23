@@ -24,8 +24,6 @@ abstract class IDemoBaseController extends Controller {
 
     public $layout = '/layouts/layout';
 
-    public $layout = '/layouts/layout';
-
     /**
      * Get Security Token for vendor
      * @return bool
