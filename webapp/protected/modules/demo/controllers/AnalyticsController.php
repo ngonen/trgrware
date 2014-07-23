@@ -181,7 +181,7 @@ class AnalyticsController extends IDemoBaseController {
             IDemoBaseController::WEATHER_STORM => ['name' => "Storm", 'color' => "#a2014c", 'data' => []],
             IDemoBaseController::TRAFFIC_FLOW => ['name' => "Flow", 'color' => "#e370b9", 'data' => []],
             IDemoBaseController::TRAFFIC_INCIDENTS => ['name' => "Incidents", 'color' => "#848484", 'data' => []],
-            IDemoBaseController::TWITTER_HASH_TAG => ['name' => "Twitter hashtag", 'color' => "#31ad51", 'data' => []]
+            IDemoBaseController::TWITTER_HASH_TAG => ['name' => "Twitter", 'color' => "#31ad51", 'data' => []]
         ];
     }
 

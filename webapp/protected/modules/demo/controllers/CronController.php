@@ -12,7 +12,7 @@ class CronController extends IDemoBaseController
             $count = count($subscribers);
 
             if ($count) {
-                syslog(LOG_WARNING, "Count of subscribers for 'Weather Temperature': " . $count);
+                syslog(LOG_INFO, "Count of subscribers for 'Weather Temperature': " . $count);
 
                 $securityToken = $this->getSecurityToken();
 
@@ -77,7 +77,7 @@ class CronController extends IDemoBaseController
             $count = count($subscribers);
 
             if ($count) {
-                syslog(LOG_WARNING, "Count of subscribers for 'Traffic Incident': " . $count);
+                syslog(LOG_INFO, "Count of subscribers for 'Traffic Incident': " . $count);
 
                 $streamContext = $this->getStreamContext();
                 $securityToken = $this->getSecurityToken();
@@ -91,21 +91,25 @@ class CronController extends IDemoBaseController
                         $result = $this->getIncidentInfo($subscriber['center'], $subscriber['radius'], $securityToken);
 
                         if ($result->Incidents && count($result->Incidents->Incident)) {
-                            foreach ($result->Incidents->Incident as $i => $v) {
-                                if ($subscriber['severity'] == IDemoBaseController::Accident) {
+                            if ($subscriber['severity'] == IDemoBaseController::Accident) {
+                                foreach ($result->Incidents->Incident as $i => $v) {
                                     $isAccident = strpos($v->ParameterizedDescription->EventText,
                                         IDemoBaseController::Accident);
 
                                     if ($isAccident !== false && $isAccident >= 0) {
+                                        syslog(LOG_INFO, "Start to run incident: '" . IDemoBaseController::Accident . "'");
+
                                         $this->runIncidentCampaign($subscriber['url'], $subscriber['id'], $streamContext);
 
                                         break;
                                     }
-                                } else {
-                                    $this->runIncidentCampaign($subscriber['url'], $subscriber['id'], $streamContext);
-
-                                    break;
                                 }
+                            } else {
+                                syslog(LOG_INFO, "Start to run incident: 'All'");
+
+                                $this->runIncidentCampaign($subscriber['url'], $subscriber['id'], $streamContext);
+
+                                break;
                             }
                         } else {
                             syslog(LOG_INFO, "Empty result.");
@@ -680,6 +684,8 @@ class CronController extends IDemoBaseController
     }
 
     private function runIncidentCampaign($url, $id, $streamContext) {
+        syslog(LOG_INFO, "Start to send request to " . $url);
+
         $response = file_get_contents($url, false, $streamContext);
         $status = strpos($response, '"ret": "success"');
 
