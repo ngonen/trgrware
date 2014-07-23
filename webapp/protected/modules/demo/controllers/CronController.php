@@ -94,6 +94,8 @@ class CronController extends IDemoBaseController
                             syslog(LOG_INFO, "Found " . count($result->Incidents->Incident) . " incidents.");
 
                             if ($subscriber['severity'] == IDemoBaseController::Accident) {
+                                syslog(LOG_INFO, "Start to for for: '" . IDemoBaseController::Accident . "' in list");
+
                                 foreach ($result->Incidents->Incident as $i => $v) {
                                     $isAccident = strpos($v->ParameterizedDescription->EventText,
                                         IDemoBaseController::Accident);
@@ -114,7 +116,7 @@ class CronController extends IDemoBaseController
                                 break;
                             }
                         } else {
-                            syslog(LOG_INFO, "Empty result.");
+                            syslog(LOG_INFO, "Incidents were not found.");
                         }
                     }
                 }
