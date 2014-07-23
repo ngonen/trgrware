@@ -654,6 +654,11 @@ article, aside, details, figcaption, figure, footer, header, hgroup, nav, sectio
 
 .infowindow_title {
 	font-weight: bold !important;
+	white-space: nowrap;
+}
+
+.infowindow_list_item {
+	white-space: nowrap;
 }
 
 .infowindow_update {

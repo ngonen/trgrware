@@ -1017,9 +1017,9 @@ function updateAssetInfowindow(asset) {
     asset.triggers.forEach(function(tr) {
         count = tr.triggeringCount;
         if (count > 0) {
-            content += "<li>" + getType(tr.type) + " (" + count + ((count === 1) ? " time" : " times") + ")</li>";
+            content += "<li class='infowindow_list_item'>" + getType(tr.type) + " (" + count + ((count === 1) ? " time" : " times") + ")</li>";
         } else {
-            content += "<li>" + getType(tr.type) + "</li>";
+            content += "<li class='infowindow_list_item'>" + getType(tr.type) + "</li>";
         }
     });
     content += "</ul></div>";
