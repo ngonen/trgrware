@@ -91,6 +91,8 @@ class CronController extends IDemoBaseController
                         $result = $this->getIncidentInfo($subscriber['center'], $subscriber['radius'], $securityToken);
 
                         if ($result->Incidents && count($result->Incidents->Incident)) {
+                            syslog(LOG_INFO, "Found " . count($result->Incidents->Incident) . " incidents.");
+
                             if ($subscriber['severity'] == IDemoBaseController::Accident) {
                                 foreach ($result->Incidents->Incident as $i => $v) {
                                     $isAccident = strpos($v->ParameterizedDescription->EventText,
