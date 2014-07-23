@@ -112,8 +112,6 @@ class CronController extends IDemoBaseController
                                 syslog(LOG_INFO, "Start to run incident: 'All'");
 
                                 $this->runIncidentCampaign($subscriber['url'], $subscriber['id'], $streamContext);
-
-                                break;
                             }
                         } else {
                             syslog(LOG_INFO, "Incidents were not found.");
