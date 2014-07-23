@@ -170,6 +170,7 @@
             <span class="popup-label">Severity</span>
             <select data-property="severity" class="drop-down prop">
                 <option value="All">All</option>
+                <option value="Accident">Accident</option>
             </select>
         </div>
         <div class="popup-field error"></div>
