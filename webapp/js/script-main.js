@@ -336,7 +336,8 @@ function mergeObjects(obj1, obj2) {
 }
 
 function sendTriggerUpdateRequest(asset, trigger, properties, isNewTrigger) {
-    var url = isNewTrigger ? "/demo/Default/RegisterEvent" : "/demo/Default/UpdateEvent";
+    var url = isNewTrigger ? "/demo/Default/RegisterEvent" : "/demo/Default/UpdateEvent",
+        city, country;
     geocoder.geocode({'latLng': new google.maps.LatLng(asset.lat, asset.lng)}, function(results, status) {
         var data = {};
         if (status === "OK") {
