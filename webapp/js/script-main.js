@@ -1200,7 +1200,7 @@ $(function() {
                 active_asset.triggers.map(function(tr) { return  checkEventType(tr.type); }).forEach(function(type) {
                     $("#context_menu [data-type='" + type + "'] .cross").show(); 
                 });
-                displayMenu(ev.Ra);
+                displayMenu(ev.Ua);
             });
             google.maps.event.addListener(marker, "click", function(ev) {
                 var marker = this,
