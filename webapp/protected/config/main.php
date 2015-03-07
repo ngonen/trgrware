@@ -115,9 +115,9 @@ return array(
 	'params' => array(
         'galaxyDomainUrl' => 'https://galaxy.signage.me/WebService/getUserDomain.ashx',
         'Inrix' => [
-            'inrixAPIUrl' => 'http://api.sandbox.inrix.com/Traffic/Inrix.ashx',
-            'vendorId' => '1410303725',
-            'consumerId' => '14ea4638-ffbb-4ba8-abba-d86a42e9887f'
+            'inrixAPIUrl' => 'http://na-api.inrix.com/traffic/Inrix.ashx',
+            'vendorId' => '223879399',
+            'consumerId' => '9d61f20a-4eeb-4bf4-9412-4a1b9c4f5feb'
         ],
         'eventStoragePath' => ENV_DEV
             ? Yii::getPathOfAlias('assets') . "/eventStorage.txt"
